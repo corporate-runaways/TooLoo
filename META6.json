@@ -1,0 +1,25 @@
+{
+  "auth": "zef:masukomi",
+  "authors": [
+    "masukomi"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+  ],
+  "description": "blah blah blah",
+  "license": "Artistic-2.0",
+  "name": "Clu",
+  "perl": "6.d",
+  "provides": {
+    "Clu": "lib/Clu.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "",
+  "tags": [
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}

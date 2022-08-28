@@ -1,4 +1,4 @@
-unit class Clu;
+unit module Clu;
 
 
 =begin pod
@@ -36,15 +36,17 @@ This library is free software; you can redistribute it and/or modify it under th
 # PROBABLE DEPENDENCIES
 # Terminal::ANSIColor
 # Text::MiscUtils
-# Text::MiscUtils::Layout ( tables )
+# Text::MiscUtils::Layout ( tables, columns, etc )
 # TOML
+# DB::SQLite (search)
+# Red
 
 my $*MAIN-ALLOW-NAMED-ANYWHERE = True
 #= search for a command
 sub MAIN ('search', |terms) {
 	my $search = Clu::Search.new(terms);
 	$search.display-results;
-	if $search.results_count > 0
+	if $search.results_count > 0 {
 		$search.display-options;
 		my $instruction = $search.request-instruction;
 		if $instruction  ~~ /(\d+) $<cheats> = "c"?/ {
@@ -53,7 +55,7 @@ sub MAIN ('search', |terms) {
 			  ?? Clu::Cheats.new($command_name)
 			  || Clu::Details.new($command_name);
 		}
-	
+	}
 }
 
 #= display full details on a command
@@ -68,6 +70,14 @@ sub MAIN ('cheats', $command_name) {
 	# to choose one.
 	# Then leveraging them as templates with params
 	# that the user can fill in and have it executed.
+}
+
+sub MAIN ('add', $path) {
+	my $ingester = Clu::Ingester.new($path);
+	my $response = $ingester.ingest;
+	# should return:
+	#   ingested, updated, error
+	say($response);
 }
 
 sub MAIN () {

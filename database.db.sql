@@ -1,23 +1,11 @@
 BEGIN TRANSACTION;
-CREATE TABLE IF NOT EXISTS "commands" (
-	"id"	INTEGER NOT NULL,
-	"name"	TEXT NOT NULL UNIQUE,
-	"description"	TEXT,
-	"usage_command"	TEXT,
-	"fallback_usage"	TEXT,
-	"location"	TEXT,
-	"type"	TEXT,
-	"language"	TEXT,
-	"source_repo_url"	TEXT,
-	PRIMARY KEY("id" AUTOINCREMENT)
-);
 CREATE TABLE IF NOT EXISTS "cheats" (
 	"id"	INTEGER NOT NULL,
 	"command_id"	INTEGER NOT NULL,
 	"description"	TEXT NOT NULL,
 	"template"	TEXT NOT NULL,
-	PRIMARY KEY("id" AUTOINCREMENT),
-	FOREIGN KEY("command_id") REFERENCES "commands"("id")
+	FOREIGN KEY("command_id") REFERENCES "commands"("id"),
+	PRIMARY KEY("id" AUTOINCREMENT)
 );
 CREATE VIRTUAL TABLE commands_fts USING fts5(
 	id,
@@ -54,6 +42,22 @@ CREATE TABLE IF NOT EXISTS "commands_fts_config" (
 	"v"	,
 	PRIMARY KEY("k")
 ) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS "commands" (
+	"id"	INTEGER NOT NULL,
+	"name"	TEXT NOT NULL UNIQUE,
+	"description"	TEXT,
+	"usage_command"	TEXT,
+	"fallback_usage"	TEXT,
+	"location"	TEXT,
+	"type"	TEXT,
+	"language"	TEXT,
+	"source_url"	TEXT,
+	"source_repo_url"	TEXT,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+INSERT INTO "commands_fts_data" ("id","block") VALUES (1,'');
+INSERT INTO "commands_fts_data" ("id","block") VALUES (10,X'00000000000000');
+INSERT INTO "commands_fts_config" ("k","v") VALUES ('version',4);
 CREATE TRIGGER commands_fts_ai
   AFTER INSERT ON commands BEGIN
   INSERT INTO commands_fts

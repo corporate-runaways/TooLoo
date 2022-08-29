@@ -28,7 +28,11 @@
 # =defn language
 # what language was this command written in
 
-# =defn source repo url
+# =defn source_url
+# an url where you can see the source of this particular command
+#
+# =defn source_repo_url
+# the source code repository (not always git)
 
 # =end pod
 
@@ -53,20 +57,6 @@ my sub load-command(Int $id, DB::SQLite $db) returns Maybe[Hash] {
 
 my sub display-command(%command) is export {
 # sub display-command(Hash:D %command) is export {
-	#FINISHME
-	# layout docs here: https://github.com/japhb/Text-MiscUtils
-	# 3 columns, 4 characters wide, with optional cell separator
-	# text-columns(4, "12\n34\n", "abc\ndefg\nhi", :sep<|>);
-	# wrapping text at a specified boundary width
-	# text-wrap(6, 'a bc def ghij');          # <a bc', 'def', 'ghij']
-	#
-	# ANSIColor instructions here:
-	# https://raku.land/zef:lizmat/Terminal::ANSIColor
-	# color("r,g,b");... color('reset');
-	# colored('what a lovely colours!', 'underline red on_green');
-	# ^^^ resets at end
-	# prefix with "on_" to set background colors on_r,g,b / on_red
-	#
     #TODO: improve coloring
 	display-name-and-description(%command);
 	display-usage(%command);
@@ -74,11 +64,21 @@ my sub display-command(%command) is export {
 
 }
 
+#FIXME
 my sub display-metadata(%command) {
 # sub ansi-display-metadata(Hash %command) {
 	say "-" x 4;
-	# text-columns(4, "12\n34\n", "abc\ndefg\nhi", :sep<|>);
 
+	say "type: " ~ (%command.EXISTS-KEY("type") ?? %command<type> !! "UNKNOWN");
+	say "lang: " ~ (%command.EXISTS-KEY("language")
+					?? %command<language>
+					!! "UNKNOWN");
+	# my $where_proc = run "where", %command<name>, :out, :err;
+	# say "location: " ~ $where_proc.exitcode == Nil
+	# 					?? $where_proc.out.slurp(:close)
+	# 					!! %command<location>
+	# 						?? %command<location>
+	# 						!! "UNKNOWN";
 }
 my sub display-name-and-description(%command) {
 # sub ansi-display-name-and-description(Hash %command) {
@@ -87,14 +87,15 @@ my sub display-name-and-description(%command) {
 		(%command<name>.elems + $separator.elems),
 		%command<description>
        );
-    say colored("%command<name>" ~ $separator ~ "$wrapped_desc\n", "black on_white");
+
+    say colored("%command<name>" ~ $separator ~ "$wrapped_desc\n", "black on_white" );
 }
 
 my sub display-usage(%command) {
 # sub ansi-display-usage(Hash %command) {
 	if %command<usage_command> {
 		# prints to STDOUT and/or STDERR
-		run %command<usage_command>;
+		run split(/\s+/, %command<usage_command>);
 	} elsif %command<fallback_usage> {
 		say %command<fallback_usage>;
 	} else {

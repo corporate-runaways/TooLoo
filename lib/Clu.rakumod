@@ -39,7 +39,8 @@ This library is free software; you can redistribute it and/or modify it under th
 # Text::MiscUtils::Layout ( tables, columns, etc )
 # TOML
 # DB::SQLite (search)
-# Red
+# Color
+# Test::Output
 
 my $*MAIN-ALLOW-NAMED-ANYWHERE = True
 #= search for a command

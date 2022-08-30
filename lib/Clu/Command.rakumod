@@ -79,6 +79,12 @@ my sub display-metadata(%command) {
 						!! (%command<location>
 							?? %command<location>
 							!! "UNKNOWN"));
+	if %command.EXISTS-KEY("source_repo_url") {
+		say "source repo: " ~ %command<source_repo_url>;
+	}
+	if %command.EXISTS-KEY("source_url") {
+		say "source url: " ~ %command<source_url>;
+	}
 }
 my sub display-name-and-description(%command) {
 # sub ansi-display-name-and-description(Hash %command) {
@@ -107,6 +113,9 @@ my sub display-usage(%command) {
 			# Those ^H characters are backspace characters.
 			# It's printing, and then deleting and then reprinting every letter in NAME
 			# and the first couple of real characters from the next line.
+			#
+			# as some commands have their usage in man pages... we're going to encounter this.
+			# backspace is \x08 so
 			my $output = $usage_proc.out.slurp(:close).subst(/. \x08 | \x08 /, "", :g);
 			say $output;
 		} else {

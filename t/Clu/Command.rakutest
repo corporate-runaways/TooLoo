@@ -16,8 +16,6 @@ my %test_command = id				=> 123,
 				   source_url       => 'https://github.com/wertarbyte/coreutils/blob/master/src/ls.c',
 				   source_repo_url	=> 'https://github.com/wertarbyte/coreutils';
 
-# my %test_command = id => 123, name => 'backtrace_details', description => 'Pairs a backtrace with the corresponding lines of code', usage_command => 'backtrace_details -h', fallback_usage => Nil, language => 'bash', source_repo_url => 'https://github.com/masukomi/masuconfigs';
-
 my $expected_output = q:to/END/;
 ls : lists the contents of directories
 
@@ -31,6 +29,8 @@ type: executable
 lang: c
 location: /bin/ls
 
+source repo: https://github.com/wertarbyte/coreutils
+source url: https://github.com/wertarbyte/coreutils/blob/master/src/ls.c
 END
 
 my $stripped_output = colorstrip( output-from {display-command(%test_command)});

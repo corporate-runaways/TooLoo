@@ -73,12 +73,12 @@ my sub display-metadata(%command) {
 	say "lang: " ~ (%command.EXISTS-KEY("language")
 					?? %command<language>
 					!! "UNKNOWN");
-	# my $where_proc = run "where", %command<name>, :out, :err;
-	# say "location: " ~ $where_proc.exitcode == Nil
-	# 					?? $where_proc.out.slurp(:close)
-	# 					!! %command<location>
-	# 						?? %command<location>
-	# 						!! "UNKNOWN";
+	my $where_proc = run "command", "-v", %command<name>, :out, :err;
+	say "location: " ~ ($where_proc.exitcode == 0
+						?? $where_proc.out.slurp(:close)
+						!! (%command<location>
+							?? %command<location>
+							!! "UNKNOWN"));
 }
 my sub display-name-and-description(%command) {
 # sub ansi-display-name-and-description(Hash %command) {
@@ -95,8 +95,30 @@ my sub display-usage(%command) {
 # sub ansi-display-usage(Hash %command) {
 	if %command<usage_command> {
 		# prints to STDOUT and/or STDERR
-		run split(/\s+/, %command<usage_command>);
-	} elsif %command<fallback_usage> {
+		my $usage_proc  = (shell %command<usage_command>, out => True, err => False );
+		if $usage_proc.exitcode == 0 {
+			# this is, FULLY ridiculous, and demands an explanation
+			# "man" is at least somewhat broken on macos.
+			# "man ls | head -n 4" output includes these 2 lines.
+			#
+			# NNAAMMEE
+			#     llss – list directory contents
+			#
+			# Those ^H characters are backspace characters.
+			# It's printing, and then deleting and then reprinting every letter in NAME
+			# and the first couple of real characters from the next line.
+			my $output = $usage_proc.out.slurp(:close).subst(/. \x08 | \x08 /, "", :g);
+			say $output;
+		} else {
+			display-fallback-usage(%command);
+		}
+	} else {
+		display-fallback-usage(%command);
+	}
+}
+
+my sub display-fallback-usage(%command){
+	if %command<fallback_usage> {
 		say %command<fallback_usage>;
 	} else {
 		say colored("USAGE UNKNOWN",

@@ -1,28 +1,41 @@
 use lib 'lib';
 use Test;
-#use Test::Color;
+# use Test::Color;
 use Test::Output;
 use Clu::Command;
 use Terminal::ANSIColor; # to uncolor output for easier testing
 
+
 my %test_command = id				=> 123,
-				   name				=> 'echo',
-				   description		=> 'echoes whatever you give it',
-				   usage_command	=> 'echo --help', #not really
-				   fallback_usage	=> Nil,
+				   name				=> 'ls',
+				   description		=> 'lists the contents of directories',
+				   usage_command	=> 'man ls | head -n 4',
+				   fallback_usage	=> Nil, #$fallback_usage,
 				   language			=> 'c',
-				   source_url       => 'https://github.com/torvalds/linux/blob/master/drivers/misc/echo/echo.c',
-				   source_repo_url	=> 'https://github.com/torvalds/linux';
+				   type				=> 'executable',
+				   source_url       => 'https://github.com/wertarbyte/coreutils/blob/master/src/ls.c',
+				   source_repo_url	=> 'https://github.com/wertarbyte/coreutils';
 
 # my %test_command = id => 123, name => 'backtrace_details', description => 'Pairs a backtrace with the corresponding lines of code', usage_command => 'backtrace_details -h', fallback_usage => Nil, language => 'bash', source_repo_url => 'https://github.com/masukomi/masuconfigs';
 
 my $expected_output = q:to/END/;
-backtrace_details : Pairs a backtrace with the corresponding lines of code
+ls : lists the contents of directories
+
+LS(1)                        General Commands Manual                       LS(1)
+
+NAME
+     ls – list directory contents
 
 ----
+type: executable
+lang: c
+location: /bin/ls
+
 END
 
 my $stripped_output = colorstrip( output-from {display-command(%test_command)});
+spurt 'stripped_output.txt', $stripped_output;
+spurt 'expected_output.txt', $expected_output;
 is $stripped_output, $expected_output, 'testing display-command';
 
 

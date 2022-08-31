@@ -44,7 +44,7 @@ use Clu::TerminalUtilities;
 use Color;
 use DB::SQLite;
 
-my sub load-command(Int $id, DB::SQLite $db) returns Maybe[Hash] {
+my sub load-command(Int $id, DB::SQLite $db) is export returns Maybe[Hash] {
 	given $db.query('select * from foo where x = $x', :2x).hash {
 		when $_.elems > 0 {
 			something($_);

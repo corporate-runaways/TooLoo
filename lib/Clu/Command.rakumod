@@ -44,7 +44,25 @@ use Clu::TerminalUtilities;
 use Color;
 use DB::SQLite;
 
-my sub load-command(Int $id, DB::SQLite $db) is export returns Maybe[Hash] {
+my multi sub display-command(Str $command_name) is export {
+	my $command_data = self.load-command($command_name);
+	unless $command_data ~~ Some {
+		say("No data found for $command_name")
+		exit 0;
+	}
+	self.display-command($command_data.value);
+}
+
+my multi sub display-command(%command) is export {
+# sub display-command(Hash:D %command) is export {
+    #TODO: improve coloring
+	display-name-and-description(%command);
+	display-usage(%command);
+	display-metadata(%command);
+
+}
+
+my sub load-command(Int $id, DB::SQLite $db) returns Maybe[Hash] {
 	given $db.query('select * from foo where x = $x', :2x).hash {
 		when $_.elems > 0 {
 			something($_);
@@ -55,14 +73,6 @@ my sub load-command(Int $id, DB::SQLite $db) is export returns Maybe[Hash] {
 	}
 }
 
-my sub display-command(%command) is export {
-# sub display-command(Hash:D %command) is export {
-    #TODO: improve coloring
-	display-name-and-description(%command);
-	display-usage(%command);
-	display-metadata(%command);
-
-}
 
 #FIXME
 my sub display-metadata(%command) {

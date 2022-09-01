@@ -34,10 +34,13 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 	given find-command-id(%metadata<name>, $db) {
 		# if yes, update
 		when $_ ~~ Some {
+			say("maybe from db = " ~ $_.raku);
+
 			update-command($_.value, %metadata, $db);
 		}
 		# if no, insert
 		default {
+			say("maybe from db = " ~ $_.raku);
 			insert-command(%metadata, $db);
 		}
 	}
@@ -46,7 +49,7 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 
 our sub find-command-id($command_name, DB::SQLite $db) returns Maybe[Int] {
 	my $val = $db.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
-	$val === Nil ?? something($val) !! nothing(Int);
+	$val !~~ Nil ?? something($val) !! nothing(Int);
 }
 our sub insert-command(%command, $db){
 	my $insert_sql = q:to/END/;
@@ -89,11 +92,10 @@ WHERE id=?
 END
 
    my $statement_handle = $db.db.prepare($update_sql);
-   # FIXME type, language, source_url, source_repo_url
-   # are not being inserted.
-   # THEORY: they're all after a comment in the toml.
-   # maybe the TOML lib poops out when it hits a comment
-   $statement_handle.execute(executable-list(%command).push($id));
+   my $list_with_id = flat(executable-list(%command), $id).List;
+   say("\n\nXXX list_with_id: " ~ $list_with_id.raku ~ "\n\n");
+   say("\n\nXXX list_with_id.^name: " ~ $list_with_id.^name ~ "\n\n");
+   $statement_handle.execute($list_with_id);
 }
 
 our sub executable-list(%command) {

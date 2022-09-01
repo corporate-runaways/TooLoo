@@ -30,8 +30,6 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 	die("$path didn't appear to contain valid TOML")	unless %metadata.^name eq "Hash";
 	die("$path didn't have a 'name' key")				unless %metadata<name>.Bool;
 	die("$path didn't have a 'description' key")		unless %metadata<description>.Bool;
-	say("XXX " ~ %metadata.raku);
-	say("XXX " ~ %metadata<name>.^name);
 	# see if anything exists in the db for that command
 	given find-command-id(%metadata<name>, $db) {
 		# if yes, update
@@ -91,22 +89,22 @@ WHERE id=?
 END
 
    my $statement_handle = $db.db.prepare($update_sql);
-   my $params = executable-list(%command).push($id);
-   say("XXX " ~~ $params.raku);
    # FIXME type, language, source_url, source_repo_url
    # are not being inserted.
    # THEORY: they're all after a comment in the toml.
    # maybe the TOML lib poops out when it hits a comment
-   $statement_handle.execute($params);
+   $statement_handle.execute(executable-list(%command).push($id));
 }
 
 our sub executable-list(%command) {
-	   (%command<name>, # guaranteed present
-	   %command<description>,
-	   %command<usage_command> or Nil,
-	   %command<fallback_usage> or Nil,
-	   %command<type> or Nil,
-	   %command<language> or Nil,
-	   %command<source_url> or Nil,
-	   %command<source_repo_url> or Nil)
+	   (
+		   %command<name>, # guaranteed present
+			%command<description>,
+			(%command<usage_command> or Nil),
+			( %command<fallback_usage> or Nil ),
+			( %command<type> or Nil ),
+			( %command<language> or Nil ),
+			( %command<source_url> or Nil ),
+			( %command<source_repo_url> or Nil )
+	   )
 }

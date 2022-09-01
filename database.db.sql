@@ -71,11 +71,26 @@ CREATE TRIGGER commands_fts_ad
   VALUES
   ('delete', OLD.id, OLD.name, OLD.description, OLD.language);
 END;
+
+---
+-- CREATE TRIGGER [{table}_au]
+--	 AFTER UPDATE ON [{table}] BEGIN
+                  -- INSERT INTO [{table}_fts]
+									-- ([{table}_fts], rowid, {columns})
+									--VALUES('delete', old.rowid, {old_cols});
+                  INSERT INTO [{table}_fts] (rowid, {columns})
+									VALUES (new.rowid, {new_cols});
+                END;
+---
 CREATE TRIGGER commands_fts_au
   AFTER UPDATE ON commands BEGIN
-  INSERT into commands_fts
-  (commands_fts, id, name, description, language)
-  VALUES
-  ('delete', OLD.id, OLD.name, OLD.description, OLD.language);
+  INSERT INTO commands_fts
+		(commands_fts, id, name, description, language)
+		VALUES
+		('delete', OLD.id, OLD.name, OLD.description, OLD.language);
+  INSERT INTO commands_fts
+		(id, name, description, language)
+		VALUES
+		(NEW.id, NEW.name, NEW.description, NEW.language);
 END;
 COMMIT;

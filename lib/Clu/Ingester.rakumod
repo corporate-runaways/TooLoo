@@ -80,22 +80,51 @@ END
 our sub update-command($id, %command, $db){
 	my $update_sql = q:to/END/;
 UPDATE commands SET
-  name				= ?,
-  description		= ?,
-  usage_command		= ?,
-  fallback_usage	= ?,
-  type				= ?,
-  language			= ?,
-  source_url		= ?,
-  source_repo_url	= ?
-WHERE id=?
+  name				= $name,
+  description		= $description,
+  usage_command		= $usage_command,
+  fallback_usage	= $fallback_usage,
+  type				= $type,
+  language			= $language,
+  source_url		= $source_url,
+  source_repo_url	= $source_repo_url
+WHERE id = $id;
 END
 
+$update_sql = q:to/END/;
+UPDATE commands SET name='test' where id = 1;
+END
+
+#FIXME
+# the current problem is the create_fts_au trigger
+# TODO:
+# - [ ] keep experimenting with the trigger in DB Browser
+# - [ ] try and get the 1st part (insert...delete) working
+# - [ ] then get the 2nd part inserting the new data working
+# - [ ] THEN come back here, and see if we can get this working as-is
+# - [ ] then see if we can get it working with the named params
+#   using manual single binds
+# - [ ] then see if we can get it working with the executable-hash + id
+# - [ ] then see if we can get the insert working with named params again.
+
    my $statement_handle = $db.db.prepare($update_sql);
-   my $list_with_id = flat(executable-list(%command), $id).List;
-   say("\n\nXXX list_with_id: " ~ $list_with_id.raku ~ "\n\n");
-   say("\n\nXXX list_with_id.^name: " ~ $list_with_id.^name ~ "\n\n");
-   $statement_handle.execute($list_with_id);
+   # my $list_with_id = flat(executable-list(%command), $id).List;
+   # say("\n\nXXX list_with_id: " ~ $list_with_id.raku ~ "\n\n");
+   # say("\n\nXXX list_with_id.^name: " ~ $list_with_id.^name ~ "\n\n");
+   # $statement_handle.bind('$name', %command<name>);
+   # $statement_handle.bind('$description', %command<description>);
+   # $statement_handle.bind('$usage_command', (%command<usage_command> or Nil));
+   # $statement_handle.bind('$fallback_usage', (%command<fallback_usage> or Nil));
+   # $statement_handle.bind('$type', (%command<type> or Nil));
+   # $statement_handle.bind('$language', (%command<language> or Nil));
+   # $statement_handle.bind('$source_url', (%command<source_url> or Nil));
+   # $statement_handle.bind('$source_repo_url', (%command<source_repo_url> or Nil));
+   # $statement_handle.bind('$id', $id);
+
+   $statement_handle.execute();
+   # $statement_handle.execute(executable-hash(%command));
+
+	   # $list_with_id);
 }
 
 our sub executable-list(%command) {
@@ -109,4 +138,14 @@ our sub executable-list(%command) {
 			( %command<source_url> or Nil ),
 			( %command<source_repo_url> or Nil )
 	   )
+}
+our sub executable-hash(%command) {
+	   name				=> %command<name>, # guaranteed present
+	   description		=> %command<description>,
+	   usage_command	=> ( %command<usage_command> or Nil ),
+	   fallback_usage	=> ( %command<fallback_usage> or Nil ),
+	   type				=> ( %command<type> or Nil ),
+	   language			=> ( %command<language> or Nil ),
+	   source_url		=> ( %command<source_url> or Nil ),
+	   sourc_repo_url	=> ( %command<source_repo_url> or Nil )
 }

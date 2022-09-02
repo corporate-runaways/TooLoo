@@ -1,6 +1,6 @@
+#!/usr/bin/env raku
+
 use v6;
-
-
 
 =begin pod
 
@@ -46,8 +46,8 @@ This library is free software; you can redistribute it and/or modify it under th
 
 use DB::SQLite;
 
+use Clu::Command;
 use Clu::Ingester;
-
 
 # my $*MAIN-ALLOW-NAMED-ANYWHERE = True
 # #= search for a command
@@ -67,10 +67,12 @@ use Clu::Ingester;
 # }
 
 # #= display full details on a command
-# sub MAIN ('details', $command_name) {
-#	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly)
-# 	Clu::Details.new($command_name);
-# }
+multi sub MAIN ('show', $command_name) {
+	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
+	display-command($command_name, $db);
+
+	$db.finish();
+}
 
 # #= display cheats for a command
 # sub MAIN ('cheats', $command_name) {
@@ -82,14 +84,17 @@ use Clu::Ingester;
 # 	# that the user can fill in and have it executed.
 # }
 
-sub MAIN('add', Str $path) {
+multi sub MAIN('add', Str $path) {
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
 	my $response = ingest-metadata($path, $db);
 	$db.finish;
-	# should return:
-	#   ingested, updated, error
-	$response ?? {say ("successfully ingested $path"); exit 0;}
-	          !! {say ("problems ingesting $path"); exit 1;}
+	if $response {
+		say("successfully ingested $path");
+		exit 0;
+    } else {
+	    warn("problems ingesting $path");
+		exit 1;
+	}
 }
 
 # sub MAIN () {

@@ -5,12 +5,12 @@
 #
 # =end pod
 
-unit module Clu::Command:ver<1.0.0>:auth<masukomi (masukomi@masukomi.org)>;
+unit module Clu::Ingester:ver<1.0.0>:auth<masukomi (masukomi@masukomi.org)>;
 use Definitely;
-use Terminal::ANSIColor;
-use Text::MiscUtils::Layout;
+# use Terminal::ANSIColor;
+# use Text::MiscUtils::Layout;
 use Clu::TerminalUtilities;
-use Color;
+# use Color;
 use DB::SQLite;
 use TOML;
 
@@ -34,13 +34,10 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 	given find-command-id(%metadata<name>, $db) {
 		# if yes, update
 		when $_ ~~ Some {
-			say("maybe from db = " ~ $_.raku);
-
 			update-command($_.value, %metadata, $db);
 		}
 		# if no, insert
 		default {
-			say("maybe from db = " ~ $_.raku);
 			insert-command(%metadata, $db);
 		}
 	}
@@ -49,7 +46,6 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 
 our sub find-command-id($command_name, DB::SQLite $db) returns Maybe[Int] {
 	my $val = $db.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
-	say("XXX \$val is a " ~ $val.^name ~ " with the value of " ~ $val.raku);
 	$val ~~ Int ?? something($val) !! nothing(Int);
 }
 our sub insert-command(%command, $db){

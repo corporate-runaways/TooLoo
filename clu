@@ -84,7 +84,10 @@ multi sub MAIN ('show', $command_name) {
 # 	# that the user can fill in and have it executed.
 # }
 
-multi sub MAIN('add', Str $path) {
+multi sub MAIN('add', Str $path) {ingest($path);}
+multi sub MAIN('update', Str $path) {ingest($path);}
+
+sub ingest(Str $path) {
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
 	my $response = ingest-metadata($path, $db);
 	$db.finish;
@@ -95,6 +98,7 @@ multi sub MAIN('add', Str $path) {
 	    warn("problems ingesting $path");
 		exit 1;
 	}
+
 }
 
 # sub MAIN () {

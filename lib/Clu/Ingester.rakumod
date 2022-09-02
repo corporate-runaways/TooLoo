@@ -44,12 +44,13 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 			insert-command(%metadata, $db);
 		}
 	}
-	$db.finish;
+	return True;
 }
 
 our sub find-command-id($command_name, DB::SQLite $db) returns Maybe[Int] {
 	my $val = $db.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
-	$val !~~ Nil ?? something($val) !! nothing(Int);
+	say("XXX \$val is a " ~ $val.^name ~ " with the value of " ~ $val.raku);
+	$val ~~ Int ?? something($val) !! nothing(Int);
 }
 our sub insert-command(%command, $db){
 	my $insert_sql = q:to/END/;
@@ -77,52 +78,79 @@ END
    $statement_handle.execute(executable-list(%command));
 
 }
+
 our sub update-command($id, %command, $db){
+  # usage_command = $usage_command,
+  # fallback_usage	= $fallback_usage,
+  # type				= $type,
+  # language			= $language,
+  # source_url		= $source_url,
+  # source_repo_url	= $source_repo_url
+
 	my $update_sql = q:to/END/;
 UPDATE commands SET
   name				= $name,
-  description		= $description,
-  usage_command		= $usage_command,
+  description = $description,
+  usage_command = $usage_command,
   fallback_usage	= $fallback_usage,
   type				= $type,
   language			= $language,
   source_url		= $source_url,
   source_repo_url	= $source_repo_url
+
 WHERE id = $id;
 END
 
-$update_sql = q:to/END/;
-UPDATE commands SET name='test' where id = 1;
-END
+# UPDATE commands SET description='d1' where id = 1;
+# my $update_sql = q:to/END/;
+# UPDATE commands SET description = $description where id = 1;
+# END
 
 #FIXME
 # the current problem is the create_fts_au trigger
 # TODO:
-# - [ ] keep experimenting with the trigger in DB Browser
-# - [ ] try and get the 1st part (insert...delete) working
+# - [x] keep experimenting with the trigger in DB Browser
+# - [x] try and get the 1st part (insert...delete) working
 # - [ ] then get the 2nd part inserting the new data working
 # - [ ] THEN come back here, and see if we can get this working as-is
 # - [ ] then see if we can get it working with the named params
 #   using manual single binds
 # - [ ] then see if we can get it working with the executable-hash + id
 # - [ ] then see if we can get the insert working with named params again.
+   say("XXX update_sql: " ~ $update_sql.raku);
+	say("XXX id to update: $id");
+   say("XXX command: " ~ %command.raku ~ "\n\n");
+
 
    my $statement_handle = $db.db.prepare($update_sql);
    # my $list_with_id = flat(executable-list(%command), $id).List;
    # say("\n\nXXX list_with_id: " ~ $list_with_id.raku ~ "\n\n");
    # say("\n\nXXX list_with_id.^name: " ~ $list_with_id.^name ~ "\n\n");
-   # $statement_handle.bind('$name', %command<name>);
-   # $statement_handle.bind('$description', %command<description>);
-   # $statement_handle.bind('$usage_command', (%command<usage_command> or Nil));
-   # $statement_handle.bind('$fallback_usage', (%command<fallback_usage> or Nil));
-   # $statement_handle.bind('$type', (%command<type> or Nil));
-   # $statement_handle.bind('$language', (%command<language> or Nil));
-   # $statement_handle.bind('$source_url', (%command<source_url> or Nil));
-   # $statement_handle.bind('$source_repo_url', (%command<source_repo_url> or Nil));
-   # $statement_handle.bind('$id', $id);
+   $statement_handle.bind('$name', %command<name>);
+   $statement_handle.bind('$description', %command<description>);
+   $statement_handle.bind('$usage_command', (%command<usage_command> or Nil));
+   $statement_handle.bind('$fallback_usage', (%command<fallback_usage> or Nil));
+   $statement_handle.bind('$type', (%command<type> or Nil));
+   $statement_handle.bind('$language', (%command<language> or Nil));
+   $statement_handle.bind('$source_url', (%command<source_url> or Nil));
+   $statement_handle.bind('$source_repo_url', (%command<source_repo_url> or Nil));
+   $statement_handle.bind('$id', $id);
 
-   $statement_handle.execute();
-   # $statement_handle.execute(executable-hash(%command));
+   say("XXX execute response: " ~ $statement_handle.execute().raku);
+   # my %binding_data = executable-hash(%command);
+   # %binding_data<id> = $id;
+   # THERE IS A BUG in DB::SQLite's execute method
+   # it will always error when given named parameters.
+   #
+   # BUT IT does support a list of params and would likely work with params identified as
+   # ?NNN which wouldn't be helpful because you can't pass in an array of named items
+   # or just ? which would probably be easiest and we could use
+   # executable-list -> list_with_id
+
+   # $statement_handle.bind(%binding_data);
+   # $statement_handle.execute(%binding_data);
+   # my @list_binding_data = (%binding_data.keys Z %binding_data.values).flat;
+   # say("XXX execute response: " ~ $statement_handle.execute(False, False, %binding_data).raku);
 
 	   # $list_with_id);
 }

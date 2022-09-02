@@ -39,6 +39,7 @@
 unit module Clu::Command:ver<1.0.0>:auth<masukomi (masukomi@masukomi.org)>;
 use Definitely;
 use Terminal::ANSIColor;
+use Terminal::Width;
 use Text::MiscUtils::Layout;
 use Clu::TerminalUtilities;
 use Color;
@@ -77,19 +78,19 @@ our sub load-command(Str $command_name, DB::SQLite $db) returns Maybe[Hash] {
 #FIXME
 our sub display-metadata(%command) {
 # sub ansi-display-metadata(Hash %command) {
-	say "-" x 4;
+	say colored( ("-" x terminal-width(:default<80>)), 'bold');
 
-	say "type: " ~  (%command<type> or "UNKNOWN");
-	say "lang: " ~ (%command<language> or "UNKNOWN");
+	say colored("type: ", 'bold') ~  (%command<type> or "UNKNOWN");
+	say colored("lang: ", 'bold') ~ (%command<language> or "UNKNOWN");
 	my $where_proc = run "command", "-v", %command<name>, :out, :err;
-	say "location: " ~ ($where_proc.exitcode == 0
+	say colored("location: ", 'bold') ~ ($where_proc.exitcode == 0
 						?? $where_proc.out.slurp(:close)
 						!! (%command<location> or "UNKNOWN"));
 	if %command.<source_repo_url> {
-		say "source repo: " ~ %command<source_repo_url>;
+		say colored("source repo: ", 'bold') ~ %command<source_repo_url>;
 	}
 	if %command.<source_url> {
-		say "source url: " ~ %command<source_url>;
+		say colored("source url: ", 'bold') ~ %command<source_url>;
 	}
 }
 our sub display-name-and-description(%command) {
@@ -100,7 +101,7 @@ our sub display-name-and-description(%command) {
 		%command<description>
        );
 
-    say colored("%command<name>" ~ $separator ~ "$wrapped_desc\n", "black on_white" );
+    say colored("%command<name>" ~ $separator ~ "$wrapped_desc\n", "bold underline" );
 }
 
 our sub display-usage(%command) {

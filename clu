@@ -98,6 +98,15 @@ multi sub MAIN ('find', *@search_strings){
 multi sub MAIN('add', Str $path) {ingest($path);}
 multi sub MAIN('update', Str $path) {ingest($path);}
 
+multi sub MAIN ('remove', $command_name) {
+	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
+	remove-command($command_name, $db)
+    ?? say("$command_name has been removed")
+	!! say("no command found with name $command_name");
+
+	$db.finish();
+}
+
 sub ingest(Str $path) {
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
 	my $response = ingest-metadata($path, $db);

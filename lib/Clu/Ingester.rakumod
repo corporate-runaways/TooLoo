@@ -100,6 +100,15 @@ END
    $statement_handle.execute(@list_with_id)
 }
 
+sub remove-command(Str $command_name, DB::SQLite $db) returns Bool is export {
+	my $delete_sql = 'DELETE FROM commands WHERE name = :name';
+	my $statement_handle = $db.db.prepare($delete_sql);
+	$statement_handle.bind(':name', $command_name);
+	my $rows_affected = $statement_handle.execute();
+    $rows_affected > 0 ?? True !! False;
+}
+
+
 our sub executable-list(%command) {
 	   [
 		   %command<name>, # guaranteed present

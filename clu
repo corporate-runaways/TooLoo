@@ -1,6 +1,7 @@
 #!/usr/bin/env raku
 
 use v6;
+use lib 'lib';
 
 =begin pod
 
@@ -72,6 +73,16 @@ multi sub MAIN ('show', $command_name) {
 	display-command($command_name, $db);
 
 	$db.finish();
+}
+
+multi sub MAIN ('find', *@search_strings){
+	die("Search strings(s) must be provided") unless @search_strings.elems > 0;
+	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
+	my $search_string = @search_strings.join(' ');
+	search-and-display($search_string, $db);
+
+	$db.finish();
+
 }
 
 # #= display cheats for a command

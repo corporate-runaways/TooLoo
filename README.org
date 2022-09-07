@@ -1,0 +1,64 @@
+#+TITLE: Clu
+
+Got an overwhelming number of command line scripts and functions? So many you've actually started to forget what options you have available, or what some of them do? Try Clu!
+
+(Obligatory Warning: I wrote Clu for me. It works, but it's early stages.)
+
+* What does it do?
+
+Clu allows provides a [[https://en.wikipedia.org/wiki/Full-text_search][full text search]] of the name, description, and details of your scripts. When a script includes a "help" command, Clu will call it and display current usage docs instead of potentially outdated ones from its cache.
+
+
+** Future looking
+The intent is to support [[https://tldr.sh/][tldr style "cheats"]] for your scripts too. The example TOML template below contains commented out cheats if you feel like writing them now, but Clu currently ignores that data.
+
+Being able to arrow through search results and choose one to see the full details of.
+* Usage
+
+tl;dr:
+
+#+begin_src
+Usage:
+  clu show <command_name>
+  clu find [<search_strings> ...]
+  clu add <path>
+  clu update <path>
+  clu remove <command_name>
+#+end_src
+
+** Documenting a new Command
+
+The first step is to create a [[https://toml.io/en/][TOML file]] for each cli tool you wish to document. Clu doesn't care where these live. My advice is to put them alongside your script, so that when you share your script with others, it can go along for the ride, even if they're not using Clu, TOML is still very readable.
+
+1. Copy the =template.meta.toml= alongside your script, and rename it =<script_name>.meta.toml=. For example: If you have a =foo= command you'd make a =foo.meta.toml= file. It doesn't matter if you're documenting an executable or a shell function.
+2. Edit your new TOML file.
+3. run =clu add path/to/my_command.meta.toml=
+
+That's it. If you ever need to update / change the documentation just edit the TOML file and run =clu update <path/to/my_command.meta.toml>=. It'll find the command with the matching name in the database, and replace it.
+
+** Showing a command
+=clu show <command_name>= will display the name, description, and usage of the specified command (if found).
+
+** Finding a command
+=clu find <search terms>= Don't bother quoting the search terms. Something like =clu find foo bar baz= is fine.
+
+Clu will perform a full text search for your terms on the name, description, and language fields, and display the results.
+
+If you want more details, run =clu show <command name>= for the command you've found.
+
+** Updating a command
+=clu update <path/to/my_command.meta.toml>= will find the existing command with the name specified in the TOML and update its data. If you have changed the name of the command you'll need to remove and add instead of update.
+
+** Removing a command
+=clu remove <command_name>= will remove the command with the specified name.
+
+** Syncing between machines
+There's no inherent syncing here. Sorry. You can copy the db from =~/.config/clu/database.db=
+to another machine, or, you can boot it up on a new system and run something like this to ingest all your toml files.
+
+#+begin_src bash
+find ~/folder/with/my/clu_toml_files -name "*.meta.toml" -exec clu add '{}' \;
+#+end_src
+
+* LICENSE
+Copyright 2022 [[https://masukomi.org][Kay Rhodes]] (a.k.a. masukomi). Distributed under the MIT License.

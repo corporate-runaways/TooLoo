@@ -50,25 +50,11 @@ use DB::SQLite;
 use Clu::Command;
 use Clu::Ingester;
 
-# my $*MAIN-ALLOW-NAMED-ANYWHERE = True
-# #= search for a command
-# sub MAIN ('search', |terms) {
-# 	my $search = Clu::Search.new(terms);
-# 	$search.display-results;
-# 	if $search.results_count > 0 {
-# 		$search.display-options;
-# 		my $instruction = $search.request-instruction;
-# 		if $instruction  ~~ /(\d+) $<cheats> = "c"?/ {
-# 			my $command_name = $search.results[~$0.Int];
-# 			~$<cheats>.Bool
-# 			  ?? Clu::Cheats.new($command_name)
-# 			  || Clu::Details.new($command_name);
-# 		}
-# 	}
-# }
+my $*MAIN-ALLOW-NAMED-ANYWHERE = True;
 
 # #= display full details on a command
 multi sub MAIN ('show', $command_name) {
+	guarantee-db();
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
 	display-command($command_name, $db);
 
@@ -76,6 +62,7 @@ multi sub MAIN ('show', $command_name) {
 }
 
 multi sub MAIN ('find', *@search_strings){
+	guarantee-db();
 	die("Search strings(s) must be provided") unless @search_strings.elems > 0;
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
 	my $search_string = @search_strings.join(' ');
@@ -99,6 +86,7 @@ multi sub MAIN('add', Str $path) {ingest($path);}
 multi sub MAIN('update', Str $path) {ingest($path);}
 
 multi sub MAIN ('remove', $command_name) {
+	guarantee-db();
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
 	remove-command($command_name, $db)
 		?? say("$command_name has been removed")
@@ -108,6 +96,7 @@ multi sub MAIN ('remove', $command_name) {
 }
 
 sub ingest(Str $path) {
+	guarantee-db();
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
 	my $response = ingest-metadata($path, $db);
 	$db.finish;
@@ -121,8 +110,25 @@ sub ingest(Str $path) {
 
 }
 
-# sub MAIN () {
-# 	# output usage and quit
-# 	Clu::Details.new('clu');
-# 	exit
-# }
+
+sub guarantee-db() returns Bool {
+	my $dir = "$*HOME/.config/clu";
+	my $path = "$dir/database.db";
+	return True if $path.IO.e;
+	mkdir($dir);
+
+	# TODO:
+	# - create a resources directory
+	# - put the default db in it
+	# - copy the db from there to $path
+	# - package this up
+	#
+	die "UNFINISHED. SEE https://github.com/masukomi/Clu for manual install instructions.";
+
+
+	CATCH {
+		when X::IO::Mkdir { die "Unable to create directory: $dir"; }
+
+	}
+
+}

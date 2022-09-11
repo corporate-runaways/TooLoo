@@ -1,6 +1,0 @@
-use Test;
-use Clu;
-
-pass "replace me";
-
-done-testing;

@@ -6,15 +6,25 @@
   "build-depends": [
   ],
   "depends": [
+    "Definitely",
+    "Terminal::ANSIColor",
+    "Terminal::Width",
+    "Text::MiscUtils",
+    "DB::SQLite",
+    "TOML",
+    "Color"
   ],
-  "description": "blah blah blah",
-  "license": "Artistic-2.0",
+  "description": "Clu (Command LookUp) helps you document your utility scripts",
+  "license": "MIT",
   "name": "Clu",
   "perl": "6.d",
   "provides": {
-    "Clu": "lib/Clu.rakumod"
+    "Clu::Command": "lib/Clu/Command.rakumod",
+    "Clu::Ingester": "lib/Clu/Ingester.rakumod",
+    "Clu::TerminalUtilities": "lib/Clu/TerminalUtilities.rakumod"
   },
   "resources": [
+    "empty_database.db"
   ],
   "source-url": "",
   "tags": [

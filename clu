@@ -112,23 +112,20 @@ sub ingest(Str $path) {
 
 
 sub guarantee-db() returns Bool {
+	say "empty_database.db in resources? " ~ %?RESOURCES<empty_database.db>.raku;
 	my $dir = "$*HOME/.config/clu";
 	my $path = "$dir/database.db";
 	return True if $path.IO.e;
-	mkdir($dir);
+	unless $dir.IO.e {
+		mkdir($dir);
+	}
 
-	# TODO:
-	# - create a resources directory
-	# - put the default db in it
-	# - copy the db from there to $path
-	# - package this up
-	#
-	die "UNFINISHED. SEE https://github.com/masukomi/Clu for manual install instructions.";
-
+	unless $path.IO.e {
+		my $proc = run 'cp', %?RESOURCES<empty_database.db>, $path
+	}
 
 	CATCH {
 		when X::IO::Mkdir { die "Unable to create directory: $dir"; }
 
 	}
-
 }

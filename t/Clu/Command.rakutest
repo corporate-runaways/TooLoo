@@ -1,6 +1,4 @@
-use lib 'lib';
 use Test;
-# use Test::Color;
 use Test::Output;
 use Clu::Command;
 use Terminal::ANSIColor; # to uncolor output for easier testing
@@ -24,7 +22,7 @@ LS(1)                        General Commands Manual                       LS(1)
 NAME
      ls – list directory contents
 
-----
+--------------------
 type: executable
 lang: c
 location: /bin/ls

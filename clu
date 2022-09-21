@@ -95,6 +95,13 @@ multi sub MAIN ('remove', $command_name) {
 	$db.finish();
 }
 
+multi sub MAIN ('list') {
+	guarantee-db();
+	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
+	list-all-commands($db);
+	$db.finish();
+}
+
 sub ingest(Str $path) {
 	guarantee-db();
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
@@ -112,7 +119,10 @@ sub ingest(Str $path) {
 
 
 sub guarantee-db() returns Bool {
-	say "empty_database.db in resources? " ~ %?RESOURCES<empty_database.db>.raku;
+
+	say "RESOURCES.^name: " ~ %*RESOURCES.^name;
+	say "RESOURCES.raku: " ~ %*RESOURCES.raku;
+	say "empty_database.db in resources? " ~ %?RESOURCES<resources/empty_database.db>.raku;
 	my $dir = "$*HOME/.config/clu";
 	my $path = "$dir/database.db";
 	return True if $path.IO.e;

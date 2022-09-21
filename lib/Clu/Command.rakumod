@@ -54,6 +54,23 @@ multi sub display-command(Str $command_name, DB::SQLite $db) is export {
 	display-command($command_data.value);
 }
 
+multi sub list-all-commands(DB::SQLite $db) is export {
+	my $search_sql = q:to/END/;
+		SELECT name, description FROM commands ORDER BY name ASC;
+	END
+	my @results = $db.query($search_sql).hashes ;
+	given @results {
+		when $_.elems > 0 {
+			for $_ -> %row {
+				display-name-and-description(%row);
+			}
+		}
+		default {
+			say("Your database is currently empty.")
+		}
+	}
+}
+
 multi sub display-command(%command) is export {
 # sub display-command(Hash:D %command) is export {
     #TODO: improve coloring
@@ -161,7 +178,7 @@ our sub display-fallback-usage(%command){
 		say %command<fallback_usage>;
 	} else {
 		say colored("USAGE UNKNOWN",
-					"{%COLORS<WARNING_FOREGROUND>} on_{%COLORS<WARINING_BACKGROUND>}");
+					"{%COLORS<WARNING_FOREGROUND>} on_{%COLORS<WARNING_BACKGROUND>}");
 	}
 }
 

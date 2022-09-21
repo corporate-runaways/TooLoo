@@ -19,12 +19,14 @@
   "name": "Clu",
   "perl": "6.d",
   "provides": {
+    "Clu::Resourcer": "lib/Clu/Resourcer.rakumod",
     "Clu::Command": "lib/Clu/Command.rakumod",
     "Clu::Ingester": "lib/Clu/Ingester.rakumod",
     "Clu::TerminalUtilities": "lib/Clu/TerminalUtilities.rakumod"
   },
   "resources": [
-    "empty_database.db"
+    "empty_database.db",
+    "template.meta.toml"
   ],
   "source-url": "",
   "tags": [

@@ -47,19 +47,13 @@ This library is free software; you can redistribute it and/or modify it under th
 
 use DB::SQLite;
 
+use Clu::Resourcer;
 use Clu::Command;
 use Clu::Ingester;
 
 my $*MAIN-ALLOW-NAMED-ANYWHERE = True;
 
-# #= display full details on a command
-multi sub MAIN ('show', $command_name) {
-	guarantee-db();
-	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
-	display-command($command_name, $db);
-
-	$db.finish();
-}
+multi sub MAIN('add', Str $path) {ingest($path);}
 
 multi sub MAIN ('find', *@search_strings){
 	guarantee-db();
@@ -72,18 +66,12 @@ multi sub MAIN ('find', *@search_strings){
 
 }
 
-# #= display cheats for a command
-# sub MAIN ('cheats', $command_name) {
-#	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly)
-# 	Clu::Cheats.new($command_name)
-# 	# TODO: support interacting with the cheats
-# 	# to choose one.
-# 	# Then leveraging them as templates with params
-# 	# that the user can fill in and have it executed.
-# }
-
-multi sub MAIN('add', Str $path) {ingest($path);}
-multi sub MAIN('update', Str $path) {ingest($path);}
+multi sub MAIN ('list') {
+	guarantee-db();
+	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
+	list-all-commands($db);
+	$db.finish();
+}
 
 multi sub MAIN ('remove', $command_name) {
 	guarantee-db();
@@ -95,12 +83,37 @@ multi sub MAIN ('remove', $command_name) {
 	$db.finish();
 }
 
-multi sub MAIN ('list') {
+
+# #= display full details on a command
+multi sub MAIN ('show', $command_name) {
 	guarantee-db();
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
-	list-all-commands($db);
+	display-command($command_name, $db);
+
 	$db.finish();
 }
+
+multi sub MAIN('template', $destination) {
+	say("Copying fresh template to $destination");
+	copy(Clu::Resourcer.gimme{"template.meta.toml"}, $destination);
+}
+
+
+# #= display cheats for a command
+# sub MAIN ('cheats', $command_name) {
+#	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly)
+# 	Clu::Cheats.new($command_name)
+# 	# TODO: support interacting with the cheats
+# 	# to choose one.
+# 	# Then leveraging them as templates with params
+# 	# that the user can fill in and have it executed.
+# }
+
+multi sub MAIN('update', Str $path) {ingest($path);}
+
+
+#---------------
+#internal stuff
 
 sub ingest(Str $path) {
 	guarantee-db();
@@ -118,24 +131,26 @@ sub ingest(Str $path) {
 }
 
 
-sub guarantee-db() returns Bool {
+sub copy-over-db($destination) {
+	say("Copying fresh db to $destination");
+	copy(Clu::Resourcer.gimme{"empty_database.db"}, $destination);
+}
 
-	say "RESOURCES.^name: " ~ %*RESOURCES.^name;
-	say "RESOURCES.raku: " ~ %*RESOURCES.raku;
-	say "empty_database.db in resources? " ~ %?RESOURCES<resources/empty_database.db>.raku;
+sub guarantee-db() returns Bool {
 	my $dir = "$*HOME/.config/clu";
 	my $path = "$dir/database.db";
 	return True if $path.IO.e;
 	unless $dir.IO.e {
+		say("Creating $dir");
 		mkdir($dir);
 	}
 
 	unless $path.IO.e {
-		my $proc = run 'cp', %?RESOURCES<empty_database.db>, $path
+		copy-over-db($path);
 	}
 
 	CATCH {
 		when X::IO::Mkdir { die "Unable to create directory: $dir"; }
-
+		when X::IO::Copy  { die "Unable to copy resource to $dir"; }
 	}
 }

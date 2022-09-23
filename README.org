@@ -1,8 +1,7 @@
 #+TITLE: Clu
+(Command LookUp)
 
 Got an overwhelming number of command line scripts and functions? So many you've actually started to forget what options you have available, or what some of them do? Try Clu!
-
-(Obligatory Warning: I wrote Clu for me. It works, but it's early stages.)
 
 * What does it do?
 
@@ -19,20 +18,27 @@ tl;dr:
 
 #+begin_src
 Usage:
-  clu show <command_name>
-  clu find [<search_strings> ...]
   clu add <path>
-  clu update <path>
+  clu find [<search_strings> ...]
+  clu list
   clu remove <command_name>
+  clu show <command_name>
+  clu template <destination>
+  clu update <path>
 #+end_src
 
 ** Documenting a new Command
 
 The first step is to create a [[https://toml.io/en/][TOML file]] for each cli tool you wish to document. Clu doesn't care where these live. My advice is to put them alongside your script, so that when you share your script with others, it can go along for the ride, even if they're not using Clu, TOML is still very readable.
 
-1. Copy the =template.meta.toml= alongside your script, and rename it =<script_name>.meta.toml=. For example: If you have a =foo= command you'd make a =foo.meta.toml= file. It doesn't matter if you're documenting an executable or a shell function.
-2. Edit your new TOML file.
-3. run =clu add path/to/my_command.meta.toml=
+Clu doesn't care what the file is named, so long as it ends with =.toml= but personally I've been using the convention of =<command_name>.meta.toml= and putting it in the same directory as the command I'm documenting.
+
+The =template= comand will generate a TOML file for you where you just have to fill in the blanks.
+
+1. run =clu template path/to/my_command.meta.toml=
+For example: If you have a =foo= command you'd make a =foo.meta.toml= file. It doesn't matter if you're documenting an executable or a shell function.
+3. Edit your new TOML file.
+4. run =clu add path/to/my_command.meta.toml=
 
 That's it. If you ever need to update / change the documentation just edit the TOML file and run =clu update <path/to/my_command.meta.toml>=. It'll find the command with the matching name in the database, and replace it.
 

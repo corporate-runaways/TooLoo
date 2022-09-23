@@ -12,9 +12,10 @@ Clu allows provides a [[https://en.wikipedia.org/wiki/Full-text_search][full tex
 The intent is to support [[https://tldr.sh/][tldr style "cheats"]] for your scripts too. The example TOML template below contains commented out cheats if you feel like writing them now, but Clu currently ignores that data.
 
 Being able to arrow through search results and choose one to see the full details of.
-* Usage
+* Installation
+=zef -v install https://github.com/masukomi/Clu.git=
 
-tl;dr:
+* Usage
 
 #+begin_src
 Usage:
@@ -45,12 +46,61 @@ That's it. If you ever need to update / change the documentation just edit the T
 ** Showing a command
 =clu show <command_name>= will display the name, description, and usage of the specified command (if found).
 
+Output looks like this:
+
+#+begin_src
+❯ clu show rg-ignores
+rg-ignores : finds files that rg may be using to ignore patterns
+
+USAGE: rg-ignores <path>
+
+       Use me when rg isn't finding something you expect
+       and rg --hidden isn't helping.
+       Looks for files that RipGrep will consult
+       in order to find patterns to ignore.
+
+       Note: using --hidden --no-ignore is a short term fix
+
+--------------------
+type: executable
+lang: bash
+location: /Users/masukomi/bin/rg-ignores
+
+source repo: https://github.com/masukomi/masuconfigs
+source url: https://github.com/masukomi/masuconfigs/blob/master/bin/rg-ignores
+#+end_src
+
 ** Finding a command
 =clu find <search terms>= Don't bother quoting the search terms. Something like =clu find foo bar baz= is fine.
 
 Clu will perform a full text search for your terms on the name, description, and language fields, and display the results.
 
 If you want more details, run =clu show <command name>= for the command you've found.
+
+Output looks like this:
+
+#+begin_src
+❯ clu find find
+rg-ignores          | finds files that rg may be using to ignore patterns
+git-oldest-ancestor | finds the oldest common ancestor between two git treeishes
+#+end_src
+
+** Listing all commands
+=clu list= will list everything for you. Output looks like this:
+
+#+begin_src
+❯ clu list
+backtrace_details   | Pairs a backtrace with the corresponding lines of code
+bak                 | bak moves or copies the proffered file to a .back version
+blankless           | converts whitespace-only lines to empty lines.
+color_test          | outputs a smooth gradient band along the RGB spectrum
+git-branch-pr       | Shows or opens the Pull Request for the current branch
+git-oldest-ancestor | finds the oldest common ancestor between two git treeishes
+hr                  | outputs a horizontal rule the width of your terminal
+is_brewed           | indicates if a package is installed via homebrew
+rg-ignores          | finds files that rg may be using to ignore patterns
+watch_when          | Polls a command and reports when its output changes
+#+end_src
 
 ** Updating a command
 =clu update <path/to/my_command.meta.toml>= will find the existing command with the name specified in the TOML and update its data. If you have changed the name of the command you'll need to remove and add instead of update.

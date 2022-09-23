@@ -61,9 +61,10 @@ multi sub list-all-commands(DB::SQLite $db) is export {
 	my @results = $db.query($search_sql).hashes ;
 	given @results {
 		when $_.elems > 0 {
-			for $_ -> %row {
-				display-name-and-description(%row);
-			}
+			display-names-and-descriptions($_);
+			# for $_ -> %row {
+			# 	display-name-and-description(%row);
+			# }
 		}
 		default {
 			say("Your database is currently empty.")
@@ -133,6 +134,7 @@ our sub display-metadata(%command) {
 		say colored("source url: ", 'bold') ~ %command<source_url>;
 	}
 }
+
 our sub display-name-and-description(%command) {
 # sub ansi-display-name-and-description(Hash %command) {
 	my $separator = ' : ';
@@ -142,6 +144,26 @@ our sub display-name-and-description(%command) {
        );
 
     say colored("%command<name>" ~ $separator ~ "$wrapped_desc\n", "bold underline" );
+}
+
+our sub display-names-and-descriptions(@commands) {
+	# find the longest command name
+	my $max_name_length = 0;
+
+	for @commands -> %command {
+		my $length = %command<name>.chars;
+		if $length > $max_name_length {
+			$max_name_length = $length;
+		}
+	}
+
+	my $term_width = terminal-width(:default<80>);
+	my $max_description_width = $term_width - ( $max_name_length + 3 );
+	# term_width - (max_name_length + " | " )
+
+	for @commands -> %command {
+		("%-$max_name_length" ~ "s | %.$max_description_width" ~ "s\n").printf(%command<name>, %command<description>)
+	}
 }
 
 our sub display-usage(%command) {

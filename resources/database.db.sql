@@ -26,7 +26,8 @@ CREATE VIRTUAL TABLE commands_fts USING fts5(
 	description,
 	language,
 	content=commands,
-	content_rowid=id
+	content_rowid=id,
+	tokenize=porter
 );
 CREATE TABLE IF NOT EXISTS "commands_fts_data" (
 	"id"	INTEGER,
@@ -49,9 +50,6 @@ CREATE TABLE IF NOT EXISTS "commands_fts_config" (
 	"v"	,
 	PRIMARY KEY("k")
 ) WITHOUT ROWID;
-INSERT INTO "commands_fts_data" ("id","block") VALUES (1,'');
-INSERT INTO "commands_fts_data" ("id","block") VALUES (10,X'00000000000000');
-INSERT INTO "commands_fts_config" ("k","v") VALUES ('version',4);
 
 CREATE TRIGGER commands_fts_insert AFTER INSERT ON commands
 BEGIN

@@ -91,13 +91,10 @@ our sub find-commands(Str $search_string, DB::SQLite $db) returns Maybe[Array] {
 	END
 
 	my @results = $db.query($search_sql, [$search_string, $search_string, $search_string]).hashes ;
-	given @results {
-		when $_.elems > 0 {
-			return something($_);
-		}
-		default {
-			return nothing(Array);
-		}
+	if @results.elems > 0 {
+		return something(@results);
+	} else {
+		return nothing(Array);
 	}
 }
 
@@ -211,32 +208,5 @@ our sub search-and-display(Str $search_string, DB::SQLite $db) is export {
 	    return;
 	}
 	my @results = $results_maybe.value;
-	# somehow that has been unwrapped from the Maybe[Array] to Array
-	# by usage of the @ instead of $.
-	# Dark magic, I never wrote a Some -> Array function in Definitely
-
-	# note('XXX $results.^name ' ~ $results.^name);
-	# note('XXX $results' ~ $results.raku);
-	# note('XXX $results.value' ~ $results.value.raku);
-	# note('XXX @results.^name ' ~ @results.^name);
-	# note('XXX @results ' ~ @results.raku);
-	if @results.elems > 0  {
-		for @results -> @result {
-			# @result ==
-			# [{:description("foo"), :id(1), :language("bar"), :name("bash")},]
-			# say("XXX in results for: " ~ @result.^name);
-			# say("XXX in results for: " ~ @result.elems);
-			# say("XXX in results for: " ~ @result.raku);
-			# say("XXX in results for: " ~ @result[0]);
-			# say("XXX in results for: " ~ @result[0].^name);
-
-
-			# # my %command = load-command($result<name>, $db);
-			# # say("XXX command from results: " ~ %command.raku);
-
-			display-name-and-description(@result[0]);
-		}
-	} else {
-		say("No maches found");
-	}
+	display-names-and-descriptions(@results[0]);
 }

@@ -7,13 +7,27 @@ Got an overwhelming number of command line scripts and functions? So many you've
 
 Clu allows provides a [[https://en.wikipedia.org/wiki/Full-text_search][full text search]] of the name, description, and details of your scripts. When a script includes a "help" command, Clu will call it and display current usage docs instead of potentially outdated ones from its cache.
 
+Scroll down to see some examples of its output.
 
 ** Future looking
 The intent is to support [[https://tldr.sh/][tldr style "cheats"]] for your scripts too. The example TOML template below contains commented out cheats if you feel like writing them now, but Clu currently ignores that data.
 
 Being able to arrow through search results and choose one to see the full details of.
 * Installation
+Clu is written in [[https://www.raku.org/][Raku]], and uses the [[https://github.com/ugexe/zef][zef]] package manager for installation.
+
+If you've already got Raku and zef installed then just run:
+
 =zef -v install https://github.com/masukomi/Clu.git=
+
+**  Raku install quick-guide
+Use Homebrew to install [[https://rakudo.org/][Rakudo]]. That's the Raku virtual machine. If you install the [[https://rakudo.org/star][Rakudo Star Bundle]] then [[https://github.com/ugexe/zef][zef]] will come along for the ride. You can download it from those links, or install it with homebrew.
+
+#+begin_src
+brew install rakudo-star
+#+end_src
+
+Now, go back and run the =zef install= command above.
 
 * Usage
 

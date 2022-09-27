@@ -59,16 +59,10 @@ multi sub list-all-commands(DB::SQLite $db) is export {
 		SELECT name, description FROM commands ORDER BY name ASC;
 	END
 	my @results = $db.query($search_sql).hashes ;
-	given @results {
-		when $_.elems > 0 {
-			display-names-and-descriptions($_);
-			# for $_ -> %row {
-			# 	display-name-and-description(%row);
-			# }
-		}
-		default {
-			say("Your database is currently empty.")
-		}
+	if @results.elems > 0 {
+		display-names-and-descriptions(@results);
+	} else {
+		say("Your database is currently empty.")
 	}
 }
 
@@ -207,6 +201,6 @@ our sub search-and-display(Str $search_string, DB::SQLite $db) is export {
 		say("No matches found");
 	    return;
 	}
-	my @results = $results_maybe.value;
-	display-names-and-descriptions(@results[0]);
+	my @results = $results_maybe.value[];
+	display-names-and-descriptions(@results);
 }

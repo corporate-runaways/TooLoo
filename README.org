@@ -18,7 +18,7 @@ Clu is written in [[https://www.raku.org/][Raku]], and uses the [[https://github
 
 If you've already got Raku and zef installed then just run:
 
-=zef -v install https://github.com/masukomi/Clu.git=
+=zef install Clu=
 
 **  Raku install quick-guide
 Use Homebrew to install [[https://rakudo.org/][Rakudo]]. That's the Raku virtual machine. If you install the [[https://rakudo.org/star][Rakudo Star Bundle]] then [[https://github.com/ugexe/zef][zef]] will come along for the ride. You can download it from those links, or install it with homebrew.

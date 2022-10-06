@@ -1,4 +1,5 @@
-Revision history for Clu
+## [1.0.1] - 2022-10-05
+### Fixed
+*  changed README markup format
 
-{{$NEXT}}
-    - Initial version
+## [1.0.0] - 2022-10-05

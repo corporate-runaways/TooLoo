@@ -5,7 +5,7 @@
 #
 # =end pod
 
-unit module Clu::Ingester:ver<1.0.0>:auth<masukomi (masukomi@masukomi.org)>;
+unit module Clu::Ingester:ver<1.0.1>:auth<masukomi (masukomi@masukomi.org)>;
 use Definitely;
 # use Terminal::ANSIColor;
 # use Text::MiscUtils::Layout;

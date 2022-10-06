@@ -28,8 +28,9 @@
     "empty_database.db",
     "template.meta.toml"
   ],
-  "source-url": "",
+  "source-url": "https://github.com/masukomi/Clu",
   "tags": [
+    "cli", "scripting"
   ],
   "test-depends": [
   ],

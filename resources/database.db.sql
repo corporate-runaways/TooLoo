@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS "cheats" (
 	"command_id"	INTEGER NOT NULL,
 	"description"	TEXT NOT NULL,
 	"template"	TEXT NOT NULL,
-	PRIMARY KEY("id" AUTOINCREMENT),
-	FOREIGN KEY("command_id") REFERENCES "commands"("id")
+	FOREIGN KEY("command_id") REFERENCES "commands"("id"),
+	PRIMARY KEY("id" AUTOINCREMENT)
 );
 CREATE VIRTUAL TABLE commands_fts USING fts5(
 	id,
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS "commands" (
 	"language"	TEXT,
 	"source_url"	TEXT,
 	"source_repo_url"	TEXT,
-	"asciicast_path"	TEXT,
+	"asciicast_url"	TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
 INSERT INTO "commands_fts_data" ("id","block") VALUES (1,'');

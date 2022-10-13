@@ -30,17 +30,22 @@ our sub demo-asciicast(Str $command_name, DB::SQLite $db) returns Bool is export
 	my $command_data = load-command($command_name, $db); # from Command
 	if $command_data.is-something and $command_data.value<asciicast_url> {
 		my $url = $command_data.value<asciicast_url>;
-	    given get-metadata-value("asciicaster", $db) {
-			when $_ ~~ Str {
-				say("using metadata val: $_");
-				shell("$_ " ~ $url);
+		if validate-local-path(IO::Path.new($url)) {
+			given get-metadata-value("asciicaster", $db) {
+				when $_ ~~ Str {
+					say("using metadata val: $_");
+					shell("$_ " ~ $url);
+				}
+				default {
+					say("Using asciinema");
+					shell("asciinema play " ~ $url);
+				}
 			}
-			default {
-				say("Using asciinema");
-				shell("asciinema play " ~ $url);
-			}
+			return True;
+		} else {
+			note("This does not appear to be a local url:\n$url");
+			return False;
 		}
-		return True
 	} else {
 		note("No asciicast url specified for $command_name");
 	}

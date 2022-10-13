@@ -25,9 +25,8 @@ source_url=""
 source_repo_url=""
 
 # [[cheats]]
-# [[cheats.bar]]
 # description = "a description of task bar with backtrace_details"
 # template="bar {{arg1}} {{arg2}}"
-# [[cheats.baz]]
+# [[cheats]]
 # description = "a description of task baz with backtrace_details"
 # template="bar {{arg1}} {{arg2}}"

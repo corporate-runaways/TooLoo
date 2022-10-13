@@ -96,7 +96,7 @@ our sub find-command-id(Str $command_name, DB::SQLite $db) returns Maybe[Int] is
 	my $val = $db.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
 	$val ~~ Int ?? something($val) !! nothing(Int);
 }
-our sub load-command(Str $command_name, DB::SQLite $db) returns Maybe[Hash] {
+our sub load-command(Str $command_name, DB::SQLite $db) returns Maybe[Hash] is export {
 	given $db.query('select * from commands where name = ?', $command_name).hash {
 		when $_.elems > 0 {
 			something($_);

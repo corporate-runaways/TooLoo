@@ -64,6 +64,15 @@ multi sub MAIN('add',
 	ingest($path);
 }
 
+#| play the asciicast demo of the specified command
+multi sub MAIN('demo', Str $command_name){
+	guarantee-db();
+	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
+	unless demo-asciicast($command_name, $db) {
+		note("Problems encountered running that demo.");
+	}
+}
+
 #| Execute a full text against documented commands. Search terms should be separate arguments.
 multi sub MAIN ('find', *@search_strings){
 	guarantee-db();
@@ -159,10 +168,10 @@ END
 
 	$db.finish;
 	if $response {
-		say("successfully ingested $path");
+		say("Successfully ingested $path");
 		exit 0;
     } else {
-	    warn("problems ingesting $path");
+	    note("Problems encountered ingesting $path");
 		exit 1;
 	}
 }

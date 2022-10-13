@@ -128,6 +128,9 @@ our sub display-metadata(%command) {
 	if %command.<source_url> {
 		say colored("source url: ", 'bold') ~ %command<source_url>;
 	}
+	if %command.<asciicast_url> {
+		say colored("asciicast url: ", 'bold') ~ %command<asciicast_url>;
+	}
 }
 
 our sub display-name-and-description(%command) {

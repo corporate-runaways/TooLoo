@@ -44,10 +44,11 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 	return True;
 }
 
-our sub find-command-id($command_name, DB::SQLite $db) returns Maybe[Int] {
+our sub find-command-id($command_name, DB::SQLite $db) returns Maybe[Int] is export {
 	my $val = $db.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
 	$val ~~ Int ?? something($val) !! nothing(Int);
 }
+
 our sub insert-command(%command, $db){
 	my $insert_sql = q:to/END/;
 INSERT INTO commands (

@@ -19,6 +19,7 @@
   "name": "Clu",
   "perl": "6.d",
   "provides": {
+    "Clu::Asciicaster": "lib/Clu/Asciicaster.rakumod",
     "Clu::Resourcer": "lib/Clu/Resourcer.rakumod",
     "Clu::Command": "lib/Clu/Command.rakumod",
     "Clu::Ingester": "lib/Clu/Ingester.rakumod",

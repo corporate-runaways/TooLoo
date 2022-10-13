@@ -50,11 +50,21 @@ use DB::SQLite;
 use Clu::Resourcer;
 use Clu::Command;
 use Clu::Ingester;
+use Clu::Asciicaster;
 
-my $*MAIN-ALLOW-NAMED-ANYWHERE = True;
+#my %*SUB-MAIN-OPTS<named-anywhere> = True;
 
-multi sub MAIN('add', Str $path) {ingest($path);}
+my proto sub MAIN(|) {*}
+use CLI::Version $?DISTRIBUTION, &MAIN;
 
+#| Add & updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
+multi sub MAIN('add',
+			   Str $path where / '.toml' $ |'.cast' $ / #= Paths must end in .toml or .cast
+			  ) {
+	ingest($path);
+}
+
+#| Execute a full text against documented commands. Search terms should be separate arguments.
 multi sub MAIN ('find', *@search_strings){
 	guarantee-db();
 	die("Search strings(s) must be provided") unless @search_strings.elems > 0;
@@ -66,6 +76,7 @@ multi sub MAIN ('find', *@search_strings){
 
 }
 
+#| List all your commands & their quick description
 multi sub MAIN ('list') {
 	guarantee-db();
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
@@ -73,6 +84,7 @@ multi sub MAIN ('list') {
 	$db.finish();
 }
 
+#| Remove a command from the database
 multi sub MAIN ('remove', $command_name) {
 	guarantee-db();
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
@@ -84,7 +96,7 @@ multi sub MAIN ('remove', $command_name) {
 }
 
 
-# #= display full details on a command
+#= Display the full details of a specific command
 multi sub MAIN ('show', $command_name) {
 	guarantee-db();
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
@@ -93,6 +105,7 @@ multi sub MAIN ('show', $command_name) {
 	$db.finish();
 }
 
+#| Generate a blank TOML template at the specified location.
 multi sub MAIN('template', $destination) {
 	say("Copying fresh template to $destination");
 	copy(Clu::Resourcer.gimme{"template.meta.toml"}, $destination);
@@ -109,6 +122,7 @@ multi sub MAIN('template', $destination) {
 # 	# that the user can fill in and have it executed.
 # }
 
+#| Updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
 multi sub MAIN('update', Str $path) {ingest($path);}
 
 
@@ -118,7 +132,31 @@ multi sub MAIN('update', Str $path) {ingest($path);}
 sub ingest(Str $path) {
 	guarantee-db();
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
-	my $response = ingest-metadata($path, $db);
+
+	my $response;
+	given $path {
+		when .ends-with('.toml') {
+			$response = ingest-metadata($path, $db);
+		}
+		when .ends-with('.cast') {
+			$response = add-asciicast($path, $db);
+		}
+		default {
+			my $warning = q:to/END/;
+Added files must end with .toml or .cast.
+.toml files should be TOML files similar to those produced
+by clu template <path>
+.cast files should be asciicast v2 files as produced by
+asciinema recordings.
+.cast files must have names that match the command they
+are demonstrating. Ex. "my-hotness.cast" would be a demonstration
+of the "my-hotness" command.
+END
+			warn($warning);
+            exit(64); #  EX_USAGE (64) The command was used	incorrectly
+		}
+	}
+
 	$db.finish;
 	if $response {
 		say("successfully ingested $path");
@@ -127,7 +165,6 @@ sub ingest(Str $path) {
 	    warn("problems ingesting $path");
 		exit 1;
 	}
-
 }
 
 

@@ -10,6 +10,7 @@ use Definitely;
 # use Terminal::ANSIColor;
 # use Text::MiscUtils::Layout;
 use Clu::TerminalUtilities;
+use Clu::Command;
 # use Color;
 use DB::SQLite;
 use TOML;
@@ -44,10 +45,6 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 	return True;
 }
 
-our sub find-command-id($command_name, DB::SQLite $db) returns Maybe[Int] is export {
-	my $val = $db.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
-	$val ~~ Int ?? something($val) !! nothing(Int);
-}
 
 our sub insert-command(%command, $db){
 	my $insert_sql = q:to/END/;

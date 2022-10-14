@@ -1,5 +1,4 @@
-# a template for `clu` toml files
-
+# Clu documentation file. Details: https://github.com/masukomi/Clu
 
 # the name of the command or function you're documenting
 name=""

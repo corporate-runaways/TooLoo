@@ -72,6 +72,13 @@ multi sub MAIN('demo', Str $command_name){
 		note("Problems encountered running that demo.");
 	}
 }
+#| List all your commands that have associated asciicast demos
+multi sub MAIN ('demos') {
+	guarantee-db();
+	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
+	list-all-demos($db);
+	$db.finish();
+}
 
 #| Execute a full text against documented commands. Search terms should be separate arguments.
 multi sub MAIN ('find', *@search_strings){
@@ -90,6 +97,22 @@ multi sub MAIN ('list') {
 	guarantee-db();
 	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
 	list-all-commands($db);
+
+	$db.finish();
+}
+#| Lists a filtered subset of commands via filter: 'demos'
+multi sub MAIN ('list',
+				Str $filter #= currently supported filters: demos
+			   ) {
+	guarantee-db();
+	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
+	if $filter eq 'demos' {
+		list-all-demos($db) ;
+	} else {
+		note("Unsupported list filter: $filter");
+		note("Only 'demos' is currently supported.");
+	}
+
 	$db.finish();
 }
 

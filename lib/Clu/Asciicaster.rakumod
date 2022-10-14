@@ -33,11 +33,11 @@ our sub demo-asciicast(Str $command_name, DB::SQLite $db) returns Bool is export
 		if validate-local-path(IO::Path.new($url)) {
 			given get-metadata-value("asciicaster", $db) {
 				when $_ ~~ Str {
-					say("using metadata val: $_");
+					say("playing with $_");
 					shell("$_ " ~ $url);
 				}
 				default {
-					say("Using asciinema");
+					say("playing with asciinema");
 					shell("asciinema play " ~ $url);
 				}
 			}

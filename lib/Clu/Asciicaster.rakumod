@@ -47,7 +47,14 @@ our sub demo-asciicast(Str $command_name, DB::SQLite $db) returns Bool is export
 			return False;
 		}
 	} else {
-		note("No asciicast url specified for $command_name");
+		my $note = qq:to/END/;
+		No asciicast url was specified for $command_name
+		Visit https://asciinema.org/ to learn more about
+		recording your terminal sessions.
+
+		Asciinema recordings are stored in asciicast format.
+		END
+		note($note);
 	}
 	False
 

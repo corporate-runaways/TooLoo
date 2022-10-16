@@ -1,7 +1,7 @@
 {
   "auth": "zef:masukomi",
   "authors": [
-    "masukomi"
+    "masukomi <masukomi@masukomi.org>"
   ],
   "build-depends": [
   ],
@@ -12,7 +12,8 @@
     "Text::MiscUtils",
     "DB::SQLite",
     "TOML",
-    "Color"
+    "Color",
+    "XDG::GuaranteedResources"
   ],
   "description": "Clu (Command LookUp) helps you document your utility scripts",
   "license": "MIT",

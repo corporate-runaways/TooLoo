@@ -61,6 +61,7 @@ our sub find-commands(Str $search_string, DB::SQLite $db) returns Maybe[Array] {
 	  name MATCH ?
 	  OR description MATCH ?
 	  OR language MATCH ?
+	  OR tags MATCH ?
 	ORDER BY rank;
 	END
 

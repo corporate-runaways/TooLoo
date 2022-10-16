@@ -10,6 +10,7 @@ use Definitely;
 # use Terminal::ANSIColor;
 # use Text::MiscUtils::Layout;
 use Clu::TerminalUtilities;
+use Clu::Command;
 # use Color;
 use DB::SQLite;
 use TOML;
@@ -44,10 +45,7 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 	return True;
 }
 
-our sub find-command-id($command_name, DB::SQLite $db) returns Maybe[Int] {
-	my $val = $db.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
-	$val ~~ Int ?? something($val) !! nothing(Int);
-}
+
 our sub insert-command(%command, $db){
 	my $insert_sql = q:to/END/;
 INSERT INTO commands (
@@ -58,8 +56,10 @@ INSERT INTO commands (
 	type,
 	language,
 	source_url,
-	source_repo_url
+	source_repo_url,
+	asciicast_url
 ) VALUES (
+	?,
 	?,
 	?,
 	?,
@@ -89,7 +89,8 @@ UPDATE commands SET
   type              = ?,
   language          = ?,
   source_url        = ?,
-  source_repo_url   = ?
+  source_repo_url   = ?,
+  asciicast_url     = ?
 
 WHERE id = ?;
 END
@@ -118,7 +119,8 @@ our sub executable-list(%command) {
 			( %command<type> or Nil ),
 			( %command<language> or Nil ),
 			( %command<source_url> or Nil ),
-			( %command<source_repo_url> or Nil )
+			( %command<source_repo_url> or Nil ),
+			( %command<asciicast_url> or Nil )
 	   ]
 }
 # commenting out until the DB::SQLite bug is fixed

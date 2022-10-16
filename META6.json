@@ -1,7 +1,8 @@
 {
+  "api": "1",
   "auth": "zef:masukomi",
   "authors": [
-    "masukomi"
+    "masukomi <masukomi@masukomi.org>"
   ],
   "build-depends": [
   ],
@@ -12,28 +13,32 @@
     "Text::MiscUtils",
     "DB::SQLite",
     "TOML",
-    "Color"
+    "Color",
+    "XDG::GuaranteedResources"
   ],
   "description": "Clu (Command LookUp) helps you document your utility scripts",
   "license": "MIT",
-  "name": "Clu",
+  "name": "Clu::Cheat",
   "perl": "6.d",
   "provides": {
-    "Clu::Resourcer": "lib/Clu/Resourcer.rakumod",
+    "Clu::Asciicaster": "lib/Clu/Asciicaster.rakumod",
+    "Clu::Cheat": "lib/Clu/Cheat.rakumod",
     "Clu::Command": "lib/Clu/Command.rakumod",
     "Clu::Ingester": "lib/Clu/Ingester.rakumod",
+    "Clu::Metadata": "lib/Clu/Metadata.rakumod",
+    "Clu::Resourcer": "lib/Clu/Resourcer.rakumod",
     "Clu::TerminalUtilities": "lib/Clu/TerminalUtilities.rakumod"
   },
   "resources": [
-    "empty_database.db",
+    "data/clu/database.db",
     "template.meta.toml"
   ],
   "source-url": "https://github.com/masukomi/Clu",
   "tags": [
-    "cli", "scripting"
+    "cli",
+    "scripting"
   ],
   "test-depends": [
   ],
-  "version": "1.0.1",
-  "api": "1"
+  "version": "2.0.0"
 }

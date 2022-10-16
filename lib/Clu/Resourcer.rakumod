@@ -1,5 +1,7 @@
-unit class Clu::Resourcer;
+use XDG::GuaranteedResources::AbstractResourcer;
 
-method gimme(::?CLASS:U: ) {
-    %?RESOURCES;
-}
+
+unit class Clu::Resourcer does XDG::GuaranteedResources::AbstractResourcer;
+
+# for XDG::GuaranteedResources::AbstractResourcer
+method fetch-resource(::?CLASS:U:){%?RESOURCES;}

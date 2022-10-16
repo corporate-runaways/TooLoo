@@ -46,19 +46,43 @@ This library is free software; you can redistribute it and/or modify it under th
 #
 
 use DB::SQLite;
+use XDG::GuaranteedResources;
 
 use Clu::Resourcer;
 use Clu::Command;
 use Clu::Ingester;
+use Clu::Asciicaster;
 
-my $*MAIN-ALLOW-NAMED-ANYWHERE = True;
+#my %*SUB-MAIN-OPTS<named-anywhere> = True;
 
-multi sub MAIN('add', Str $path) {ingest($path);}
+my proto sub MAIN(|) {*}
+use CLI::Version $?DISTRIBUTION, &MAIN;
 
+#| Add & updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
+multi sub MAIN('add',
+			   Str $path where / '.toml' $ |'.cast' $ / #= Paths must end in .toml or .cast
+			  ) {
+	ingest($path);
+}
+
+#| play the asciicast demo of the specified command
+multi sub MAIN('demo', Str $command_name){
+	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
+	unless demo-asciicast($command_name, $db) {
+		note("Problems encountered running that demo.");
+	}
+}
+#| List all your commands that have associated asciicast demos
+multi sub MAIN ('demos') {
+	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
+	list-all-demos($db);
+	$db.finish();
+}
+
+#| Execute a full text against documented commands. Search terms should be separate arguments.
 multi sub MAIN ('find', *@search_strings){
-	guarantee-db();
 	die("Search strings(s) must be provided") unless @search_strings.elems > 0;
-	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
+	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
 	my $search_string = @search_strings.join(' ');
 	search-and-display($search_string, $db);
 
@@ -66,16 +90,31 @@ multi sub MAIN ('find', *@search_strings){
 
 }
 
+#| List all your commands & their quick description
 multi sub MAIN ('list') {
-	guarantee-db();
-	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
+	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
 	list-all-commands($db);
+
+	$db.finish();
+}
+#| Lists a filtered subset of commands via filter: 'demos'
+multi sub MAIN ('list',
+				Str $filter #= Currently supported filters: demos
+			   ) {
+	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
+	if $filter eq 'demos' {
+		list-all-demos($db) ;
+	} else {
+		note("Unsupported list filter: $filter");
+		note("Only 'demos' is currently supported.");
+	}
+
 	$db.finish();
 }
 
+#| Remove a command from the database
 multi sub MAIN ('remove', $command_name) {
-	guarantee-db();
-	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
+	my $db = DB::SQLite.new(filename => guarantee-db());
 	remove-command($command_name, $db)
 		?? say("$command_name has been removed")
 		!! say("no command found with name $command_name");
@@ -84,15 +123,17 @@ multi sub MAIN ('remove', $command_name) {
 }
 
 
-# #= display full details on a command
-multi sub MAIN ('show', $command_name) {
-	guarantee-db();
-	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly);
+#| Display the full details of a specific command
+multi sub MAIN ('show',
+				$command_name #= The name of the executable
+			   ) {
+	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
 	display-command($command_name, $db);
 
 	$db.finish();
 }
 
+#| Generate a blank TOML template at the specified location.
 multi sub MAIN('template', $destination) {
 	say("Copying fresh template to $destination");
 	copy(Clu::Resourcer.gimme{"template.meta.toml"}, $destination);
@@ -101,7 +142,7 @@ multi sub MAIN('template', $destination) {
 
 # #= display cheats for a command
 # sub MAIN ('cheats', $command_name) {
-#	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db", :readonly)
+#	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly)
 # 	Clu::Cheats.new($command_name)
 # 	# TODO: support interacting with the cheats
 # 	# to choose one.
@@ -109,6 +150,7 @@ multi sub MAIN('template', $destination) {
 # 	# that the user can fill in and have it executed.
 # }
 
+#| Updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
 multi sub MAIN('update', Str $path) {ingest($path);}
 
 
@@ -116,18 +158,40 @@ multi sub MAIN('update', Str $path) {ingest($path);}
 #internal stuff
 
 sub ingest(Str $path) {
-	guarantee-db();
-	my $db = DB::SQLite.new(filename => "$*HOME/.config/clu/database.db");
-	my $response = ingest-metadata($path, $db);
-	$db.finish;
-	if $response {
-		say("successfully ingested $path");
-		exit 0;
-    } else {
-	    warn("problems ingesting $path");
-		exit 1;
+	my $db = DB::SQLite.new(filename => guarantee-db());
+
+	my $response;
+	given $path {
+		when .ends-with('.toml') {
+			$response = ingest-metadata($path, $db);
+		}
+		when .ends-with('.cast') {
+			$response = add-asciicast($path, $db);
+		}
+		default {
+			my $warning = q:to/END/;
+Added files must end with .toml or .cast.
+.toml files should be TOML files similar to those produced
+by clu template <path>
+.cast files should be asciicast v2 files as produced by
+asciinema recordings.
+.cast files must have names that match the command they
+are demonstrating. Ex. "my-hotness.cast" would be a demonstration
+of the "my-hotness" command.
+END
+			warn($warning);
+            exit(64); #  EX_USAGE (64) The command was used	incorrectly
+		}
 	}
 
+	$db.finish;
+	if $response {
+		say("Successfully ingested $path");
+		exit 0;
+    } else {
+	    note("Problems encountered ingesting $path");
+		exit 1;
+	}
 }
 
 
@@ -136,21 +200,7 @@ sub copy-over-db($destination) {
 	copy(Clu::Resourcer.gimme{"empty_database.db"}, $destination);
 }
 
-sub guarantee-db() returns Bool {
-	my $dir = "$*HOME/.config/clu";
-	my $path = "$dir/database.db";
-	return True if $path.IO.e;
-	unless $dir.IO.e {
-		say("Creating $dir");
-		mkdir($dir);
-	}
-
-	unless $path.IO.e {
-		copy-over-db($path);
-	}
-
-	CATCH {
-		when X::IO::Mkdir { die "Unable to create directory: $dir"; }
-		when X::IO::Copy  { die "Unable to copy resource to $dir"; }
-	}
+sub guarantee-db() returns Str {
+	my $db_path = "data/clu/database.db";
+	guarantee-resource($db_path, Clu::Resourcer);
 }

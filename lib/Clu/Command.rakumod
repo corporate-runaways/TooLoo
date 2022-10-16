@@ -45,26 +45,6 @@ use Clu::TerminalUtilities;
 use Color;
 use DB::SQLite;
 
-multi sub display-command(Str $command_name, DB::SQLite $db) is export {
-	my $command_data = load-command($command_name, $db);
-	unless $command_data ~~ Some {
-		note("No data found for $command_name");
-		exit 0;
-	}
-	display-command($command_data.value);
-}
-
-multi sub list-all-commands(DB::SQLite $db) is export {
-	my $search_sql = q:to/END/;
-		SELECT name, description FROM commands ORDER BY name ASC;
-	END
-	my @results = $db.query($search_sql).hashes ;
-	if @results.elems > 0 {
-		display-names-and-descriptions(@results);
-	} else {
-		say("Your database is currently empty.")
-	}
-}
 
 multi sub display-command(%command) is export {
 # sub display-command(Hash:D %command) is export {
@@ -92,7 +72,11 @@ our sub find-commands(Str $search_string, DB::SQLite $db) returns Maybe[Array] {
 	}
 }
 
-our sub load-command(Str $command_name, DB::SQLite $db) returns Maybe[Hash] {
+our sub find-command-id(Str $command_name, DB::SQLite $db) returns Maybe[Int] is export {
+	my $val = $db.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
+	$val ~~ Int ?? something($val) !! nothing(Int);
+}
+our sub load-command(Str $command_name, DB::SQLite $db) returns Maybe[Hash] is export {
 	given $db.query('select * from commands where name = ?', $command_name).hash {
 		when $_.elems > 0 {
 			something($_);
@@ -123,6 +107,9 @@ our sub display-metadata(%command) {
 	}
 	if %command.<source_url> {
 		say colored("source url: ", 'bold') ~ %command<source_url>;
+	}
+	if %command.<asciicast_url> {
+		say colored("asciicast url: ", 'bold') ~ %command<asciicast_url>;
 	}
 }
 
@@ -203,4 +190,40 @@ our sub search-and-display(Str $search_string, DB::SQLite $db) is export {
 	}
 	my @results = $results_maybe.value[];
 	display-names-and-descriptions(@results);
+}
+
+multi sub display-command(Str $command_name, DB::SQLite $db) is export {
+	my $command_data = load-command($command_name, $db);
+	unless $command_data ~~ Some {
+		note("No data found for $command_name");
+		exit 0;
+	}
+	display-command($command_data.value);
+}
+
+multi sub list-all-commands(DB::SQLite $db) is export {
+	my $search_sql = q:to/END/;
+		SELECT name, description FROM commands ORDER BY name ASC;
+	END
+	my @results = $db.query($search_sql).hashes ;
+	if @results.elems > 0 {
+		display-names-and-descriptions(@results);
+	} else {
+		say("Your database is currently empty.")
+	}
+}
+multi sub list-all-demos(DB::SQLite $db) is export {
+	my $search_sql = q:to/END/;
+		SELECT name, description
+		FROM commands
+		WHERE asciicast_url is not null
+		ORDER BY name ASC;
+	END
+	my @results = $db.query($search_sql).hashes ;
+	if @results.elems > 0 {
+		display-names-and-descriptions(@results);
+	} else {
+		say("You don't have any commands with asciicast demos.")
+	}
+
 }

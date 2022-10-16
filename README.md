@@ -22,6 +22,18 @@ If you've already got Raku and zef installed then just run:
 
 `zef install Clu`
 
+## Upgrading
+The 2.0 change has a different database structure, and now adheres to the XDG Base Directory specification for where it stores things.
+
+So, first step is to run `zef upgrade Clu`
+
+The easiest way to upgrade your data is to just run it again to set up a new empty db in the new location. Then import re-import all your toml files with something like this:
+
+``` bash
+find . -name '*.meta.toml' -exec clu add '{}' \; -exec sleep 1 \;
+```
+The `sleep` is important, to guarantee you don't have database issues with the different processes competing for the file.
+
 ## Raku install quick-guide
 
 Use Homebrew to install [Rakudo](https://rakudo.org/). That's the Raku virtual machine. If you install the [Rakudo Star Bundle](https://rakudo.org/star) then [zef](https://github.com/ugexe/zef) will come along for the ride. You can download it from those links, or install it with homebrew.
@@ -32,14 +44,27 @@ Now, go back and run the `zef install` command above.
 
 # Usage
 
-    Usage:
-      clu add <path>
-      clu find [<search_strings> ...]
-      clu list
-      clu remove <command_name>
-      clu show <command_name>
-      clu template <destination>
-      clu update <path>
+```
+Usage:
+  clu -V|--version[=Any] [--verbose[=Any]]
+  clu add <path> -- Add & updates documentation of a command with a .toml file, 
+                    or an ansiicast demo with a .cast file
+  clu demo <command_name> -- play the asciicast demo of the specified command
+  clu demos -- List all your commands that have associated asciicast demos
+  clu find [<search_strings> ...] -- Execute a full text against documented commands. 
+                                     Search terms should be separate arguments.
+  clu list -- List all your commands & their quick description
+  clu list <filter> -- Lists a filtered subset of commands via filter: 'demos'
+  clu remove <command_name> -- Remove a command from the database
+  clu show <command_name> -- Display the full details of a specific command
+  clu template <destination> -- Generate a blank TOML template at the specified location.
+  clu update <path> -- Updates documentation of a command with a .toml file, 
+                       or an ansiicast demo with a .cast file
+
+    <path>            Paths must end in .toml or .cast
+    <filter>          Currently supported filters: demos
+    <command_name>    The name of the executable
+```
 
 ## Documenting a new Command
 

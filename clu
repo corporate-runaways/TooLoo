@@ -199,5 +199,6 @@ sub copy-over-db($destination) {
 }
 
 sub guarantee-db() returns Str {
-	guarantee-resource("data/clu/database.db")
+	my $db_path = "data/clu/database.db";
+	guarantee-resource($db_path, Clu::Resourcer);
 }

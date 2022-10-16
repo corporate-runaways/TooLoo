@@ -28,7 +28,7 @@
     "Clu::TerminalUtilities": "lib/Clu/TerminalUtilities.rakumod"
   },
   "resources": [
-    "empty_database.db",
+    "data/clu/database.db",
     "template.meta.toml"
   ],
   "source-url": "https://github.com/masukomi/Clu",

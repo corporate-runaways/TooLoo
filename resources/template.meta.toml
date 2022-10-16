@@ -23,6 +23,10 @@ language="bash"
 source_url=""
 # where you can find the repo that contains this file
 source_repo_url=""
+# additional keywords that might help you find this in a search
+# or when browsing by tag
+# future functionality: https://github.com/masukomi/Clu/issues/10
+tags=[  ];
 
 # [[cheats]]
 # [[cheats.bar]]

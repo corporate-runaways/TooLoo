@@ -99,7 +99,7 @@ multi sub MAIN ('list') {
 }
 #| Lists a filtered subset of commands via filter: 'demos'
 multi sub MAIN ('list',
-				Str $filter #= currently supported filters: demos
+				Str $filter #= Currently supported filters: demos
 			   ) {
 	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
 	if $filter eq 'demos' {
@@ -123,8 +123,10 @@ multi sub MAIN ('remove', $command_name) {
 }
 
 
-#= Display the full details of a specific command
-multi sub MAIN ('show', $command_name) {
+#| Display the full details of a specific command
+multi sub MAIN ('show',
+				$command_name #= The name of the executable
+			   ) {
 	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
 	display-command($command_name, $db);
 

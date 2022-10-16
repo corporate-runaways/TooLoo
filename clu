@@ -118,8 +118,6 @@ multi sub MAIN ('remove', $command_name) {
 	remove-command($command_name, $db)
 		?? say("$command_name has been removed")
 		!! say("no command found with name $command_name");
-
-	$db.finish();
 }
 
 
@@ -129,14 +127,16 @@ multi sub MAIN ('show',
 			   ) {
 	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
 	display-command($command_name, $db);
-
-	$db.finish();
 }
 
 #| Generate a blank TOML template at the specified location.
 multi sub MAIN('template', $destination) {
+	my $template_path = "config/clu/template.meta.toml";
+	my $resource_path = guarantee-resource($template_path, Clu::Resourcer);
 	say("Copying fresh template to $destination");
-	copy(Clu::Resourcer.gimme{"template.meta.toml"}, $destination);
+	# NOTE: copying from the XDG path version in case the
+	# use has modified the default template
+	copy($resource_path, $destination);
 }
 
 
@@ -158,7 +158,8 @@ multi sub MAIN('update', Str $path) {ingest($path);}
 #internal stuff
 
 sub ingest(Str $path) {
-	my $db = DB::SQLite.new(filename => guarantee-db());
+	my $db = DB::SQLite.new(filename => guarantee-db(),
+						   busy-timeout => 3000);
 
 	my $response;
 	given $path {
@@ -184,7 +185,6 @@ END
 		}
 	}
 
-	$db.finish;
 	if $response {
 		say("Successfully ingested $path");
 		exit 0;
@@ -195,12 +195,10 @@ END
 }
 
 
-sub copy-over-db($destination) {
-	say("Copying fresh db to $destination");
-	copy(Clu::Resourcer.gimme{"empty_database.db"}, $destination);
-}
 
 sub guarantee-db() returns Str {
 	my $db_path = "data/clu/database.db";
-	guarantee-resource($db_path, Clu::Resourcer);
+	my $resource_path = guarantee-resource($db_path, Clu::Resourcer);
+
+	return $resource_path;
 }

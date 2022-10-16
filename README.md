@@ -156,7 +156,8 @@ There's no inherent syncing here. Sorry. You can copy the db from `~/.config/clu
 ``` bash
 find ~/folder/with/my/clu_toml_files -name "*.meta.toml" -exec clu add '{}' \;
 ```
-
+# Contributing
+See [CONTRIBUTING.md](https://github.com/masukomi/Clu/blob/main/CONTRIBUTING.md#readme)
 # LICENSE
 
 Copyright 2022 [Kay Rhodes](https://masukomi.org) (a.k.a. masukomi). Distributed under the MIT License.

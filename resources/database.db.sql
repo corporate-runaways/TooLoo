@@ -16,27 +16,15 @@ CREATE VIRTUAL TABLE commands_fts USING fts5(
 	content_rowid=id,
 	tokenize=porter
 );
-CREATE TABLE IF NOT EXISTS "commands_fts_data" (
-	"id"	INTEGER,
-	"block"	BLOB,
-	PRIMARY KEY("id")
+CREATE VIRTUAL TABLE tags_fts USING fts5(
+	id,
+	tag,
+	content=tags,
+	content_rowid=id,
+	tokenize=porter
 );
-CREATE TABLE IF NOT EXISTS "commands_fts_idx" (
-	"segid"	,
-	"term"	,
-	"pgno"	,
-	PRIMARY KEY("segid","term")
-) WITHOUT ROWID;
-CREATE TABLE IF NOT EXISTS "commands_fts_docsize" (
-	"id"	INTEGER,
-	"sz"	BLOB,
-	PRIMARY KEY("id")
-);
-CREATE TABLE IF NOT EXISTS "commands_fts_config" (
-	"k"	,
-	"v"	,
-	PRIMARY KEY("k")
-) WITHOUT ROWID;
+
+
 CREATE TABLE IF NOT EXISTS "clu_metadata" (
 	"key"	TEXT NOT NULL,
 	"value"	TEXT NOT NULL,
@@ -56,10 +44,18 @@ CREATE TABLE IF NOT EXISTS "commands" (
 	"asciicast_url"	TEXT,
 	PRIMARY KEY("id" AUTOINCREMENT)
 );
-INSERT INTO "commands_fts_data" ("id","block") VALUES (1,'');
-INSERT INTO "commands_fts_data" ("id","block") VALUES (10,X'00000000000000');
-INSERT INTO "commands_fts_config" ("k","v") VALUES ('version',4);
+CREATE TABLE IF NOT EXISTS "tags" (
+	"id"	INTEGER NOT NULL,
+	"tag"	TEXT NOT NULL UNIQUE,
+	PRIMARY KEY("id" AUTOINCREMENT)
+);
+CREATE TABLE IF NOT EXISTS "commands_tags" (
+	"command_id"	INTEGER NOT NULL,
+	"tag_id"	INTEGER NOT NULL,
+	PRIMARY KEY("tag_id","command_id")
+);
 INSERT INTO "clu_metadata" ("key","value") VALUES ('db_version','2.0.0');
+-- Commands FTS triggers
 CREATE TRIGGER commands_fts_insert AFTER INSERT ON commands
 BEGIN
     INSERT INTO commands_fts (rowid, name, description, language) VALUES (new.rowid, new.name, new.description, new.language);
@@ -80,5 +76,28 @@ BEGIN
 	(rowid, name, description, language)
 	VALUES
 	(new.rowid, new.name, new.description, new.language);
+END;
+COMMIT;
+-- Tags FTS triggers
+CREATE TRIGGER tags_fts_insert AFTER INSERT ON tags
+BEGIN
+    INSERT INTO tags_fts (rowid, tag) VALUES (new.rowid, new.tag);
+END;
+CREATE TRIGGER tags_fts_delete AFTER DELETE ON tags
+BEGIN
+    INSERT INTO tags_fts
+	(tags_fts, rowid, tag)
+	VALUES
+	('delete', old.rowid, old.tag);
+END;
+CREATE TRIGGER tags_fts_update AFTER UPDATE ON tags
+BEGIN
+    INSERT INTO tags_fts
+	(tags_fts, rowid, tag)
+	VALUES ('delete', old.rowid, old.tag);
+    INSERT INTO tags_fts
+	(rowid, tag)
+	VALUES
+	(new.rowid, new.tag);
 END;
 COMMIT;

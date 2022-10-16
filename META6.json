@@ -1,4 +1,5 @@
 {
+  "api": "1",
   "auth": "zef:masukomi",
   "authors": [
     "masukomi <masukomi@masukomi.org>"
@@ -17,14 +18,15 @@
   ],
   "description": "Clu (Command LookUp) helps you document your utility scripts",
   "license": "MIT",
-  "name": "Clu",
+  "name": "Clu::Cheat",
   "perl": "6.d",
   "provides": {
-    "Clu::Metadata": "lib/Clu/Metadata.rakumod",
     "Clu::Asciicaster": "lib/Clu/Asciicaster.rakumod",
-    "Clu::Resourcer": "lib/Clu/Resourcer.rakumod",
+    "Clu::Cheat": "lib/Clu/Cheat.rakumod",
     "Clu::Command": "lib/Clu/Command.rakumod",
     "Clu::Ingester": "lib/Clu/Ingester.rakumod",
+    "Clu::Metadata": "lib/Clu/Metadata.rakumod",
+    "Clu::Resourcer": "lib/Clu/Resourcer.rakumod",
     "Clu::TerminalUtilities": "lib/Clu/TerminalUtilities.rakumod"
   },
   "resources": [
@@ -33,10 +35,10 @@
   ],
   "source-url": "https://github.com/masukomi/Clu",
   "tags": [
-    "cli", "scripting"
+    "cli",
+    "scripting"
   ],
   "test-depends": [
   ],
-  "version": "1.0.1",
-  "api": "1"
+  "version": "2.0.0"
 }

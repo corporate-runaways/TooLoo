@@ -11,6 +11,7 @@ use Definitely;
 # use Text::MiscUtils::Layout;
 use Clu::TerminalUtilities;
 use Clu::Command;
+use Clu::Tagger;
 # use Color;
 use DB::SQLite;
 use TOML;
@@ -20,9 +21,9 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 	# convert ~ to $*HOME
 	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
 
-	die("$cleaned_path doesn't end with .toml")                 unless $cleaned_path.ends-with('.toml');
+	die("$cleaned_path doesn't end with .toml")         unless $cleaned_path.ends-with('.toml');
 	# test if the file exists at that cleaned_path
-	die("$cleaned_path doesn't exist")                          unless $cleaned_path.IO.e;
+	die("$cleaned_path doesn't exist")                  unless $cleaned_path.IO.e;
 	# read the file
 	# parse the toml
 	my %metadata = from-toml($cleaned_path.IO.slurp);
@@ -31,6 +32,7 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 	die("$path didn't appear to contain valid TOML")	unless %metadata.^name eq "Hash";
 	die("$path didn't have a 'name' key")				unless %metadata<name>.Bool;
 	die("$path didn't have a 'description' key")		unless %metadata<description>.Bool;
+
 	# see if anything exists in the db for that command
 	given find-command-id(%metadata<name>, $db) {
 		# if yes, update
@@ -70,16 +72,40 @@ INSERT INTO commands (
 	?
 );
 END
-   my $statement_handle = $db.db.prepare($insert_sql);
-   $statement_handle.execute(executable-list(%command));
+	my $statement_handle = $db.db.prepare($insert_sql);
+	$statement_handle.execute(executable-list(%command));
+
+	my @command_tags = %command<tags>;
+	if ! @command_tags.is-empty {
+		my $command_id = find-command-id(%command<name>, $db);
+		if $command_id {
+			set-tags-for-command($command_id, (%command<tags> or []), $db);
+			# this is stupid, I admit, but because of the triggers that update
+			# the virtual table, it's actually cleaner to update this with a bs
+			# whitespace change than have multiple PITA triggers on the tags and / or
+			# commands_tags table.
+			my $update_sql = q:to/END/;
+				UPDATE commands set description = ?
+				WHERE id = ?
+			END
+			my $statement_handle = $db.db.prepare($update_sql);
+			$statement_handle.execute([(%command<description> ~ " "), $command_id]);
+		}
+	}
 
 }
 
-our sub update-command($id, %command, $db){
+our sub update-command($command_id, %command, $db){
 	# there's a bug in DB::SQLite
 	# https://github.com/CurtTilmes/raku-dbsqlite/issues/18
 	# you can't used named parms with
 	# .execute unless you bind them each individually
+
+	# there's no trigger on tags, or commands_tags
+	# so we need to update this before we update the
+	# command itself, because _that_ table has a trigger
+	set-tags-for-command($command_id, (%command<tags> or []), $db);
+
 	my $update_sql = q:to/END/;
 UPDATE commands SET
   name              = ?,
@@ -97,7 +123,7 @@ END
 
    my $statement_handle = $db.db.prepare($update_sql);
    my @list_with_id = executable-list(%command);
-   @list_with_id.append($id);
+   @list_with_id.append($command_id);
    $statement_handle.execute(@list_with_id)
 }
 

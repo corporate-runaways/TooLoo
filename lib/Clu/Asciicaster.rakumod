@@ -1,4 +1,4 @@
-unit module Clu::Asciicaster:ver<1.0.1>:auth<masukomi (masukomi@masukomi.org)>;
+unit module Clu::Asciicaster;
 use Definitely;
 use Clu::Command;
 use Clu::Metadata;

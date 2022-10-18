@@ -74,11 +74,13 @@ INSERT INTO commands (
 END
 	my $statement_handle = $db.db.prepare($insert_sql);
 	$statement_handle.execute(executable-list(%command));
+	$statement_handle.finish();
 
 	my @command_tags = %command<tags>;
 	if ! @command_tags.is-empty {
 		my $command_id = find-command-id(%command<name>, $db);
-		if $command_id {
+		if $command_id ~~ Some {
+			$command_id = $command_id.value;
 			set-tags-for-command($command_id, (%command<tags> or []), $db);
 			# this is stupid, I admit, but because of the triggers that update
 			# the virtual table, it's actually cleaner to update this with a bs
@@ -90,12 +92,13 @@ END
 			END
 			my $statement_handle = $db.db.prepare($update_sql);
 			$statement_handle.execute([(%command<description> ~ " "), $command_id]);
+			$statement_handle.finish();
 		}
 	}
 
 }
 
-our sub update-command($command_id, %command, $db){
+our sub update-command($command_id, %command, $sqlite){
 	# there's a bug in DB::SQLite
 	# https://github.com/CurtTilmes/raku-dbsqlite/issues/18
 	# you can't used named parms with
@@ -104,7 +107,7 @@ our sub update-command($command_id, %command, $db){
 	# there's no trigger on tags, or commands_tags
 	# so we need to update this before we update the
 	# command itself, because _that_ table has a trigger
-	set-tags-for-command($command_id, (%command<tags> or []), $db);
+	set-tags-for-command($command_id, (%command<tags> or []), $sqlite);
 
 	my $update_sql = q:to/END/;
 UPDATE commands SET
@@ -121,18 +124,30 @@ UPDATE commands SET
 WHERE id = ?;
 END
 
-   my $statement_handle = $db.db.prepare($update_sql);
+   my $db = $sqlite.db;
+   my $statement_handle = $db.prepare($update_sql);
    my @list_with_id = executable-list(%command);
    @list_with_id.append($command_id);
-   $statement_handle.execute(@list_with_id)
+   $db.begin;
+   $statement_handle.execute(@list_with_id);
+   $db.commit;
 }
 
-sub remove-command(Str $command_name, DB::SQLite $db) returns Bool is export {
-	my $delete_sql = 'DELETE FROM commands WHERE name = :name';
-	my $statement_handle = $db.db.prepare($delete_sql);
-	$statement_handle.bind(':name', $command_name);
-	my $rows_affected = $statement_handle.execute();
-    $rows_affected > 0 ?? True !! False;
+sub remove-command(Str $command_name, DB::SQLite $sqlite) returns Bool is export {
+	my $command_id = find-command-id($command_name, $sqlite);
+    if $command_id ~~ Some {
+		$command_id = $command_id.value;
+		delete-commands-tags($command_id, $sqlite);
+		my $delete_sql = "DELETE FROM commands WHERE name = :command_name";
+		my $db = $sqlite.db;
+		my $statement_handle = $db.prepare($delete_sql);
+		$statement_handle.bind(':command_name', $command_name);
+		$db.begin;
+		my $rows_affected = $statement_handle.execute();
+		$db.finish;
+		return ($rows_affected > 0 ?? True !! False);
+	}
+	return False;
 }
 
 

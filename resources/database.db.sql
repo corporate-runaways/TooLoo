@@ -41,7 +41,7 @@ CREATE VIRTUAL TABLE commands_fts USING fts5(
 	name,
 	description,
 	language,
-	tags,
+	all_tags,
 	content=commands,
 	content_rowid=id,
 	tokenize=porter
@@ -68,12 +68,10 @@ CREATE TABLE IF NOT EXISTS "commands_fts_config" (
 	PRIMARY KEY("k")
 ) WITHOUT ROWID;
 INSERT INTO "clu_metadata" ("key","value") VALUES ('db_version','2.0.0');
-INSERT INTO "commands_fts_data" ("id","block") VALUES (1,'');
-INSERT INTO "commands_fts_data" ("id","block") VALUES (10,X'00000000000000');
-INSERT INTO "commands_fts_config" ("k","v") VALUES ('version',4);
+
 CREATE TRIGGER commands_fts_insert AFTER INSERT ON commands
 BEGIN
-    INSERT INTO commands_fts (rowid, name, description, language, tags)
+    INSERT INTO commands_fts (rowid, name, description, language, all_tags)
 
 	VALUES (new.rowid, new.name, new.description, new.language,
 			(
@@ -85,29 +83,47 @@ BEGIN
 			)
 	);
 END;
+
 CREATE TRIGGER commands_fts_delete AFTER DELETE ON commands
 BEGIN
     INSERT INTO commands_fts
-	(commands_fts, rowid, name, description, language, tags )
+	(commands_fts, rowid, name, description, language, all_tags)
 	VALUES
-	('delete', old.rowid, old.name, old.description, old.language, old.tags);
+	('delete', old.rowid, old.name, old.description, old.language, old.all_tags);
 END;
-CREATE TRIGGER commands_fts_update AFTER UPDATE ON commands
-BEGIN
-    INSERT INTO commands_fts
-	(commands_fts, rowid, name, description, language, tags)
-	VALUES ('delete', old.rowid, old.name, old.description, old.language, old.tags);
-    INSERT INTO commands_fts
-	(rowid, name, description, language, tags)
-	VALUES
-	(new.rowid, new.name, new.description, new.language,
-			(
-				SELECT GROUP_CONCAT(t.tag)
-				FROM tags t
-				INNER JOIN commands_tags ct on ct.tag_id = t.id
-				INNER JOIN commands c on ct.command_id = c.id
-				WHERE c.rowid = new.rowid
-			)
-	);
-END;
+
+-- CREATE TRIGGER commands_fts_delete AFTER DELETE ON commands
+-- BEGIN
+--     INSERT INTO commands_fts
+-- 	(commands_fts, rowid, name, description, language)
+-- 	VALUES
+-- 	('delete', old.rowid, old.name, old.description, old.language);
+-- END;
+
+-- CREATE TRIGGER commands_fts_delete AFTER DELETE ON commands
+-- BEGIN
+--     INSERT INTO commands_fts
+-- 	(commands_fts, rowid, name, description, language, tags )
+-- 	VALUES
+-- 	('delete', old.rowid, old.name, old.description, old.language, null);
+-- END;
+
+-- CREATE TRIGGER commands_fts_update AFTER UPDATE ON commands
+-- BEGIN
+--     INSERT INTO commands_fts
+-- 	(commands_fts, rowid, name, description, language, tags)
+-- 	VALUES ('delete', old.rowid, old.name, old.description, old.language, old.tags);
+--     INSERT INTO commands_fts
+-- 	(rowid, name, description, language, tags)
+-- 	VALUES
+-- 	(new.rowid, new.name, new.description, new.language,
+-- 			(
+-- 				SELECT GROUP_CONCAT(t.tag)
+-- 				FROM tags t
+-- 				INNER JOIN commands_tags ct on ct.tag_id = t.id
+-- 				INNER JOIN commands c on ct.command_id = c.id
+-- 				WHERE c.rowid = new.rowid
+-- 			)
+-- 	);
+-- END;
 COMMIT;

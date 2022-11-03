@@ -56,12 +56,27 @@ multi sub display-command(%command) is export {
 }
 
 our sub find-commands(Str $search_string, DB::SQLite $db) returns Maybe[Array] {
+
+	#NOTE searching tags by bridging commands_fts and tags_fts via commands_tags
+	# because figuring out the magic incantation to get a summarized list of tags into
+	# a row of commands_fts, via triggers was too difficult.
+	#
+	# Please PR if you can make that magic work.
 	my $search_sql = q:to/END/;
-	SELECT * FROM commands_fts WHERE
-	  name MATCH ?
-	  OR description MATCH ?
-	  OR language MATCH ?
-	  OR tags MATCH ?
+	SELECT
+		c.id, c.name, c.description, c.language
+
+	FROM commands_fts c
+
+	INNER JOIN commands_tags ct on ct.command_id	= c.id
+	INNER JOIN tags_fts t       on ct.tag_id		= t.id
+
+	WHERE
+	  c.name			MATCH ?
+	  OR c.description	MATCH ?
+	  OR c.language		MATCH ?
+	  OR t.tag			MATCH ?
+
 	ORDER BY rank;
 	END
 

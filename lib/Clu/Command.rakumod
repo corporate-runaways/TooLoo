@@ -89,6 +89,8 @@ our sub find-commands(Str $search_string, DB::SQLite $db) returns Maybe[Array] {
 }
 
 our sub find-command-id(Str $command_name, DB::SQLite $db) returns Maybe[Int] is export {
+	# WARN .connections only works becaues of custom build of DB package
+	note("\nXXX: Command.find-command-id num db connections: " ~ $db.connections.elems);
 	my $val = $db.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
 	$val ~~ Int ?? something($val) !! nothing(Int);
 }

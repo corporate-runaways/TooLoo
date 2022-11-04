@@ -75,20 +75,18 @@ our sub set-tags-for-command(Int $command_id, @tags, DB::SQLite $sqlite) is expo
 
 	# - takes a command_id and a list of tags
 	# vvv BREAKS
-	# my $new_tags = add-tags(@tags.cache, $sqlite).List.first;
+	my $new_tags = add-tags(@tags.cache, $sqlite).List.first;
 
 	# BEGIN HACK
 	# 		vvv WORKS
-	        for @tags -> $tag {
-				$sqlite.execute("INSERT INTO tags (tag) VALUES ('$tag')");
-				my $tag_id =  $sqlite.query("select id from tags where tag = '$tag'; ").value;
+	        # for @tags -> $tag {
+			# 	$sqlite.execute("INSERT INTO tags (tag) VALUES ('$tag')");
+			# 	my $tag_id =  $sqlite.query("select id from tags where tag = '$tag'; ").value;
 
 		    # vvv BREAKS
-			# for $new_tags -> $tag_pair {
-				# $sqlite.execute("INSERT INTO tags (tag) VALUES ('$tag')");
-				# my $tag_id =  $sqlite.query("select id from tags where tag = '$tag'; ").value;
-				# note("\nXXX: \$tag_pair: " ~ $tag_pair.gist ~ " or " ~ $tag_pair.raku);
-				# my $tag_id = $tag_pair.first;
+			for $new_tags -> $tag_pair {
+				note("\nXXX: \$tag_pair: " ~ $tag_pair.gist ~ " or " ~ $tag_pair.raku);
+				my $tag_id = $tag_pair.first;
 
             # vvv works
 				$sqlite.execute("INSERT INTO commands_tags (command_id, tag_id) values ($command_id, $tag_id)");
@@ -96,7 +94,7 @@ our sub set-tags-for-command(Int $command_id, @tags, DB::SQLite $sqlite) is expo
 				# $statement_handle.execute([$command_id, $tag_id]);
 			}
 			return True;
-			my $new_tags = Seq.new;
+			#my $new_tags = Seq.new;
 	# END HACK
 
 

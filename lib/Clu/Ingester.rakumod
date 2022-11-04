@@ -83,7 +83,13 @@ END
 		my $command_id = find-command-id(%command<name>, $db);
 		if $command_id ~~ Some {
 			$command_id = $command_id.value;
+
+
+
+			# UNCOMMENT THIS AFTER REMOVING ^^^
 			set-tags-for-command($command_id, (%command<tags> or []), $db);
+
+
 			# this is stupid, I admit, but because of the triggers that update
 			# the virtual table, it's actually cleaner to update this with a bs
 			# whitespace change than have multiple PITA triggers on the tags and / or

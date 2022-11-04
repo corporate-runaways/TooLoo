@@ -26,39 +26,39 @@ my sub find-tag-records(@tags, DB::SQLite $sqlite) returns Seq {
 #  $(((2, "debugging"), (1, "ruby")).Seq
 my sub add-tags(@tags, DB::SQLite $sqlite) returns Seq {
 
-	for @tags -> $tag {
-		$sqlite.execute("INSERT INTO tags (tag) VALUES ('$tag')");
-		# my $tag_id =  $sqlite.query("select id from tags where tag = '$tag'; ").value;
-	}
+	# for @tags -> $tag {
+	# 	$sqlite.execute("INSERT INTO tags (tag) VALUES ('$tag')");
+	# 	# my $tag_id =  $sqlite.query("select id from tags where tag = '$tag'; ").value;
+	# }
 
 
 
-	# my @known_tags = find-tag-records(@tags, $sqlite);
-	# my @extant_tag_names = @known_tags.map({.[1]});
-	# # NOTE: that's not a backslash below. It's a "SET MINUS" (\u002216)
-	# my @new_tags = @tags.Set ∖ @extant_tag_names;
-	# note("\nXXX extant_tag_names: " ~ @extant_tag_names.raku);
-	# note("\nXXX adding new_tags: " ~ @new_tags.raku);
-	# if ! @new_tags.is-empty {
-	# 	my $insert_sql = q:to/END/;
-	# 		INSERT INTO TAGS (tag) VALUES (?);
-	# 	END
+	my @known_tags = find-tag-records(@tags, $sqlite);
+	my @extant_tag_names = @known_tags.map({.[1]});
+	# NOTE: that's not a backslash below. It's a "SET MINUS" (\u002216)
+	my @new_tags = @tags.Set ∖ @extant_tag_names;
+	note("\nXXX extant_tag_names: " ~ @extant_tag_names.raku);
+	note("\nXXX adding new_tags: " ~ @new_tags.raku);
+	if ! @new_tags.is-empty {
+		my $insert_sql = q:to/END/;
+			INSERT INTO TAGS (tag) VALUES (?);
+		END
 
-	# 	# efficient? no not really
-	# 	# easy? yup.
-	# 	# fast enough? yup.
-	# 	# $sqlite.db.begin;
-	# 	my $statement_handle = $sqlite.db.prepare($insert_sql);
-	# 	for @new_tags -> $tag {
-	# 		my $clean_tag =  $tag ~~ Pair ?? $tag.key !! $tag;
-	# 		note("\nXXX clean_tag: " ~ $clean_tag.raku);
-	# 		$statement_handle.execute($clean_tag);
-	# 	}
-	# 	# $sqlite.db.commit;
-	# 	# $statement_handle.finish();
+		# efficient? no not really
+		# easy? yup.
+		# fast enough? yup.
+		# $sqlite.db.begin;
+		my $statement_handle = $sqlite.db.prepare($insert_sql);
+		for @new_tags -> $tag {
+			my $clean_tag =  $tag ~~ Pair ?? $tag.key !! $tag;
+			note("\nXXX clean_tag: " ~ $clean_tag.raku);
+			$statement_handle.execute($clean_tag);
+		}
+		# $sqlite.db.commit;
+		# $statement_handle.finish();
 		# return find-tag-records(@tags, $sqlite);
 		return Seq([1, "ruby"], [2, "debugging"]);
-	# }
+	}
 	# [].Seq
 }
 

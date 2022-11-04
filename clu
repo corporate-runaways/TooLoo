@@ -158,7 +158,8 @@ multi sub MAIN('update', Str $path) {ingest($path);}
 #internal stuff
 
 sub ingest(Str $path) {
-	my $db = DB::SQLite.new(filename => guarantee-db());
+	my $db = DB::SQLite.new(filename => guarantee-db(),
+						   busy-timeout => 3000);
 
 	my $response;
 	given $path {
@@ -201,6 +202,11 @@ sub copy-over-db($destination) {
 }
 
 sub guarantee-db() returns Str {
+	# my $db_path = "data/clu/database.db";
+	# guarantee-resource($db_path, Clu::Resourcer);
 	my $db_path = "data/clu/database.db";
-	guarantee-resource($db_path, Clu::Resourcer);
+	my $resource_path = guarantee-resource($db_path, Clu::Resourcer);
+
+	note("\nXXX resource_path: $resource_path");
+	return $resource_path;
 }

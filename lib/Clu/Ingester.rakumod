@@ -33,6 +33,7 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 	die("$path didn't have a 'name' key")				unless %metadata<name>.Bool;
 	die("$path didn't have a 'description' key")		unless %metadata<description>.Bool;
 
+
 	# see if anything exists in the db for that command
 	given find-command-id(%metadata<name>, $db) {
 		# if yes, update
@@ -74,10 +75,11 @@ INSERT INTO commands (
 END
 	my $statement_handle = $db.db.prepare($insert_sql);
 	$statement_handle.execute(executable-list(%command));
-	$statement_handle.finish();
+	# $statement_handle.finish();
 
 	my @command_tags = %command<tags>;
 	if ! @command_tags.is-empty {
+		# we'll need the auto-generated ID of the thing we just inserted
 		my $command_id = find-command-id(%command<name>, $db);
 		if $command_id ~~ Some {
 			$command_id = $command_id.value;
@@ -90,9 +92,11 @@ END
 				UPDATE commands set description = ?
 				WHERE id = ?
 			END
+			# $db.db.begin;
 			my $statement_handle = $db.db.prepare($update_sql);
 			$statement_handle.execute([(%command<description> ~ " "), $command_id]);
-			$statement_handle.finish();
+			# $db.db.commit;
+			# $statement_handle.finish();
 		}
 	}
 
@@ -108,7 +112,7 @@ our sub update-command($command_id, %command, $sqlite){
 	# so we need to update this before we update the
 	# command itself, because _that_ table has a trigger
 	set-tags-for-command($command_id, (%command<tags> or []), $sqlite);
-
+exit
 	my $update_sql = q:to/END/;
 UPDATE commands SET
   name              = ?,
@@ -128,9 +132,9 @@ END
    my $statement_handle = $db.prepare($update_sql);
    my @list_with_id = executable-list(%command);
    @list_with_id.append($command_id);
-   $db.begin;
+   # $db.begin;
    $statement_handle.execute(@list_with_id);
-   $db.commit;
+   # $db.commit;
 }
 
 sub remove-command(Str $command_name, DB::SQLite $sqlite) returns Bool is export {

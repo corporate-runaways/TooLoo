@@ -36,27 +36,40 @@ my sub add-tags(@tags, DB::SQLite $sqlite) returns Seq {
 	my @known_tags = find-tag-records(@tags, $sqlite);
 	my @extant_tag_names = @known_tags.map({.[1]});
 	# NOTE: that's not a backslash below. It's a "SET MINUS" (\u002216)
-	my @new_tags = @tags.Set ∖ @extant_tag_names;
+	my @new_tags = @tags.Set ∖ @extant_tag_names; # Seq of Pairs
 	note("\nXXX extant_tag_names: " ~ @extant_tag_names.raku);
 	note("\nXXX adding new_tags: " ~ @new_tags.raku);
 	if ! @new_tags.is-empty {
 		my $insert_sql = q:to/END/;
-			INSERT INTO TAGS (tag) VALUES (?);
+			INSERT INTO TAGS (tag) VALUES
 		END
+
+		for (1..@new_tags.elems) {
+			$insert_sql ~= " ( ? ),";
+		}
+		# trim off the last comma
+		$insert_sql = substr($insert_sql, 0, *-1);
+		# it's a sequence of Pairs, we need an Array of Strings
+		my $new_tag_strings = @new_tags.map(*.key).Array;
+		note("\nXXX: \$new_tag_strings: " ~ $new_tag_strings.raku );
+
+		my $statement_handle = $sqlite.db.prepare($insert_sql);
+		$statement_handle.execute($new_tag_strings);
 
 		# efficient? no not really
 		# easy? yup.
 		# fast enough? yup.
 		# $sqlite.db.begin;
-		my $statement_handle = $sqlite.db.prepare($insert_sql);
-		for @new_tags -> $tag {
-			my $clean_tag =  $tag ~~ Pair ?? $tag.key !! $tag;
-			note("\nXXX clean_tag: " ~ $clean_tag.raku);
-			$statement_handle.execute($clean_tag);
-		}
+		# my $statement_handle = $sqlite.db.prepare($insert_sql);
+		# for @new_tags -> $tag {
+		# 	my $clean_tag =  $tag ~~ Pair ?? $tag.key !! $tag;
+		# 	note("\nXXX clean_tag: " ~ $clean_tag.raku);
+		# 	$statement_handle.execute($clean_tag);
+		# }
 		# $sqlite.db.commit;
 		# $statement_handle.finish();
 		# return find-tag-records(@tags, $sqlite);
+		# FIXME ^^^ vvvv
 		return Seq([1, "ruby"], [2, "debugging"]);
 	}
 	# [].Seq

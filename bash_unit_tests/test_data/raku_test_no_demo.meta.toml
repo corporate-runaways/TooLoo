@@ -20,7 +20,7 @@ language="bash"
 source_url=""
 # where you can find the repo that contains this file
 source_repo_url=""
-tags=["a_t"]
+tags=["rtnd1", "rtnd2"]
 
 # [[cheats]]
 # [[cheats.bar]]

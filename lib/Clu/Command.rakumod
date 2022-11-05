@@ -76,7 +76,6 @@ our sub find-commands(Str $search_string, DB::Connection $connection) returns Ma
 	my @terms_list = $search_string.subst(/<[,/]>+/, "", :g).split(/\s+/);
 	# the three $_ below correspond to name, description, and language
 	my @command_search_bindings = [].push(@terms_list.map({[$_, $_, $_ ]}));
-	note("\nXXX initial \@command_search_bindings: " ~ @command_search_bindings.raku);
 	my $tag_search_sql = q:to/END/;
 		SELECT id from tags_fts where tag MATCH ?
 	END
@@ -109,12 +108,10 @@ our sub find-commands(Str $search_string, DB::Connection $connection) returns Ma
 						@command_search_bindings.flatten
 					)\
 					.arrays.map({ $_[0] });
-    note("\nXXX: \@command_ids: " ~ @command_ids.raku);
 	my @tag_ids = $connection\
 				   .query($tag_search_sql, @terms_list)\
 				   .arrays.map({ $_[0] });
 
-	note("\nXXX: \@tag_ids: " ~ @tag_ids.raku);
 
 
 	my $commands_tag_search_sql = q:to/END/;
@@ -127,9 +124,7 @@ our sub find-commands(Str $search_string, DB::Connection $connection) returns Ma
 			@tag_ids
 		)\
 		.arrays.map({$_[0]});
-	note("\nXXX: \@other_command_ids: " ~ @other_command_ids.raku);
 	@command_ids.append(@other_command_ids);
-	note("\nXXX \@command_ids: " ~ @command_ids.raku);
 
 
 	my $search_sql = q:to/END/;

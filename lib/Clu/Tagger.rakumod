@@ -37,8 +37,6 @@ my sub add-tags(@tags, DB::Connection $connection) returns Seq {
 	my @extant_tag_names = @known_tags.map({.[1]});
 	# NOTE: that's not a backslash below. It's a "SET MINUS" (\u002216)
 	my @new_tags = @tags.Set ∖ @extant_tag_names; # Seq of Pairs
-	note("\nXXX extant_tag_names: " ~ @extant_tag_names.raku);
-	note("\nXXX adding new_tags: " ~ @new_tags.raku);
 	if ! @new_tags.is-empty {
 		my $insert_sql = q:to/END/;
 			INSERT INTO TAGS (tag) VALUES
@@ -50,15 +48,12 @@ my sub add-tags(@tags, DB::Connection $connection) returns Seq {
 		# trim off the last comma
 		$insert_sql = substr($insert_sql, 0, *-1);
 
-		note("\nXXX \$insert_sql: " ~ $insert_sql.raku);
 
 		# it's a sequence of Pairs, we need an Array of Strings
 		my $new_tag_strings = @new_tags.map(*.key).Array;
-		note("\nXXX: \$new_tag_strings: " ~ $new_tag_strings.raku );
 
 		my $statement_handle = $connection.prepare($insert_sql);
 		my $rows_changed = $statement_handle.execute($new_tag_strings);
-		note("\nXXX: \$rows_changed... possibly wrong because of views: " ~ $rows_changed);
 
 	}
 	return find-tag-records(@tags, $connection);
@@ -80,19 +75,15 @@ our sub set-tags-for-command(Int $command_id, @tags, DB::Connection $connection)
 
 
 	my $deleted_connections_count = delete-commands-tags($command_id, $connection);
-	note("\nXXX \$deleted_connections_count: " ~ $deleted_connections_count.raku);
 	# - takes a command_id and a list of tags
 	# vvv BREAKS
 	my $ids_and_tags = add-tags(@tags.cache, $connection).cache;
-	note("\nXXX \$ids_and_tags.Array: " ~ $ids_and_tags.Array.raku);
 
 	my $insert_sql = 'INSERT INTO commands_tags (command_id, tag_id) VALUES ';
 
 	# these are just IDs, that WE retrieved,
 	# so i'm not worried about SQL injection
 	for $ids_and_tags.Array -> $tag_tuple {
-		note("\nXXX \$tag_tuple: " ~ $tag_tuple.raku);
-		note("\nXXX \$tag_tuple[0]: " ~ $tag_tuple[0].raku);
 		$insert_sql ~= " ( $command_id, $tag_tuple[0] ),";
 	}
 	$insert_sql = substr($insert_sql, 0, *-1);

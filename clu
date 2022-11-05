@@ -132,7 +132,7 @@ multi sub MAIN ('show',
 #| Generate a blank TOML template at the specified location.
 multi sub MAIN('template', $destination) {
 	say("Copying fresh template to $destination");
-	copy(Clu::Resourcer.gimme{"template.meta.toml"}, $destination);
+	copy(Clu::Resourcer.fetch-resource{"template.meta.toml"}, $destination);
 }
 
 
@@ -191,10 +191,6 @@ END
 }
 
 
-sub copy-over-db($destination) {
-	say("Copying fresh db to $destination");
-	copy(Clu::Resourcer.gimme{"empty_database.db"}, $destination);
-}
 
 sub guarantee-db() returns Str {
 	# my $db_path = "data/clu/database.db";

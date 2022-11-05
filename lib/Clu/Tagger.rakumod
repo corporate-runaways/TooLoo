@@ -53,7 +53,7 @@ my sub add-tags(@tags, DB::Connection $connection) returns Seq {
 		my $new_tag_strings = @new_tags.map(*.key).Array;
 
 		my $statement_handle = $connection.prepare($insert_sql);
-		my $rows_changed = $statement_handle.execute($new_tag_strings);
+		my $rows_changed = $statement_handle.execute(|$new_tag_strings);
 
 	}
 	return find-tag-records(@tags, $connection);

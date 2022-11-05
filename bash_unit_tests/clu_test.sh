@@ -38,13 +38,18 @@ test_3_add_new() {
 
 test_4_add_existing() {
 	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
-	add_new_output=$(raku -I lib clu add $file_path | sed -e "s/ \/.*//")
-	assert_equals "$add_new_output" "Successfully ingested"
+	add_existing_output=$(raku -I lib clu add $file_path | sed -e "s/ \/.*//")
+	assert_equals "$add_existing_output" "Successfully ingested"
 }
 
 test_5_update() {
 	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
-	add_new_output=$(raku -I lib clu update $file_path | sed -e "s/ \/.*//")
-	assert_equals "$add_new_output" "Successfully ingested"
+	update_output=$(raku -I lib clu update $file_path | sed -e "s/ \/.*//")
+	assert_equals "$update_output" "Successfully ingested"
+}
 
+test_6_add_asciicast() {
+	file_path=$TEST_DATA_DIR"/raku_test_no_demo.cast"
+	add_cast_output=$(raku -I lib clu update $file_path | sed -e "s/ \/.*//")
+	assert_equals "$add_cast_output" "Successfully ingested"
 }

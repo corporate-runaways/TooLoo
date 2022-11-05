@@ -1,0 +1,9 @@
+{"version": 2, "width": 111, "height": 39, "timestamp": 1667684073, "env": {"SHELL": "/opt/homebrew/opt/bash/bin/bash", "TERM": "xterm-256color"}}
+[0.028821, "o", "\u001b[?2004h\u001b[38;2;105;255;148m❯ \u001b[0m\u001b[0m"]
+[0.726869, "o", "echo \"test data\""]
+[1.518424, "o", "\r\n"]
+[1.518565, "o", "\u001b[?2004l\r"]
+[1.537687, "o", "test data\r\n"]
+[1.558214, "o", "\u001b[?2004h\u001b[38;2;105;255;148m❯ \u001b[0m\u001b[0m"]
+[2.269844, "o", "\u001b[?2004l\r\r\n"]
+[2.270378, "o", "exit\r\n"]

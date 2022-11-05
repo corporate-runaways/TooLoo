@@ -16,7 +16,9 @@ submitting a PR.
     Should be same as =clu add <path>= for an existing command.
 - [ ] =clu demo=
   - [ ] command with asciicast_url
+    Should run the asciicast
   - [ ] command without asciicast_url
+    Should error gracefully.
 - [ ] =clu demos=
   - [ ] includes commands with asciicast_url
   - [ ] excludes all others

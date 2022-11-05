@@ -36,8 +36,15 @@ test_3_add_new() {
 	assert_equals "$add_new_output" "Successfully ingested"
 }
 
-test_3_add_existing() {
+test_4_add_existing() {
 	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
 	add_new_output=$(raku -I lib clu add $file_path | sed -e "s/ \/.*//")
 	assert_equals "$add_new_output" "Successfully ingested"
+}
+
+test_5_update() {
+	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
+	add_new_output=$(raku -I lib clu update $file_path | sed -e "s/ \/.*//")
+	assert_equals "$add_new_output" "Successfully ingested"
+
 }

@@ -49,6 +49,9 @@ my sub add-tags(@tags, DB::Connection $connection) returns Seq {
 		}
 		# trim off the last comma
 		$insert_sql = substr($insert_sql, 0, *-1);
+
+		note("\nXXX \$insert_sql: " ~ $insert_sql.raku);
+
 		# it's a sequence of Pairs, we need an Array of Strings
 		my $new_tag_strings = @new_tags.map(*.key).Array;
 		note("\nXXX: \$new_tag_strings: " ~ $new_tag_strings.raku );
@@ -57,15 +60,13 @@ my sub add-tags(@tags, DB::Connection $connection) returns Seq {
 		my $rows_changed = $statement_handle.execute($new_tag_strings);
 		note("\nXXX: \$rows_changed... possibly wrong because of views: " ~ $rows_changed);
 
-		return find-tag-records(@tags, $connection);
-		# return Seq([1, "ruby"], [2, "debugging"]);
 	}
-	[].Seq
+	return find-tag-records(@tags, $connection);
 }
 
 #| Severs the associations between a command and its tags (if any).
 my sub delete-commands-tags(Int $command_id, DB::Connection $connection) is export returns Int {
-    my $count = $connection.query("select count(*) from commands_tags where command_id = $command_id").value;
+    # my $count = $connection.query("select count(*) from commands_tags where command_id = $command_id").value;
 	# if $count > 0 {
 		my $delete_sql = "DELETE from commands_tags where command_id = ?";
 		my $statement_handle = $connection.prepare($delete_sql);
@@ -78,55 +79,24 @@ my sub delete-commands-tags(Int $command_id, DB::Connection $connection) is expo
 our sub set-tags-for-command(Int $command_id, @tags, DB::Connection $connection) is export returns Bool {
 
 
+	my $deleted_connections_count = delete-commands-tags($command_id, $connection);
+	note("\nXXX \$deleted_connections_count: " ~ $deleted_connections_count.raku);
 	# - takes a command_id and a list of tags
 	# vvv BREAKS
-	my $new_tags = add-tags(@tags.cache, $connection).List.first;
+	my $ids_and_tags = add-tags(@tags.cache, $connection).cache;
+	note("\nXXX \$ids_and_tags.Array: " ~ $ids_and_tags.Array.raku);
 
-	# BEGIN HACK
-	# 		vvv WORKS
-	        # for @tags -> $tag {
-			# 	$connection.execute("INSERT INTO tags (tag) VALUES ('$tag')");
-			# 	my $tag_id =  $connection.query("select id from tags where tag = '$tag'; ").value;
+	my $insert_sql = 'INSERT INTO commands_tags (command_id, tag_id) VALUES ';
 
-		    # vvv BREAKS
-			for $new_tags -> $tag_pair {
-				note("\nXXX: \$tag_pair: " ~ $tag_pair.gist ~ " or " ~ $tag_pair.raku);
-				my $tag_id = $tag_pair.first;
-
-            # vvv works
-				$connection.execute("INSERT INTO commands_tags (command_id, tag_id) values ($command_id, $tag_id)");
-
-				# $statement_handle.execute([$command_id, $tag_id]);
-			}
-			return True;
-			#my $new_tags = Seq.new;
-	# END HACK
-
-
-	# - delete any tags currently associated with it
-	#   the inefficiency is less "expensive" than the maintenance
-	#   of the more complex code that'd be required to find and delete
-	#   ones that're no longer valid.
-	my $deleted_count = delete-commands-tags($command_id, $connection);
-	# - creates rows in commands_tags
-	if $new_tags.Array.elems > 0 {
-		note("\nXXX: \$new_tags: " ~ $new_tags.raku);
-		# my $insert_sql = q:to/END/;
-		# INSERT INTO commands_tags (command_id, tag_id)
-		# VALUES( ?, ? )
-		# END
-		# my $statement_handle = $db.prepare($insert_sql);
-		# $db.begin;
-		my $count = $connection.query("select count(*) from commands_tags where command_id = $command_id  ").value;
-		# $db.commit;
-		note("\nXXX: commands_tags count for $command_id: $count");
-		for $new_tags.Array -> $tag_array {
-			my $tag_id = $tag_array[0];
-			$connection.execute("INSERT INTO commands_tags (command_id, tag_id) values ($command_id, $tag_id)");
-			# $statement_handle.execute([$command_id, $tag_id]);
-		}
-		# $db.commit;
-		# $statement_handle.finish();
+	# these are just IDs, that WE retrieved,
+	# so i'm not worried about SQL injection
+	for $ids_and_tags.Array -> $tag_tuple {
+		note("\nXXX \$tag_tuple: " ~ $tag_tuple.raku);
+		note("\nXXX \$tag_tuple[0]: " ~ $tag_tuple[0].raku);
+		$insert_sql ~= " ( $command_id, $tag_tuple[0] ),";
 	}
+	$insert_sql = substr($insert_sql, 0, *-1);
+	$connection.query($insert_sql);
+
 	True
 }

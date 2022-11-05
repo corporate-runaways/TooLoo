@@ -115,7 +115,7 @@ our sub update-command($command_id, %command, DB::Connection $connection){
 	# so we need to update this before we update the
 	# command itself, because _that_ table has a trigger
 	set-tags-for-command($command_id, (%command<tags> or []), $connection);
-exit
+
 	my $update_sql = q:to/END/;
 UPDATE commands SET
   name              = ?,

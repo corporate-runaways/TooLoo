@@ -16,7 +16,7 @@ use Clu::Tagger;
 use DB::SQLite;
 use TOML;
 
-our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
+our sub ingest-metadata(Str $path, DB::SQLite $sqlite) returns Bool is export {
 	#TODO: convert relative paths to absolute
 	# convert ~ to $*HOME
 	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
@@ -33,7 +33,7 @@ our sub ingest-metadata(Str $path, DB::SQLite $db) returns Bool is export {
 	die("$path didn't have a 'name' key")				unless %metadata<name>.Bool;
 	die("$path didn't have a 'description' key")		unless %metadata<description>.Bool;
 
-	my $connection = $db.db;
+	my $connection = $sqlite.db;
 	# see if anything exists in the db for that command
 	given find-command-id(%metadata<name>, $connection) {
 		# if yes, update
@@ -98,11 +98,8 @@ END
 				UPDATE commands set description = ?
 				WHERE id = ?
 			END
-			# $connection.db.begin;
 			my $statement_handle = $connection.prepare($update_sql);
 			$statement_handle.execute([(%command<description> ~ " "), $command_id]);
-			# $connection.db.commit;
-			# $statement_handle.finish();
 		}
 	}
 
@@ -137,9 +134,7 @@ END
    my $statement_handle = $connection.prepare($update_sql);
    my @list_with_id = executable-list(%command);
    @list_with_id.append($command_id);
-   # $db.begin;
    $statement_handle.execute(@list_with_id);
-   # $db.commit;
 }
 
 sub remove-command(Str $command_name, DB::SQLite $sqlite) returns Bool is export {

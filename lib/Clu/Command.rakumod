@@ -55,32 +55,99 @@ multi sub display-command(%command) is export {
 
 }
 
-our sub find-commands(Str $search_string, DB::SQLite $db) returns Maybe[Array] {
+our sub find-commands(Str $search_string, DB::Connection $connection) returns Maybe[Array] {
 
-	#NOTE searching tags by bridging commands_fts and tags_fts via commands_tags
-	# because figuring out the magic incantation to get a summarized list of tags into
-	# a row of commands_fts, via triggers was too difficult.
+	# WHERE foo MATCH IN (...) is NOT AN OPTION
+	# you can't join AND match...
+	# MATCH has to be executed before the JOIN (subselects)
+
+	# MATCH works only on the FTS table itself,
+	# so it must be executed before a join.
 	#
-	# Please PR if you can make that magic work.
-	my $search_sql = q:to/END/;
-	SELECT
-		c.id, c.name, c.description, c.language
-
-	FROM commands_fts c
-
-	INNER JOIN commands_tags ct on ct.command_id	= c.id
-	INNER JOIN tags_fts t       on ct.tag_id		= t.id
-
-	WHERE
-	  c.name			MATCH ?
-	  OR c.description	MATCH ?
-	  OR c.language		MATCH ?
-	  OR t.tag			MATCH ?
-
-	ORDER BY rank;
+	# writing a single query that bridged these tables seems
+	# convoluted at best.
+	#
+	# Instead, we're going to do multiple queries,
+	# uniquify the ids that come back, and then
+	# search for _those_ commands.
+	#
+	#
+	my @terms_list = $search_string.subst(/<[,/]>+/, "", :g).split(/\s+/);
+	# the three $_ below correspond to name, description, and language
+	my @command_search_bindings = [].push(@terms_list.map({[$_, $_, $_ ]}));
+	note("\nXXX initial \@command_search_bindings: " ~ @command_search_bindings.raku);
+	my $tag_search_sql = q:to/END/;
+		SELECT id from tags_fts where tag MATCH ?
 	END
 
-	my @results = $db.query($search_sql, [$search_string, $search_string, $search_string]).hashes ;
+	my $command_search_sql = q:to/END/;
+        SELECT id FROM commands_fts WHERE
+          name MATCH ?
+          OR description MATCH ?
+          OR language MATCH ?
+	END
+
+	if @terms_list.elems > 1 {
+		for @terms_list -> $term {
+			$tag_search_sql ~= ' OR tag MATCH ?';
+
+			$command_search_sql ~= q:to/END/;
+			OR name MATCH ?
+			OR description MATCH ?
+			OR language MATCH ?
+			END
+		}
+
+	} else {
+		$command_search_sql ~= ' ORDER BY rank;';
+	}
+	note("\nXXX \$tag_search_sql: " ~ $tag_search_sql.raku);
+	note("\nXXX \$command_search_sql: " ~ $command_search_sql.raku);
+	note("\nXXX \@command_search_bindings: " ~ @command_search_bindings.raku);
+	# my $command_search_sth = $connection.prepare($command_search_sql);
+	# my @command_ids = $command_search_sth \
+	# 				   .execute(@command_search_bindings.flatten) \
+	# 				   .arrays \
+	# 				   .map({ $_[0]});
+	# my $tags_search_sth = $connection.prepare($tag_search_sql);
+	# my @tag_ids = $tags_search_sth.execute(@terms_list) \
+	# 			   .arrays \
+	# 			   .map({ $_[0] });
+
+	my @command_ids = $connection\
+					.query(
+						$command_search_sql,
+						@command_search_bindings.flatten
+					)\
+					.arrays.map({ $_[0] });
+    note("\nXXX: \@command_ids: " ~ @command_ids.raku);
+	my @tag_ids = $connection\
+				   .query($tag_search_sql, @terms_list)\
+				   .arrays.map({ $_[0] });
+
+	note("\nXXX: \@tag_ids: " ~ @tag_ids.raku);
+
+
+	my $commands_tag_search_sql = q:to/END/;
+		SELECT command_id FROM commands_tags
+		WHERE
+			tag_id IN (?)
+	END
+	my @other_command_ids = $connection.query(
+			$commands_tag_search_sql,
+			@tag_ids
+		)\
+		.arrays.map({$_[0]});
+	note("\nXXX: \@other_command_ids: " ~ @other_command_ids.raku);
+	@command_ids.append(@other_command_ids);
+	note("\nXXX \@command_ids: " ~ @command_ids.raku);
+
+
+	my $search_sql = q:to/END/;
+		SELECT * from commands where id IN (?)
+	END
+
+	my @results = $connection.query($search_sql, @command_ids).hashes;
 	if @results.elems > 0 {
 		return something(@results);
 	} else {
@@ -88,14 +155,14 @@ our sub find-commands(Str $search_string, DB::SQLite $db) returns Maybe[Array] {
 	}
 }
 
-our sub find-command-id(Str $command_name, DB::SQLite $db) returns Maybe[Int] is export {
+our sub find-command-id(Str $command_name, DB::Connection $connection) returns Maybe[Int] is export {
 	# WARN .connections only works becaues of custom build of DB package
-	note("\nXXX: Command.find-command-id num db connections: " ~ $db.connections.elems);
-	my $val = $db.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
+	my $val = $connection.query('SELECT id FROM commands WHERE name=$name', name => $command_name).value;
 	$val ~~ Int ?? something($val) !! nothing(Int);
 }
-our sub load-command(Str $command_name, DB::SQLite $db) returns Maybe[Hash] is export {
-	given $db.query('select * from commands where name = ?', $command_name).hash {
+
+our sub load-command(Str $command_name, DB::Connection $connection) returns Maybe[Hash] is export {
+	given $connection.query('select * from commands where name = ?', $command_name).hash {
 		when $_.elems > 0 {
 			something($_);
 		}
@@ -200,8 +267,9 @@ our sub display-fallback-usage(%command){
 	}
 }
 
-our sub search-and-display(Str $search_string, DB::SQLite $db) is export {
-	my $results_maybe = find-commands($search_string, $db);
+our sub search-and-display(Str $search_string, DB::SQLite $sqlite) is export {
+	my $connection = $sqlite.db;
+	my $results_maybe = find-commands($search_string, $connection);
 	if $results_maybe !~~ Some {
 		say("No matches found");
 	    return;
@@ -210,8 +278,8 @@ our sub search-and-display(Str $search_string, DB::SQLite $db) is export {
 	display-names-and-descriptions(@results);
 }
 
-multi sub display-command(Str $command_name, DB::SQLite $db) is export {
-	my $command_data = load-command($command_name, $db);
+multi sub display-command(Str $command_name, DB::SQLite $sqlite) is export {
+	my $command_data = load-command($command_name, $sqlite.db);
 	unless $command_data ~~ Some {
 		note("No data found for $command_name");
 		exit 0;
@@ -229,6 +297,7 @@ multi sub list-all-commands(DB::SQLite $db) is export {
 	} else {
 		say("Your database is currently empty.")
 	}
+	$db.finish();
 }
 multi sub list-all-demos(DB::SQLite $db) is export {
 	my $search_sql = q:to/END/;
@@ -243,5 +312,5 @@ multi sub list-all-demos(DB::SQLite $db) is export {
 	} else {
 		say("You don't have any commands with asciicast demos.")
 	}
-
+	$db.finish();
 }

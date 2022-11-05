@@ -5,17 +5,18 @@ use Clu::Metadata;
 use DB::SQLite;
 
 
-our sub add-asciicast(Str $path, DB::SQLite $db) returns Bool is export {
+our sub add-asciicast(Str $path, DB::SQLite $sqlite) returns Bool is export {
 	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
 	my $io_path = IO::Path.new($cleaned_path);
 
 	return False unless validate-local-path($io_path);
 
 	my $command_name = extract-command-from-path($io_path);
+	my $connection = $sqlite.db;
 
-	given find-command-id($command_name, $db) {
+	given find-command-id($command_name, $connection) {
 		when $_ ~~ Some {
-			return update-command($_.value, $io_path, $db);
+			return update-command($_.value, $io_path, $connection);
 		}
 		default {
 			note("Can't add asciicast file: \"$command_name\" is not a known command.");
@@ -26,12 +27,13 @@ our sub add-asciicast(Str $path, DB::SQLite $db) returns Bool is export {
 }
 
 #| runs your asciicast utility (asciinema) with associated command
-our sub demo-asciicast(Str $command_name, DB::SQLite $db) returns Bool is export {
-	my $command_data = load-command($command_name, $db); # from Command
+our sub demo-asciicast(Str $command_name, DB::SQLite $sqlite) returns Bool is export {
+	my $connection = $sqlite.db;
+	my $command_data = load-command($command_name, $connection); # from Command
 	if $command_data.is-something and $command_data.value<asciicast_url> {
 		my $url = $command_data.value<asciicast_url>;
 		if validate-local-path(IO::Path.new($url)) {
-			given get-metadata-value("asciicaster", $db) {
+			given get-metadata-value("asciicaster", $connection) {
 				when $_ ~~ Str {
 					say("playing with $_");
 					shell("$_ " ~ $url);
@@ -77,13 +79,14 @@ my sub extract-command-from-path(IO::Path $path) returns Str {
 }
 
 
-my sub update-command(Int $id, IO::Path $path, DB::SQLite $db) returns Bool {
+my sub update-command(Int $id, IO::Path $path, DB::SQLite $sqlite) returns Bool {
 	my $update_sql = q:to/END/;
 	UPDATE commands
 	SET asciicast_url = ?
 	WHERE id = ?
 END
-    my $statement_handle = $db.db.prepare($update_sql);
+    my $statement_handle = $sqlite.db.prepare($update_sql);
 	$statement_handle.execute([$path.Str, $id]);
+	$sqlite.finish();
 	True
 }

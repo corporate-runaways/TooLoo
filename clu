@@ -118,8 +118,6 @@ multi sub MAIN ('remove', $command_name) {
 	remove-command($command_name, $db)
 		?? say("$command_name has been removed")
 		!! say("no command found with name $command_name");
-
-	$db.finish();
 }
 
 
@@ -129,8 +127,6 @@ multi sub MAIN ('show',
 			   ) {
 	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
 	display-command($command_name, $db);
-
-	$db.finish();
 }
 
 #| Generate a blank TOML template at the specified location.
@@ -185,7 +181,6 @@ END
 		}
 	}
 
-	$db.finish;
 	if $response {
 		say("Successfully ingested $path");
 		exit 0;

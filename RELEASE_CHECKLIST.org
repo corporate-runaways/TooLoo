@@ -1,0 +1,37 @@
+#+title: Release_checklist
+
+Good automated testing of this is nontrivial to put together.
+For now, I'm relying on manual testing. So, here's the checklist
+that needs to be manually tested before release. If you're making
+a contribution to this codebase, please run through this before
+submitting a PR.
+
+* TODO [0/10]
+- [ ] =clu -V=
+- [ ] =clu --version=
+- [ ] =clu add <path>=
+  - [ ] new command
+  - [ ] existing command
+  - [ ] =clu update <path>=
+    Should be same as =clu add <path>= for an existing command.
+- [ ] =clu demo=
+  - [ ] command with asciicast_url
+  - [ ] command without asciicast_url
+- [ ] =clu demos=
+  - [ ] includes commands with asciicast_url
+  - [ ] excludes all others
+- [ ] =clu find=
+  - [ ] find in description
+    - [ ] single search term
+    - [ ] multiple search terms
+      - [ ] use 2 terms that don't overlap in descriptions
+        I.e. one term should find command a, the other should find command b.
+    - [ ] [[https://en.wikipedia.org/wiki/Stemming][stemming variations]]
+      E.g. if "debugging" existing in a description search for "debug"
+  - [ ] find in tags
+    - [ ] same tests as "find in description", but where the terms in question will only show up in tags.
+- [ ] =clu list=
+- [ ] =clu list <filter>=
+  - currently the only supported filter is "demos"
+- [ ] =clu show <command>=
+- [ ] =clu template <path>=

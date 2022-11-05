@@ -56,6 +56,7 @@ multi sub display-command(%command) is export {
 }
 
 our sub find-commands(Str $search_string, DB::Connection $connection) returns Maybe[Array] {
+	#TODO REFACTOR THIS INTO MULTIPLE SMALL METHODS
 
 	# WHERE foo MATCH IN (...) is NOT AN OPTION
 	# you can't join AND match...
@@ -101,18 +102,6 @@ our sub find-commands(Str $search_string, DB::Connection $connection) returns Ma
 	} else {
 		$command_search_sql ~= ' ORDER BY rank;';
 	}
-	note("\nXXX \$tag_search_sql: " ~ $tag_search_sql.raku);
-	note("\nXXX \$command_search_sql: " ~ $command_search_sql.raku);
-	note("\nXXX \@command_search_bindings: " ~ @command_search_bindings.raku);
-	# my $command_search_sth = $connection.prepare($command_search_sql);
-	# my @command_ids = $command_search_sth \
-	# 				   .execute(@command_search_bindings.flatten) \
-	# 				   .arrays \
-	# 				   .map({ $_[0]});
-	# my $tags_search_sth = $connection.prepare($tag_search_sql);
-	# my @tag_ids = $tags_search_sth.execute(@terms_list) \
-	# 			   .arrays \
-	# 			   .map({ $_[0] });
 
 	my @command_ids = $connection\
 					.query(

@@ -29,3 +29,9 @@ test_2_hyphen_hyphen_version () {
 
   assert_status_code 2 `raku -I lib clu --version > /dev/null 2>&1`
 }
+
+test_3_add_new() {
+	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
+	add_new_output=$(raku -I lib clu add $file_path | sed -e "s/ \/.*//")
+	assert_equals "$add_new_output" "Successfully ingested"
+}

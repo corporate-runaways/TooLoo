@@ -116,13 +116,15 @@ test_17_filtered_list_is_filtered(){
 	assert_equals "1" "$list_output"
 }
 
-test_18_find_in_desc() {
+test_18_find_one_in_desc() {
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find rtnddescription | wc -l | sed -e 's/^ *//')
 	assert_equals "1" "$find_output"
-
+}
+test_19_find_two_in_desc_with_same_term() {
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find description | wc -l | sed -e 's/^ *//')
 	assert_equals "2" "$find_output"
-
+}
+test_20_find_two_in_desc_with_2_terms() {
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find rtnddescription sedescription  | wc -l | sed -e 's/^ *//')
 	assert_equals "2" "$find_output"
 

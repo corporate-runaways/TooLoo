@@ -42,7 +42,7 @@ test_04_hyphen_hyphen_version () {
 test_05_add_new() {
 	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
 	add_new_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu add $file_path | sed -e "s/ \/.*//")
-	assert_equals "$add_new_output" "Successfully ingested"
+	assert_equals "Successfully ingested" "$add_new_output"
 }
 
 test_06_confirm_db(){
@@ -62,17 +62,24 @@ test_07_confirm_data() {
 test_08_add_existing() {
 	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
 	add_existing_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu add $file_path | sed -e "s/ \/.*//")
-	assert_equals "$add_existing_output" "Successfully ingested"
+	assert_equals "Successfully ingested" "$add_existing_output"
 }
 
 test_09_update() {
 	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
 	update_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu update $file_path | sed -e "s/ \/.*//")
-	assert_equals "$update_output" "Successfully ingested"
+	assert_equals "Successfully ingested" "$update_output"
 }
 
 test_10_add_asciicast() {
 	file_path=$TEST_DATA_DIR"/raku_test_no_demo.cast"
 	add_cast_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu update $file_path | sed -e "s/ \/.*//")
-	assert_equals "$add_cast_output" "Successfully ingested"
+	assert_equals "Successfully ingested" "$add_cast_output"
+}
+
+test_11_demo_asciicast(){
+	asciicast_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu demo raku_test_no_demo \
+		| grep "echo" \
+		| sed -e 's/^.* "//' -e 's/".*$//'			)
+	assert_equals "test data" "$asciicast_output"
 }

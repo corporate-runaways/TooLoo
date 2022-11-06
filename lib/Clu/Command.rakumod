@@ -127,11 +127,14 @@ our sub find-commands(Str $search_string, DB::Connection $connection) returns Ma
 	@command_ids.append(@other_command_ids);
 
 
-	my $search_sql = q:to/END/;
-		SELECT * from commands where id IN (?)
+	# NOTE: driver isn't smart enough to map LIST to single ?
+	# in order to do an "in (?)"
+	# or to bind "in (:foo)"
+    my $joined_command_ids = @command_ids.join(", ");
+	my $search_sql = qq:to/END/;
+		SELECT * from commands where id IN ($joined_command_ids)
 	END
-
-	my @results = $connection.query($search_sql, @command_ids).hashes;
+	my @results = $connection.query($search_sql).hashes;
 	if @results.elems > 0 {
 		return something(@results);
 	} else {

@@ -71,15 +71,42 @@ test_09_update() {
 	assert_equals "Successfully ingested" "$update_output"
 }
 
-test_10_add_asciicast() {
+test_10_demo_missing_asciicast(){
+	asciicast_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu demo raku_test_no_demo 2>&1 \
+		| head -n1			)
+	assert_equals "No asciicast url was specified for raku_test_no_demo" "$asciicast_output"
+}
+
+test_11_empty_demos_listing(){
+	demos_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu demos )
+	assert_equals "You don't have any commands with asciicast demos." "$demos_output"
+}
+test_12_add_asciicast() {
 	file_path=$TEST_DATA_DIR"/raku_test_no_demo.cast"
 	add_cast_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu update $file_path | sed -e "s/ \/.*//")
 	assert_equals "Successfully ingested" "$add_cast_output"
 }
 
-test_11_demo_asciicast(){
+test_13_demo_asciicast(){
 	asciicast_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu demo raku_test_no_demo \
 		| grep "echo" \
 		| sed -e 's/^.* "//' -e 's/".*$//'			)
 	assert_equals "test data" "$asciicast_output"
+}
+test_14_populated_demos_listing(){
+	demos_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu demos )
+	assert_equals "raku_test_no_demo | raku_test_no_demo test description" "$demos_output"
+}
+
+#  searching
+# let's add a second one
+test_15_add_second_command(){
+	file_path=$TEST_DATA_DIR"/something_else.meta.toml"
+	add_new_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu add $file_path | sed -e "s/ \/.*//")
+	assert_equals "Successfully ingested" "$add_new_output"
+}
+
+test_16_list_shows_all(){
+	list_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu list | wc -l | sed -e 's/^ *//')
+	assert_equals "2" "$list_output"
 }

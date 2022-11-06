@@ -94,8 +94,8 @@ test_13_demo_asciicast(){
 	assert_equals "test data" "$asciicast_output"
 }
 test_14_populated_demos_listing(){
-	demos_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu demos )
-	assert_equals "raku_test_no_demo | raku_test_no_demo test description rtnddescription" "$demos_output"
+	demos_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu demos | grep "raku_test_no_demo" )
+	assert_equals "│ raku_test_no_demo │ raku_test_no_demo test description rtnddescription │" "$demos_output"
 }
 
 #  searching
@@ -108,56 +108,56 @@ test_15_add_second_command(){
 
 test_16_list_shows_all(){
 	list_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu list | wc -l | sed -e 's/^ *//')
-	assert_equals "2" "$list_output"
+	assert_equals "6" "$list_output"
 }
 
 test_17_filtered_list_is_filtered(){
 	list_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu list demos | wc -l | sed -e 's/^ *//')
-	assert_equals "1" "$list_output"
+	assert_equals "5" "$list_output"
 }
 
 test_18_find_one_in_desc() {
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find rtnddescription | wc -l | sed -e 's/^ *//')
-	assert_equals "1" "$find_output"
+	assert_equals "5" "$find_output"
 }
 test_19_find_two_in_desc_with_same_term() {
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find description | wc -l | sed -e 's/^ *//')
-	assert_equals "2" "$find_output"
+	assert_equals "6" "$find_output"
 }
 test_20_find_two_in_desc_with_2_terms() {
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find rtnddescription sedescription  | wc -l | sed -e 's/^ *//')
-	assert_equals "2" "$find_output"
+	assert_equals "6" "$find_output"
 }
 
 test_21_find_two_in_desc_with_2_terms_1_result() {
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find rtnddescription booooogus  | wc -l | sed -e 's/^ *//')
-	assert_equals "1" "$find_output"
+	assert_equals "5" "$find_output"
 
 }
 
 test_22_stemming() {
 	# the word in the data is "description" NOT "descriptions"
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find descriptions  | wc -l | sed -e 's/^ *//')
-	assert_equals "2" "$find_output"
+	assert_equals "6" "$find_output"
 }
 
 test_26_tag_search() {
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find se2  | wc -l | sed -e 's/^ *//')
-	assert_equals "1" "$find_output"
+	assert_equals "5" "$find_output"
 }
 
-test_26_tag_search_2_rows() {
+test_27_tag_search_2_rows() {
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find se2  | wc -l | sed -e 's/^ *//')
-	assert_equals "1" "$find_output"
+	assert_equals "5" "$find_output"
 }
 
 # just confirming that it works and has the amount of output we're expecting
-test_27_show() {
+test_28_show() {
 	show_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu show raku_test_no_demo  | wc -l | sed -e 's/^ *//')
-	assert_equals "9" "$show_output"
+	assert_equals "13" "$show_output"
 }
 
-test_28_template() {
+test_29_template() {
 	template_destination=$XDG_CONFIG_HOME"/clu/created_template.meta.toml"
 	creation_output=$(XDG_CONFIG_HOME=$XDG_CONFIG_HOME raku -I lib clu template $template_destination | sed -e "s/ to .*//")
 	assert_equals "Copying fresh template" "$creation_output"

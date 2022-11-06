@@ -42,17 +42,38 @@ use Terminal::ANSIColor;
 use Terminal::Width;
 use Text::MiscUtils::Layout;
 use Clu::TerminalUtilities;
+use Prettier::Table;
 use Color;
 use DB::SQLite;
 
 
 multi sub display-command(%command) is export {
-# sub display-command(Hash:D %command) is export {
-    #TODO: improve coloring
-	display-name-and-description(%command);
-	display-usage(%command);
-	display-metadata(%command);
+	my $where_proc = run "command", "-v", %command<name>, :out, :err;
+	my $location   = ($where_proc.exitcode == 0
+						?? $where_proc.out.slurp(:close).trim
+						!! (%command<location> or "UNKNOWN"));
 
+	my $table = Prettier::Table.new(
+		field-names => ['Attribute', 'Detail'],
+								     align => %('Attribute' => 'l', 'Detail' => 'l'));
+	$table.add-row(['command', %command<name>]);
+	$table.add-row(['description', %command<description>]);
+	$table.add-row(['', '']);
+	$table.add-row(['usage', extract-usage(%command)]);
+	$table.add-row(['type',  (%command<type> or "UNKNOWN")]);
+	$table.add-row(['language',  (%command<language> or "UNKNOWN")]);
+	$table.add-row(['location', $location]);
+	if %command.<source_repo_url> {
+		$table.add-row(['source repo', %command<source_repo_url>]);
+	}
+	if %command.<source_url> {
+		$table.add-row(['source url', %command<source_url>]);
+	}
+	if %command.<asciicast_url> {
+		$table.add-row(['asciicast url', %command<asciicast_url>]);
+	}
+
+	say $table;
 }
 
 our sub find-commands(Str $search_string, DB::Connection $connection) returns Maybe[Array] {
@@ -163,30 +184,6 @@ our sub load-command(Str $command_name, DB::Connection $connection) returns Mayb
 }
 
 
-#FIXME
-our sub display-metadata(%command) {
-# sub ansi-display-metadata(Hash %command) {
-	# say colored( ("-" x terminal-width(:default<80>)), 'bold');
-	# ^^ dynamic width causes tests to fail.
-	# TODO: find a way to force a width in Terminal::Width for testing
-	say colored( ("-" x 20), 'bold');
-
-	say colored("type: ", 'bold') ~  (%command<type> or "UNKNOWN");
-	say colored("lang: ", 'bold') ~ (%command<language> or "UNKNOWN");
-	my $where_proc = run "command", "-v", %command<name>, :out, :err;
-	say colored("location: ", 'bold') ~ ($where_proc.exitcode == 0
-						?? $where_proc.out.slurp(:close)
-						!! (%command<location> or "UNKNOWN"));
-	if %command.<source_repo_url> {
-		say colored("source repo: ", 'bold') ~ %command<source_repo_url>;
-	}
-	if %command.<source_url> {
-		say colored("source url: ", 'bold') ~ %command<source_url>;
-	}
-	if %command.<asciicast_url> {
-		say colored("asciicast url: ", 'bold') ~ %command<asciicast_url>;
-	}
-}
 
 our sub display-name-and-description(%command) {
 # sub ansi-display-name-and-description(Hash %command) {
@@ -201,26 +198,30 @@ our sub display-name-and-description(%command) {
 
 our sub display-names-and-descriptions(@commands) {
 	# find the longest command name
-	my $max_name_length = 0;
+	# my $max_name_length = 0;
 
-	for @commands -> %command {
-		my $length = %command<name>.chars;
-		if $length > $max_name_length {
-			$max_name_length = $length;
-		}
-	}
+	# for @commands -> %command {
+	# 	my $length = %command<name>.chars;
+	# 	if $length > $max_name_length {
+	# 		$max_name_length = $length;
+	# 	}
+	# }
 
-	my $term_width = terminal-width(:default<80>);
-	my $max_description_width = $term_width - ( $max_name_length + 3 );
+	# my $term_width = terminal-width(:default<80>);
+	# my $max_description_width = $term_width - ( $max_name_length + 3 );
 	# term_width - (max_name_length + " | " )
 
+	my $table = Prettier::Table.new(
+		field-names => ['Command', 'Description'],
+		align => %('Command' => 'l', 'Description' => 'l')
+	);
 	for @commands -> %command {
-		("%-$max_name_length" ~ "s | %.$max_description_width" ~ "s\n").printf(%command<name>, %command<description>)
+		$table.add-row([%command<name>, %command<description>])
 	}
-}
+	say $table;
 
-our sub display-usage(%command) {
-# sub ansi-display-usage(Hash %command) {
+}
+my sub extract-usage(%command --> Str){
 	if %command<usage_command> {
 		# prints to STDOUT and/or STDERR
 		my $usage_proc  = (shell %command<usage_command>, out => True, err => False );
@@ -238,23 +239,13 @@ our sub display-usage(%command) {
 			#
 			# as some commands have their usage in man pages... we're going to encounter this.
 			# backspace is \x08 so
-			my $output = $usage_proc.out.slurp(:close).subst(/. \x08 | \x08 /, "", :g);
-			say $output;
-		} else {
-			display-fallback-usage(%command);
+			return $usage_proc.out.slurp(:close).subst(/. \x08 | \x08 /, "", :g);
 		}
-	} else {
-		display-fallback-usage(%command);
 	}
-}
 
-our sub display-fallback-usage(%command){
-	if %command<fallback_usage> {
-		say %command<fallback_usage>;
-	} else {
-		say colored("USAGE UNKNOWN",
-					"{%COLORS<WARNING_FOREGROUND>} on_{%COLORS<WARNING_BACKGROUND>}");
-	}
+	return %command<fallback_usage> if %command<fallback_usage>;
+
+	"USAGE UNKNOWN"
 }
 
 our sub search-and-display(Str $search_string, DB::SQLite $sqlite) is export {

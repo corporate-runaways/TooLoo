@@ -15,7 +15,8 @@
     "DB::SQLite",
     "TOML",
     "Color",
-    "XDG::GuaranteedResources"
+    "XDG::GuaranteedResources",
+    "Prettier::Table"
   ],
   "description": "Clu (Command LookUp) helps you document your utility scripts",
   "license": "MIT",

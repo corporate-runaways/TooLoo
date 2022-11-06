@@ -95,7 +95,7 @@ test_13_demo_asciicast(){
 }
 test_14_populated_demos_listing(){
 	demos_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu demos )
-	assert_equals "raku_test_no_demo | raku_test_no_demo test description" "$demos_output"
+	assert_equals "raku_test_no_demo | raku_test_no_demo test description rtnddescription" "$demos_output"
 }
 
 #  searching
@@ -112,7 +112,15 @@ test_16_list_shows_all(){
 }
 
 test_17_filtered_list_is_filtered(){
-
 	list_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu list demos | wc -l | sed -e 's/^ *//')
 	assert_equals "1" "$list_output"
+}
+
+test_18_find_in_desc() {
+	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find rtnddescription | wc -l | sed -e 's/^ *//')
+	assert_equals "1" "$find_output"
+
+	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find description | wc -l | sed -e 's/^ *//')
+	assert_equals "2" "$find_output"
+
 }

@@ -80,11 +80,13 @@ our sub find-commands(Str $search_string, DB::Connection $connection) returns Ma
 		SELECT id from tags_fts where tag MATCH ?
 	END
 
+	# the weird 1=0 is just to have something
+	# that always tests false, that we can ignore
+	# and allows us to make the next thing
+	# we append always start with OR (easier for loop)
 	my $command_search_sql = q:to/END/;
         SELECT id FROM commands_fts WHERE
-          name MATCH ?
-          OR description MATCH ?
-          OR language MATCH ?
+		  1=0
 	END
 
 	if @terms_list.elems > 1 {
@@ -99,13 +101,21 @@ our sub find-commands(Str $search_string, DB::Connection $connection) returns Ma
 		}
 
 	} else {
-		$command_search_sql ~= ' ORDER BY rank;';
-	}
 
+		$command_search_sql ~= q:to/END/;
+		OR name MATCH ?
+		OR description MATCH ?
+		OR language MATCH ?
+		END
+	}
+	$command_search_sql ~= ' ORDER BY rank;';
+	@command_search_bindings = @command_search_bindings.flatten;
+		note("\nXXX \$command_search_sql: " ~ $command_search_sql.raku);
+		note("\nXXX \@command_search_bindings: " ~ @command_search_bindings.raku);
 	my @command_ids = $connection\
 					.query(
 						$command_search_sql,
-						@command_search_bindings.flatten
+						@command_search_bindings
 					)\
 					.arrays.map({ $_[0] });
 	my @tag_ids = $connection\

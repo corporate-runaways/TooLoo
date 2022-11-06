@@ -110,3 +110,9 @@ test_16_list_shows_all(){
 	list_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu list | wc -l | sed -e 's/^ *//')
 	assert_equals "2" "$list_output"
 }
+
+test_17_filtered_list_is_filtered(){
+
+	list_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu list demos | wc -l | sed -e 's/^ *//')
+	assert_equals "1" "$list_output"
+}

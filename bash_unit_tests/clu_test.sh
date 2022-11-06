@@ -123,4 +123,7 @@ test_18_find_in_desc() {
 	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find description | wc -l | sed -e 's/^ *//')
 	assert_equals "2" "$find_output"
 
+	find_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu find rtnddescription sedescription  | wc -l | sed -e 's/^ *//')
+	assert_equals "2" "$find_output"
+
 }

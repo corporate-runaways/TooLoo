@@ -112,6 +112,26 @@ multi sub MAIN ('list',
 	$db.finish();
 }
 
+multi sub MAIN ('export',
+				Str $format,    #= Currently supported formats: markdown
+				Str $directory  #= the directory to export to
+				){
+	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
+	unless $cleaned_path.IO.e {
+		note("Target directory doesn't exist.\n$cleaned_path");
+		# TODO: ask if we should create it.
+		exit 64 # EX_USAGE
+	}
+	if $format eq 'markdown' {
+		my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
+		export-markdown($cleaned_path, $db) ;
+	} else {
+		note("Unsupported export format: $format");
+		note("Only 'markdown' is currently supported.");
+	}
+	$db.finish();
+}
+
 #| Remove a command from the database
 multi sub MAIN ('remove', $command_name) {
 	my $db = DB::SQLite.new(filename => guarantee-db());

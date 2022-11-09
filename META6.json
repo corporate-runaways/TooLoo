@@ -9,6 +9,7 @@
   "depends": [
     "Definitely",
     "Listicles",
+    "Template::Mustache",
     "Terminal::ANSIColor",
     "Terminal::Width",
     "Text::MiscUtils",

@@ -59,7 +59,7 @@ multi sub display-command(%command) is export {
 	$table.add-row(['command', %command<name>]);
 	$table.add-row(['description', %command<description>]);
 	$table.add-row(['', '']);
-	$table.add-row(['usage', extract-usage(%command)]);
+	$table.add-row(['usage', extract-command-usage(%command)]);
 	$table.add-row(['type',  (%command<type> or "UNKNOWN")]);
 	$table.add-row(['language',  (%command<language> or "UNKNOWN")]);
 	$table.add-row(['location', $location]);
@@ -221,7 +221,7 @@ our sub display-names-and-descriptions(@commands) {
 	say $table;
 
 }
-my sub extract-usage(%command --> Str){
+my sub extract-command-usage(%command --> Str) is export {
 	if %command<usage_command> {
 		# prints to STDOUT and/or STDERR
 		my $usage_proc  = (shell %command<usage_command>, out => True, err => False );

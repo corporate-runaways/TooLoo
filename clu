@@ -117,14 +117,15 @@ multi sub MAIN ('export',
 				Str $directory  #= the directory to export to
 				){
 	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
-	unless $cleaned_path.IO.e {
+	my $cp_io = $cleaned_path.IO
+	unless $cp_io.e {
 		note("Target directory doesn't exist.\n$cleaned_path");
 		# TODO: ask if we should create it.
 		exit 64 # EX_USAGE
 	}
 	if $format eq 'markdown' {
 		my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
-		export-markdown($cleaned_path, $db) ;
+		export-markdown($cp_io, $db);
 	} else {
 		note("Unsupported export format: $format");
 		note("Only 'markdown' is currently supported.");

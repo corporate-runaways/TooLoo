@@ -19,19 +19,25 @@
 {{/source_url}}
 
 {{#asciicast}}
-<div id='{{id}}-asciicast'></div>
-<script>
- AsciinemaPlayer.create(
-	 {{#asciicast_url}}
-     "/asciicast/{{safename}}"
-	 {{/asciicast_url}}
-	 {{#asciicast_web_url}}
-	 "{{asciicast_web_url}}"
-	 {{/asciicast_web_url}}
-	 ,
-     document.getElementById('{{id}}-asciicast'),
-     {terminalLineHeight: 2}
- );
- // terminalLineHeight: 2 because at larger font sizes the lines start to overlap.
-</script>
+  <div id='{{id}}-asciicast'></div>
+  <script>
+   AsciinemaPlayer.create(
+	   {{#asciicast_url}}
+       "/asciicast/{{safename}}"
+	   {{/asciicast_url}}
+	   {{#asciicast_web_url}}
+	   "{{asciicast_web_url}}"
+	   {{/asciicast_web_url}}
+	   ,
+       document.getElementById('{{id}}-asciicast'),
+       {terminalLineHeight: 2}
+   );
+   // terminalLineHeight: 2 because at larger font sizes the lines start to overlap.
+  </script>
 {{/asciicast}}
+
+{{#has_tags}}Tags:{{/has_tags}}
+
+{{#tags}}
+* {{.}}
+{{/tag}}

@@ -58,8 +58,9 @@ my sub export-details-pages(@commands,
 						   ){
 	for @commands -> $command_hash {
 		$command_hash<tags> = $tags_statement_handle.execute($command_hash<id>).arrays;
+		$command_hash<has_tags> = $command_hash<tags>.is-empty ?? False !! True;
 		note("\nXXX \$command_hash<tags>: " ~ $command_hash<tags>.raku);
-		my $md = generate-markdown($command_hash, $template);
+		my $md = generate-details-markdown($command_hash, $template);
 		my $filename = slugify($command_hash<name>) ~ '.md';
 		persist-file($target_directory, $filename, $md);
 	}
@@ -72,7 +73,7 @@ my sub persist-file(IO::Path $target_directory, Str $filename, Str $content){
 	spurt $target_path, $content;
 }
 
-my sub generate-markdown(Associative $command_hash, Str $template) {
+my sub generate-details-markdown(Associative $command_hash, Str $template) {
 	$command_hash<safename> = slugify($command_hash<name>);
 	$command_hash<usage> = extract-command-usage($command_hash);
 	my $asciicast_url = $command_hash<asciicast_url>;

@@ -7,18 +7,13 @@
 
 unit module Clu::Exporter;
 use XDG::GuaranteedResources; # to load the md template
-use Template::Mustache;
-# use Terminal::ANSIColor;
-# use Text::MiscUtils::Layout;
-# use Clu::TerminalUtilities;
+use Template6;
+use XDG::BaseDirectory;
 use Clu::Command;
 use Clu::Resourcer; # for the templates
 use XDG::GuaranteedResources::AbstractResourcer; # just debugging
-# use Clu::Tagger;
-# use Color;
 use DB::SQLite;
 use Listicles;
-# use TOML;
 
 our sub export-markdown(IO::Path $target_directory, DB::SQLite $sqlite) returns Bool is export {
 	# re target_directory:
@@ -42,7 +37,7 @@ our sub export-markdown(IO::Path $target_directory, DB::SQLite $sqlite) returns 
 	# becaues the SQL would be complicated, and brute force is
 	# still going to be ridiculously fast, we're just going to
 	# query for tags for each command individually.
-	my $tags_statement_handle = $connection.prepare($tags_search_sql);
+	my $tags_statement_handle = get-tags-for-command-statement-handle($connection);
 	my $template = get-md-template();
 	export-details-pages(@commands,
 						 :$tags_statement_handle,
@@ -53,13 +48,13 @@ our sub export-markdown(IO::Path $target_directory, DB::SQLite $sqlite) returns 
 
 my sub export-details-pages(@commands,
 							:$tags_statement_handle,
-							:$template,
+							Template6 :$template,
 							:$target_directory
 						   ){
 	for @commands -> $command_hash {
-		$command_hash<tags> = $tags_statement_handle.execute($command_hash<id>).arrays;
-		$command_hash<has_tags> = $command_hash<tags>.is-empty ?? False !! True;
-		note("\nXXX \$command_hash<tags>: " ~ $command_hash<tags>.raku);
+		my $tags_list = get-tags-for-command($command_hash<id>, $tags_statement_handle);
+		$command_hash<tags> = $tags_list;
+		$command_hash<has_tags> = ! $tags_list.is-empty;
 		my $md = generate-details-markdown($command_hash, $template);
 		my $filename = slugify($command_hash<name>) ~ '.md';
 		persist-file($target_directory, $filename, $md);
@@ -73,7 +68,7 @@ my sub persist-file(IO::Path $target_directory, Str $filename, Str $content){
 	spurt $target_path, $content;
 }
 
-my sub generate-details-markdown(Associative $command_hash, Str $template) {
+my sub generate-details-markdown(Associative $command_hash, Template6 $template) {
 	$command_hash<safename> = slugify($command_hash<name>);
 	$command_hash<usage> = extract-command-usage($command_hash);
 	my $asciicast_url = $command_hash<asciicast_url>;
@@ -86,14 +81,14 @@ my sub generate-details-markdown(Associative $command_hash, Str $template) {
 	} else {
 		$command_hash<asciicast> = False;
 	}
-	Template::Mustache.render($template, $command_hash);
+	$template.process('markdown_details_template', |$command_hash);
 }
 my sub get-md-template(){
-	my $md_template_resource_path = 'config/clu/markdown_details_template.mustache';
-	my $markdown_template_file = guarantee-resource($md_template_resource_path,
-												   Clu::Resourcer,
-												   debug => True);
-	$markdown_template_file.IO.slurp;
+	my $bd = XDG::BaseDirectory.new;
+
+	my $t6 = Template6.new;
+	$t6.add-path: $bd.config-home.add: 'clu'.Str;
+	return $t6;
 }
 
 my sub slugify(Str $string){

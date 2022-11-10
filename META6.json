@@ -9,13 +9,14 @@
   "depends": [
     "Definitely",
     "Listicles",
-    "Template::Mustache",
+    "Template6",
     "Terminal::ANSIColor",
     "Terminal::Width",
     "Text::MiscUtils",
     "DB::SQLite",
     "TOML",
     "Color",
+    "XDG::BaseDirectory",
     "XDG::GuaranteedResources",
     "Prettier::Table"
   ],

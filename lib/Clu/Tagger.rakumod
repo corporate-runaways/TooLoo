@@ -4,6 +4,7 @@ use Clu::Command;
 use Clu::Metadata;
 use DB::Connection;
 use Listicles;
+use DB::SQLite::Statement;
 
 my sub find-tag-records(@tags, DB::Connection $connection) returns Seq {
 	return [] if @tags.is-empty;
@@ -90,4 +91,24 @@ our sub set-tags-for-command(Int $command_id, @tags, DB::Connection $connection)
 	$connection.query($insert_sql);
 
 	True
+}
+
+our sub get-tags-for-command(Int $command_id, DB::Connection $connection, DB::SQLite::Statement $:statement_handle? ) returns Array is export {
+	my $tags_statement_handle = $statement_handle
+								 ?? $statement_handle
+								 !! get-tags-for-command-statement-handle($connection);
+	$tags_statement_handle
+						 .execute($command_hash<id>)
+						 .arrays
+						 .flatten
+						 .Array;
+
+}
+our sub get-tags-for-command-statement-handle(DB::Connection $connection) returns DB::SQLite::Statement is export {
+	my $tags_search_sql = q:to/END/;
+		select tag from commands_tags ct
+		inner join tags t on ct.tag_id = t.id
+		where command_id = ?;
+	END
+	my $tags_statement_handle = $connection.prepare($tags_search_sql);
 }

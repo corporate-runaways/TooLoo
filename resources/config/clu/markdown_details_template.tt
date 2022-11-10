@@ -1,0 +1,53 @@
+---
+title: [% title %]
+subtitle: [% description %]
+---
+
+# [% name %]
+
+[% description %]
+
+## Usage
+
+```
+
+[% usage %]
+```
+
+Metadata:
+
+[% if language %]
+* Language: [% language %]
+[% end %]
+[% if source_url %]
+* [Source Code]([% source_url %])
+[% end %]
+[% if ! source_url %]
+  [% if source_repo_url %]
+* [Source Code]([% source_repo_url %])
+  [% end %]
+[% end %]
+
+[% if asciicast %]
+  <div id='[% id %]-asciicast'></div>
+  <script>
+   AsciinemaPlayer.create(
+	   [% if asciicast_url %]
+       "/asciicast/[% safename %]"
+	   [% end %]
+	   [% if asciicast_web_url %]
+	   "[% asciicast_web_url %]"
+	   [% end %]
+	   ,
+       document.getElementById('[% id %]-asciicast'),
+       {terminalLineHeight: 2}
+   );
+   // terminalLineHeight: 2 because at larger font sizes the lines start to overlap.
+  </script>
+[% end %]
+
+[% if has_tags %]
+Tags:
+	[% for tags -> tag %]
+* [% tag %][% end %]
+[% end %]

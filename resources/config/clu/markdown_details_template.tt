@@ -1,21 +1,18 @@
 ---
-title: [% title %]
+title: [% name %]
 subtitle: [% description %]
 ---
 
-# [% name %]
+## [% description %]
 
-[% description %]
+### Usage
 
-## Usage
-
-```
+```text
 
 [% usage %]
 ```
 
 Metadata:
-
 [% if language %]
 * Language: [% language %]
 [% end %]
@@ -48,6 +45,6 @@ Metadata:
 
 [% if has_tags %]
 Tags:
-	[% for tags -> tag %]
+[% for tags -> tag %]
 * [% tag %][% end %]
 [% end %]

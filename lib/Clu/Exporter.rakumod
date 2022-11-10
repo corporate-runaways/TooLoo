@@ -11,9 +11,11 @@ use Template6;
 use XDG::BaseDirectory;
 use Clu::Command;
 use Clu::Resourcer; # for the templates
+use Clu::Tagger;
 use XDG::GuaranteedResources::AbstractResourcer; # just debugging
 use DB::SQLite;
 use Listicles;
+use Prettier::Table;
 
 our sub export-markdown(IO::Path $target_directory, DB::SQLite $sqlite) returns Bool is export {
 	# re target_directory:
@@ -44,7 +46,24 @@ our sub export-markdown(IO::Path $target_directory, DB::SQLite $sqlite) returns 
 						 :$template,
 						 :$target_directory);
 
+	export-index-page(@commands,
+					 :$tags_statement_handle,
+					 :$template,
+					 :$target_directory);
+
 }
+
+my sub export-index-page(@commands,
+						 :$tags_statement_handle,
+						 Template6 :$template,
+						 :$target_directory) {
+
+	my $index_markdown =  generate-index-markdown(@commands, $template);
+	# TODO: make this configurable to work with systems other than hugo
+	my $filename = '_index.md';
+	persist-file($target_directory, $filename, $index_markdown);
+}
+
 
 my sub export-details-pages(@commands,
 							:$tags_statement_handle,
@@ -66,6 +85,22 @@ my sub persist-file(IO::Path $target_directory, Str $filename, Str $content){
 	# my $target_path = IO::Spec::Unix.catpath($target_directory, $filename);
 	my $target_path = $target_directory.resolve.Str ~ "/$filename";
 	spurt $target_path, $content;
+}
+
+my sub generate-index-markdown(@commands, Template6 $template){
+	my $table = Prettier::Table.new(
+		field-names => ['Command', 'Description'],
+		align => %('Command' => 'l', 'Description' => 'l')
+	);
+	for @commands -> %command {
+		# [About]({{< ref "/page/about" >}} "About Us")
+		%command<md_link> = "[%command<name>](\{\{< ref %command<name> >\}\})";
+		$table.add-row([%command<md_link>, %command<description>]);
+	}
+	$table.set-style('MARKDOWN');
+	my %index_data = 'md_table' => $table.Str, 'timestamp' => Date.today.IO.Str;
+
+	$template.process('markdown_index_template', |%index_data);
 }
 
 my sub generate-details-markdown(Associative $command_hash, Template6 $template) {

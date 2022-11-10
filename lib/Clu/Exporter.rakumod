@@ -106,6 +106,8 @@ my sub generate-index-markdown(@commands, Template6 $template){
 my sub generate-details-markdown(Associative $command_hash, Template6 $template) {
 	$command_hash<safename> = slugify($command_hash<name>);
 	$command_hash<usage> = extract-command-usage($command_hash);
+	# remove leading and trailing whitespace as they screw with md formatting
+	$command_hash<description> = $command_hash<description>.trim;
 	my $asciicast_url = $command_hash<asciicast_url>;
 	if $asciicast_url {
 		$command_hash<asciicast> = True;

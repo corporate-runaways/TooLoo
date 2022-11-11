@@ -29,9 +29,12 @@ our sub ingest-metadata(Str $path, DB::SQLite $sqlite) returns Bool is export {
 	my %metadata = from-toml($cleaned_path.IO.slurp);
 	# ^ that doesn't fail if it's not TOML
 	# BUT %config.^name would be "Any" in that case, so...
-	die("$path didn't appear to contain valid TOML")	unless %metadata.^name eq "Hash";
-	die("$path didn't have a 'name' key")				unless %metadata<name>.Bool;
-	die("$path didn't have a 'description' key")		unless %metadata<description>.Bool;
+	die("$path didn't appear to contain valid TOML") \
+		unless %metadata.^name eq "Hash";
+	die("$path didn't have a 'name' key") \
+		unless validate-presence(%metadata<name>);
+	die("$path didn't have a 'short_description' key") \
+		unless validate-presence(%metadata<short_description>);
 
 	my $connection = $sqlite.db;
 	# see if anything exists in the db for that command
@@ -48,6 +51,10 @@ our sub ingest-metadata(Str $path, DB::SQLite $sqlite) returns Bool is export {
 	return True;
 }
 
+my sub validate-presence(Any $x --> Bool) {
+	return False if Nil ~~ $x;
+	return ! ! $x.match(/\S+/);
+}
 
 our sub insert-command(%command, DB::Connection $connection){
 	my $insert_sql = q:to/END/;

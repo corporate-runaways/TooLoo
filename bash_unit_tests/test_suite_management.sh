@@ -7,7 +7,9 @@ setup_suite() {
 	echo ""
 	echo "XDG_DATA_HOME: $XDG_DATA_HOME"
 	rm -rf $XDG_DATA_HOME 2>&1 > /dev/null
+	rm -rf $XDG_CONFIG_HOME 2>&1 > /dev/null
 	mkdir -p $XDG_DATA_HOME
+	mkdir -p $XDG_CONFIG_HOME
 	TEST_DATA_DIR=$(pwd)"/bash_unit_tests/test_data"
 	DB_LOCATION=$XDG_DATA_HOME"/clu/database.db"
 

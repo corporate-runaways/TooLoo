@@ -83,6 +83,14 @@ For example: If you have a `foo` command you'd make a `foo.meta.toml` file. It d
 
 That's it. If you ever need to update / change the documentation just edit the TOML file and run `clu update <path/to/my_command.meta.toml>`. It'll find the command with the matching name in the database, and replace it.
 
+### Documentation Details
+
+The comments in the generated template should be enough to document your command, but here are some additional notes.
+
+Whenever there's a list `short_description` will be used. Depending on your personal usage `description` may not be worth it. However, if you're exporting and generating a static web site from clu you'll definitely want that. 
+
+The Usage section of each command is generated on the fly whenever possible. Some commands don't have a `--help` option or anything similar, in which case you'll need to fill in the `fallback_usage`. When doing so, be sure to not use any tabs. They'll muck with the table that's displayed.
+
 ## Showing a command
 
 `clu show <command_name>` will display the name, description, and usage of the specified command (if found).
@@ -156,6 +164,12 @@ There's no inherent syncing here. Sorry. You can copy the db from `~/.config/clu
 ``` bash
 find ~/folder/with/my/clu_toml_files -name "*.meta.toml" -exec clu add '{}' \;
 ```
+
+## Generating a Static Blog
+Clu can export Markdown files in order to generate a static blog. Right now it's expecting that you'll be using [Hugo](https://gohugo.io/) along with our [default site structure](https://github.com/masukomi/clu_blank_hugo_site), or more likely, some beautifully tweaked variant of it.
+
+To generate your blog run `clu export hugo ~/path/to/clu_blank_hugo_site/content/all_commands`. The theme has a concept of "chapters" and "all_commands" is the first "chapter". You can, of course, change this. It's ultimately a variation of the [Hugo Learn Theme](https://github.com/matcornic/hugo-theme-learn) which has [good documentation](https://learn.netlify.app/).
+
 # Contributing
 See [CONTRIBUTING.md](https://github.com/masukomi/Clu/blob/main/CONTRIBUTING.md#readme)
 # LICENSE

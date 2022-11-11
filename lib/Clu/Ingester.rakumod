@@ -92,12 +92,7 @@ END
 		my $command_id = find-command-id(%command<name>, $connection);
 		if $command_id ~~ Some {
 			$command_id = $command_id.value;
-
-
-
-			# UNCOMMENT THIS AFTER REMOVING ^^^
 			set-tags-for-command($command_id, (%command<tags> or []), $connection);
-
 
 			# this is stupid, I admit, but because of the triggers that update
 			# the virtual table, it's actually cleaner to update this with a bs

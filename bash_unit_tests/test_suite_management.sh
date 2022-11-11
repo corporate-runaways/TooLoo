@@ -2,8 +2,8 @@
 
 setup_suite() {
 
-	XDG_DATA_HOME=$(pwd)"/bash_unit_tests/TEST_XDG_DATA_HOME";
-	XDG_CONFIG_HOME=$(pwd)"/bash_unit_tests/TEST_XDG_CONFIG_HOME";
+	XDG_DATA_HOME=$(pwd)"/bash_unit_tests/TESTING_XDG_DATA_HOME";
+	XDG_CONFIG_HOME=$(pwd)"/bash_unit_tests/TESTING_XDG_CONFIG_HOME";
 	echo ""
 	echo "XDG_DATA_HOME: $XDG_DATA_HOME"
 	rm -rf $XDG_DATA_HOME 2>&1 > /dev/null

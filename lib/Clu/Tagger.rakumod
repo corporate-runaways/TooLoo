@@ -7,7 +7,7 @@ use Listicles;
 use DB::SQLite::Statement;
 
 my sub find-tag-records(@tags, DB::Connection $connection) returns Seq {
-	return [] if @tags.is-empty;
+	return [].Seq if @tags.is-empty;
 
 	my $tags_list = "'" ~ @tags.join("', '") ~ "'";
 	my $search_sql = qq:to/END/;
@@ -76,9 +76,10 @@ our sub set-tags-for-command(Int $command_id, @tags, DB::Connection $connection)
 
 
 	my $deleted_connections_count = delete-commands-tags($command_id, $connection);
-	# - takes a command_id and a list of tags
-	# vvv BREAKS
 	my $ids_and_tags = add-tags(@tags.cache, $connection).cache;
+
+	# return early if there's nothing new to inserts
+	return True if $ids_and_tags.Seq.is-empty;
 
 	my $insert_sql = 'INSERT INTO commands_tags (command_id, tag_id) VALUES ';
 

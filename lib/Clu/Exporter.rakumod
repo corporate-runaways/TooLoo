@@ -98,7 +98,7 @@ my sub generate-index-markdown(@commands, Template6 $template){
 								~ ']({{< ref '
 								~ slugify( %command<name> )
 								~ ' >}})';
-		$table.add-row([%command<md_link>, %command<description>]);
+		$table.add-row([%command<md_link>, %command<short_description>]);
 	}
 	$table.set-style('MARKDOWN');
 	my %index_data = 'md_table' => $table.Str, 'timestamp' => Date.today.IO.Str;
@@ -110,7 +110,7 @@ my sub generate-details-markdown(Associative $command_hash, Template6 $template)
 	$command_hash<safename> = slugify($command_hash<name>);
 	$command_hash<usage> = extract-command-usage($command_hash);
 	# remove leading and trailing whitespace as they screw with md formatting
-	$command_hash<description> = $command_hash<description>.trim;
+	$command_hash<short_description> = $command_hash<short_description>.trim;
 	my $asciicast_url = $command_hash<asciicast_url>;
 	if $asciicast_url {
 		$command_hash<asciicast> = True;

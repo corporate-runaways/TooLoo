@@ -49,6 +49,12 @@ our sub ingest-metadata(Str $path, DB::SQLite $sqlite) returns Bool is export {
 		}
 	}
 	return True;
+	CATCH {
+     default {
+		$*ERR.say: .message;
+		return False
+	 }
+	}
 }
 
 my sub validate-presence(Any $x --> Bool) {

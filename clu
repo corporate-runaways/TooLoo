@@ -202,7 +202,8 @@ END
 		say("Successfully ingested $path");
 		exit 0;
     } else {
-	    note("Problems encountered ingesting $path");
+	    note("Problems encountered ingesting $path\nPlease confirm that it's valid TOML.");
+		note("toml-cli is a good tool for quickly sanity checking your TOML files\nhttps://crates.io/crates/toml-cli");
 		exit 1;
 	}
 }

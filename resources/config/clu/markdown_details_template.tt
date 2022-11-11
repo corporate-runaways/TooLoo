@@ -1,9 +1,11 @@
 ---
 title: [% name %]
-subtitle: [% description %]
+subtitle: [% short_description %]
 ---
 
+[% if description %]
 ## [% description %]
+[% end %]
 
 ### Usage
 

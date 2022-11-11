@@ -17,7 +17,7 @@ use DB::SQLite;
 use Listicles;
 use Prettier::Table;
 
-our sub export-markdown(IO::Path $target_directory, DB::SQLite $sqlite) returns Bool is export {
+our sub export-hugo(IO::Path $target_directory, DB::SQLite $sqlite) returns Bool is export {
 	# re target_directory:
 	# * ~ has already been expanded
 	# * presence has already been validated

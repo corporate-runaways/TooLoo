@@ -102,8 +102,9 @@ multi sub MAIN ('list',
 	$db.finish();
 }
 
+#| Create a static blog documenting all your commands
 multi sub MAIN ('export',
-				Str $format,    #= Currently supported formats: markdown
+				Str $format,    #= Currently supported formats: hugo
 				Str $directory  #= the directory to export to
 				){
 	my $cleaned_path = $directory.subst(/^^ "~"/, $*HOME);
@@ -113,13 +114,13 @@ multi sub MAIN ('export',
 		# TODO: ask if we should create it.
 		exit 64 # EX_USAGE
 	}
-	if $format eq 'markdown' {
+	if $format eq 'hugo' {
 		my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
-		export-markdown($cp_io, $db);
+		export-hugo($cp_io, $db);
 		$db.finish();
 	} else {
 		note("Unsupported export format: $format");
-		note("Only 'markdown' is currently supported.");
+		note("Only 'hugo' is currently supported.");
 	}
 }
 

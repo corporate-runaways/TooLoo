@@ -115,6 +115,7 @@ multi sub MAIN ('export',
 		exit 64 # EX_USAGE
 	}
 	if $format eq 'hugo' {
+		guarantee-md-templates();
 		my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
 		export-hugo($cp_io, $db);
 		$db.finish();
@@ -213,4 +214,11 @@ sub guarantee-db() returns Str {
 	my $resource_path = guarantee-resource($db_path, Clu::Resourcer);
 
 	return $resource_path;
+}
+
+sub guarantee-md-templates() {
+	for ("config/clu/markdown_details_template.tt",
+		 "config/clu/markdown_index_template.tt") -> $path {
+		guarantee-resource($path, Clu::Resourcer);
+	}
 }

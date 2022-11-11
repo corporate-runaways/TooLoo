@@ -6,17 +6,16 @@
 # =end pod
 
 unit module Clu::Exporter;
-use XDG::GuaranteedResources; # to load the md template
 use Template6;
 use XDG::BaseDirectory;
 use Clu::Command;
 use Clu::Resourcer; # for the templates
 use Clu::Tagger;
-use XDG::GuaranteedResources::AbstractResourcer; # just debugging
 use DB::SQLite;
 use Listicles;
 use Prettier::Table;
 
+#| Exports markdown files for Hugo. See README for details
 our sub export-hugo(IO::Path $target_directory, DB::SQLite $sqlite) returns Bool is export {
 	# re target_directory:
 	# * ~ has already been expanded

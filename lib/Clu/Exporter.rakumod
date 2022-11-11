@@ -94,7 +94,11 @@ my sub generate-index-markdown(@commands, Template6 $template){
 	);
 	for @commands -> %command {
 		# [About]({{< ref "/page/about" >}} "About Us")
-		%command<md_link> = "[%command<name>](\{\{< ref %command<name> >\}\})";
+		%command<md_link> = '['
+								~ %command<name>
+								~ ']({{< ref '
+								~ slugify( %command<name> )
+								~ ' >}})';
 		$table.add-row([%command<md_link>, %command<description>]);
 	}
 	$table.set-style('MARKDOWN');

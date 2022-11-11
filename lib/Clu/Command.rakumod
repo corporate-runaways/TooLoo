@@ -40,6 +40,7 @@ unit module Clu::Command:ver<1.0.1>:auth<masukomi (masukomi@masukomi.org)>;
 use Definitely;
 use Terminal::ANSIColor;
 use Terminal::Width;
+use Terminal::ANSIColor;
 use Text::MiscUtils::Layout;
 use Clu::TerminalUtilities;
 use Prettier::Table;
@@ -217,7 +218,10 @@ my sub extract-command-usage(%command --> Str) is export {
 			#
 			# as some commands have their usage in man pages... we're going to encounter this.
 			# backspace is \x08 so
-			return $usage_proc.out.slurp(:close).subst(/. \x08 | \x08 /, "", :g);
+			return colorstrip($usage_proc
+				.out
+				.slurp(:close)
+				.subst(/. \x08 | \x08 /, "", :g));
 		}
 	}
 

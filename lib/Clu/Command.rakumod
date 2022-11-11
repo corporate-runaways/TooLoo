@@ -58,6 +58,10 @@ multi sub display-command(%command) is export {
 								     align => %('Attribute' => 'l', 'Detail' => 'l'));
 	$table.add-row(['command', %command<name>]);
 	$table.add-row(['short description', %command<short_description>]);
+	if %command<description> {
+		$table.add-row(['', '']);
+		$table.add-row(['full description', %command<description>]);
+	}
 	$table.add-row(['', '']);
 	$table.add-row(['usage', extract-command-usage(%command)]);
 	$table.add-row(['type',  (%command<type> or "UNKNOWN")]);

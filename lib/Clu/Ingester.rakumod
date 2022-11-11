@@ -104,11 +104,11 @@ END
 			# whitespace change than have multiple PITA triggers on the tags and / or
 			# commands_tags table.
 			my $update_sql = q:to/END/;
-				UPDATE commands set description = ?
+				UPDATE commands set short_description = ?
 				WHERE id = ?
 			END
 			my $statement_handle = $connection.prepare($update_sql);
-			$statement_handle.execute([(%command<description> ~ " "), $command_id]);
+			$statement_handle.execute([(%command<short_description> ~ " "), $command_id]);
 		}
 	}
 

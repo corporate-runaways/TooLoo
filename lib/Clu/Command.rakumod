@@ -57,7 +57,7 @@ multi sub display-command(%command) is export {
 		field-names => ['Attribute', 'Detail'],
 								     align => %('Attribute' => 'l', 'Detail' => 'l'));
 	$table.add-row(['command', %command<name>]);
-	$table.add-row(['description', %command<description>]);
+	$table.add-row(['short description', %command<short_description>]);
 	$table.add-row(['', '']);
 	$table.add-row(['usage', extract-command-usage(%command)]);
 	$table.add-row(['type',  (%command<type> or "UNKNOWN")]);
@@ -244,7 +244,7 @@ multi sub display-command(Str $command_name, DB::SQLite $sqlite) is export {
 
 multi sub list-all-commands(DB::SQLite $db) is export {
 	my $search_sql = q:to/END/;
-		SELECT name, description FROM commands ORDER BY name ASC;
+		SELECT name, short_description FROM commands ORDER BY name ASC;
 	END
 	my @results = $db.query($search_sql).hashes ;
 	if @results.elems > 0 {
@@ -256,7 +256,7 @@ multi sub list-all-commands(DB::SQLite $db) is export {
 }
 multi sub list-all-demos(DB::SQLite $db) is export {
 	my $search_sql = q:to/END/;
-		SELECT name, description
+		SELECT name, short_description
 		FROM commands
 		WHERE asciicast_url is not null
 		ORDER BY name ASC;

@@ -95,8 +95,8 @@ our sub find-commands(Str $search_string, DB::Connection $connection) returns Ma
 	#
 	#
 	my @terms_list = $search_string.subst(/<[,/]>+/, "", :g).split(/\s+/);
-	# the three $_ below correspond to name, description, and language
-	my @command_search_bindings = [].push(@terms_list.map({[$_, $_, $_ ]}));
+	# the four $_ below correspond to name, short_description, description, and language
+	my @command_search_bindings = [].push(@terms_list.map({[$_, $_, $_, $_ ]}));
 	my $tag_search_sql = q:to/END/;
 		SELECT id FROM tags_fts WHERE
 		tag MATCH 'bogus_because_this_is_a_terrible_tag'
@@ -116,9 +116,10 @@ our sub find-commands(Str $search_string, DB::Connection $connection) returns Ma
 
 		$command_search_sql ~= q:to/END/;
 
-		OR name MATCH ?
-		OR description MATCH ?
-		OR language MATCH ?
+		OR name MATCH				?
+		OR short_description MATCH	?
+		OR description MATCH		?
+		OR language MATCH			?
 		END
 	}
 
@@ -183,40 +184,13 @@ our sub load-command(Str $command_name, DB::Connection $connection) returns Mayb
 	}
 }
 
-
-
-our sub display-name-and-description(%command) {
-# sub ansi-display-name-and-description(Hash %command) {
-	my $separator = ' : ';
-	my $wrapped_desc = wrap-with-indent(
-		(%command<name>.elems + $separator.elems),
-		%command<description>
-       );
-
-    say colored("%command<name>" ~ $separator ~ "$wrapped_desc\n", "bold underline" );
-}
-
-our sub display-names-and-descriptions(@commands) {
-	# find the longest command name
-	# my $max_name_length = 0;
-
-	# for @commands -> %command {
-	# 	my $length = %command<name>.chars;
-	# 	if $length > $max_name_length {
-	# 		$max_name_length = $length;
-	# 	}
-	# }
-
-	# my $term_width = terminal-width(:default<80>);
-	# my $max_description_width = $term_width - ( $max_name_length + 3 );
-	# term_width - (max_name_length + " | " )
-
+our sub display-names-and-short-descriptions(@commands) {
 	my $table = Prettier::Table.new(
 		field-names => ['Command', 'Description'],
 		align => %('Command' => 'l', 'Description' => 'l')
 	);
 	for @commands -> %command {
-		$table.add-row([%command<name>, %command<description>])
+		$table.add-row([%command<name>, %command<short_description>])
 	}
 	say $table;
 
@@ -244,7 +218,7 @@ my sub extract-command-usage(%command --> Str) is export {
 	}
 
 	return %command<fallback_usage> if %command<fallback_usage>;
-
+	note("Unable to determine usage for %command<name>");
 	"USAGE UNKNOWN"
 }
 
@@ -256,7 +230,7 @@ our sub search-and-display(Str $search_string, DB::SQLite $sqlite) is export {
 	    return;
 	}
 	my @results = $results_maybe.value[];
-	display-names-and-descriptions(@results);
+	display-names-and-short-descriptions(@results);
 }
 
 multi sub display-command(Str $command_name, DB::SQLite $sqlite) is export {
@@ -274,7 +248,7 @@ multi sub list-all-commands(DB::SQLite $db) is export {
 	END
 	my @results = $db.query($search_sql).hashes ;
 	if @results.elems > 0 {
-		display-names-and-descriptions(@results);
+		display-names-and-short-descriptions(@results);
 	} else {
 		say("Your database is currently empty.")
 	}
@@ -289,7 +263,7 @@ multi sub list-all-demos(DB::SQLite $db) is export {
 	END
 	my @results = $db.query($search_sql).hashes ;
 	if @results.elems > 0 {
-		display-names-and-descriptions(@results);
+		display-names-and-short-descriptions(@results);
 	} else {
 		say("You don't have any commands with asciicast demos.")
 	}

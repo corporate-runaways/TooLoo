@@ -1,12 +1,13 @@
 # the name of the command or function you're documenting
-name="raku_test_no_demo"
+name="something_else"
 # a short (one line) description of what it does
-short_description="raku_test_no_demo test description rtnddescription"
+short_description="something_else test description sedescription"
 description="""
-This is a far longer description of the full capabilities of
-raku_test_no_demo. Herein I shall expound upon its complete
-lack of virtues so that you might know, how utterly useless
-a completely non-existent script is.
+To go into the full details of something_else could take nanoseconds
+or less, because it doesn't exist. On the other hand, I could
+spend many words (far more than I shall) to descript the fullness
+of the non-existent situation. Here, in the middle ground, we
+see just enough, to let us know that there's a "real" description here.
 """
 # if the tool has some sort of usage / help documentation you can
 # invoke, enter it in the usage_command. Otherwise, comment that out,
@@ -15,7 +16,7 @@ a completely non-existent script is.
 # """ like this """
 # usage_command="dgrep"
 fallback_usage="""
-raku_test_no_demo usage
+something_else demo usage
 """
 
 # is this an executable, function, or ???
@@ -26,7 +27,7 @@ language="bash"
 source_url=""
 # where you can find the repo that contains this file
 source_repo_url=""
-tags=["rtnd1", "rtnd2"]
+tags=["se1", "se2"]
 
 # [[cheats]]
 # [[cheats.bar]]

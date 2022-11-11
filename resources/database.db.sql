@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS "cheats" (
 CREATE VIRTUAL TABLE commands_fts USING fts5(
 	id,
 	name,
+	short_description,
 	description,
 	language,
 	content=commands,
@@ -30,9 +31,11 @@ CREATE TABLE IF NOT EXISTS "clu_metadata" (
 	"value"	TEXT NOT NULL,
 	PRIMARY KEY("key")
 );
+
 CREATE TABLE IF NOT EXISTS "commands" (
 	"id"	INTEGER NOT NULL,
 	"name"	TEXT NOT NULL UNIQUE,
+	"short_description" TEXT,
 	"description"	TEXT,
 	"usage_command"	TEXT,
 	"fallback_usage"	TEXT,
@@ -58,24 +61,24 @@ INSERT INTO "clu_metadata" ("key","value") VALUES ('db_version','2.0.0');
 -- Commands FTS triggers
 CREATE TRIGGER commands_fts_insert AFTER INSERT ON commands
 BEGIN
-    INSERT INTO commands_fts (rowid, name, description, language) VALUES (new.rowid, new.name, new.description, new.language);
+    INSERT INTO commands_fts (rowid, name, short_description, description, language) VALUES (new.rowid, new.name, new.short_description, new.description, new.language);
 END;
 CREATE TRIGGER commands_fts_delete AFTER DELETE ON commands
 BEGIN
     INSERT INTO commands_fts
-	(commands_fts, rowid, name, description, language)
+	(commands_fts, rowid, name, short_description, description, language)
 	VALUES
-	('delete', old.rowid, old.name, old.description, old.language);
+	('delete', old.rowid, old.name, old.short_description, old.description, old.language);
 END;
 CREATE TRIGGER commands_fts_update AFTER UPDATE ON commands
 BEGIN
     INSERT INTO commands_fts
-	(commands_fts, rowid, name, description, language)
-	VALUES ('delete', old.rowid, old.name, old.description, old.language);
+	(commands_fts, rowid, name, short_description, description, language)
+	VALUES ('delete', old.rowid, old.name, old.short_description, old.description, old.language);
     INSERT INTO commands_fts
-	(rowid, name, description, language)
+	(rowid, name, short_description, description, language)
 	VALUES
-	(new.rowid, new.name, new.description, new.language);
+	(new.rowid, new.name, new.short_description, new.description, new.language);
 END;
 COMMIT;
 -- Tags FTS triggers

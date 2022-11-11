@@ -53,6 +53,7 @@ our sub insert-command(%command, DB::Connection $connection){
 	my $insert_sql = q:to/END/;
 INSERT INTO commands (
 	name,
+	short_description,
 	description,
 	usage_command,
 	fallback_usage,
@@ -62,6 +63,7 @@ INSERT INTO commands (
 	source_repo_url,
 	asciicast_url
 ) VALUES (
+	?,
 	?,
 	?,
 	?,
@@ -119,6 +121,7 @@ our sub update-command($command_id, %command, DB::Connection $connection){
 	my $update_sql = q:to/END/;
 UPDATE commands SET
   name              = ?,
+  short_description = ?,
   description       = ?,
   usage_command     = ?,
   fallback_usage    = ?,
@@ -156,6 +159,7 @@ sub remove-command(Str $command_name, DB::SQLite $sqlite) returns Bool is export
 our sub executable-list(%command) {
 	   [
 		   %command<name>, # guaranteed present
+		    %command<short_description>,
 			%command<description>,
 			(%command<usage_command> or Nil),
 			( %command<fallback_usage> or Nil ),

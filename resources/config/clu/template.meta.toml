@@ -1,15 +1,30 @@
 # Clu documentation file. Details: https://github.com/masukomi/Clu
 
-# the name of the command or function you're documenting
+# The name of the command or function you're documenting
+# This is the thing you type to invoke it. Note: git scripts
+# are typically named git-foo but you invoke them as 'git foo'.
+# It's your call, but for these I'd recommend using git-foo in
+# the name field. This will enable Clu to tell you where it's
+# located on your system.
 name=""
 # a short (one line) description of what it does
-description=""
-# if the tool has some sort of usage / help documentation you can
+short_description=""
+
+# an optional detailed description of what it does.
+# definitely include this if you're going to generate a web site.
+# Note: You can include markdown in this and have it rendered
+# when the web site is generated
+#
+# description="""
+# """
+
+# If the tool has some sort of usage / help documentation you can
 # invoke, enter it in the usage_command. Otherwise, comment that out,
 # and document it in the fallback_usage. In TOML you can create a
 # multiline string by surrounding it with triple double quotes.
 # """ like this """
 usage_command=""
+
 # fallback_usage="""
 # USAGE: fallback_usage is used when
 # usage_command is not present"""
@@ -22,14 +37,9 @@ language="bash"
 source_url=""
 # where you can find the repo that contains this file
 source_repo_url=""
-# additional keywords that might help you find this in a search
-# or when browsing by tag
-# future functionality: https://github.com/masukomi/Clu/issues/10
-tags=[  ];
 
-# [[cheats]]
-# description = "a description of task bar with backtrace_details"
-# template="bar {{arg1}} {{arg2}}"
-# [[cheats]]
-# description = "a description of task baz with backtrace_details"
-# template="bar {{arg1}} {{arg2}}"
+# additional keywords that might help you find this in a search
+# or when browsing by tag. There are more features coming that
+# will add functionality based on tags. ;)
+#
+# tags=[ "foo", "bar"  ]

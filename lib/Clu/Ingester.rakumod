@@ -6,14 +6,10 @@
 # =end pod
 
 unit module Clu::Ingester:ver<1.0.1>:auth<masukomi (masukomi@masukomi.org)>;
-use Definitely;
-# use Terminal::ANSIColor;
-# use Text::MiscUtils::Layout;
-use Clu::TerminalUtilities;
 use Clu::Command;
-use Clu::Tagger;
-# use Color;
+use Clu::TerminalUtilities;
 use DB::SQLite;
+use Definitely;
 use TOML;
 
 our sub ingest-metadata(Str $path, DB::SQLite $sqlite) returns Bool is export {

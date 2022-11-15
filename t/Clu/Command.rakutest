@@ -1,40 +1,53 @@
 use Test;
+use lib 'lib';
 use Test::Output;
 use Clu::Command;
 use Terminal::ANSIColor; # to uncolor output for easier testing
 
 
-my %test_command = id				=> 123,
-				   name				=> 'ls',
-				   description		=> 'lists the contents of directories',
-				   usage_command	=> 'man ls | head -n 4',
-				   fallback_usage	=> Nil, #$fallback_usage,
-				   language			=> 'c',
-				   type				=> 'executable',
-				   source_url       => 'https://github.com/wertarbyte/coreutils/blob/master/src/ls.c',
-				   source_repo_url	=> 'https://github.com/wertarbyte/coreutils';
+my %test_command = id					=> 123,
+				   name					=> 'ls',
+				   short_description	=> 'lists the contents of directories',
+				   description			=> 'a detailed description',
+				   usage_command    	=> 'man ls | head -n 4',
+				   fallback_usage   	=> Nil,
+				   language		    	=> 'c',
+				   type			    	=> 'executable',
+				   source_url			=> 'https://github.com/wertarbyte/coreutils/blob/master/src/ls.c',
+				   source_repo_url		=> 'https://github.com/wertarbyte/coreutils',
+                   tags                 => ['cli', 'utility'];
 
 my $expected_output = q:to/END/;
-ls : lists the contents of directories
-
-LS(1)                        General Commands Manual                       LS(1)
-
-NAME
-     ls – list directory contents
-
---------------------
-type: executable
-lang: c
-location: /bin/ls
-
-source repo: https://github.com/wertarbyte/coreutils
-source url: https://github.com/wertarbyte/coreutils/blob/master/src/ls.c
+┌───────────────────┬──────────────────────────────────────────────────────────────────────────────────┐
+│ Attribute         │ Detail                                                                           │
+├───────────────────┼──────────────────────────────────────────────────────────────────────────────────┤
+│ command           │ ls                                                                               │
+│ short description │ lists the contents of directories                                                │
+│                   │                                                                                  │
+│ full description  │ a detailed description                                                           │
+│                   │                                                                                  │
+│ usage             │ LS(1)                        General Commands Manual                       LS(1) │
+│                   │                                                                                  │
+│                   │ NAME                                                                             │
+│                   │      ls – list directory contents                                                │
+│                   │                                                                                  │
+│ type              │ executable                                                                       │
+│ language          │ c                                                                                │
+│ location          │ /bin/ls                                                                          │
+│ source repo       │ https://github.com/wertarbyte/coreutils                                          │
+│ source url        │ https://github.com/wertarbyte/coreutils/blob/master/src/ls.c                     │
+│ tags              │ cli, utility                                                                     │
+└───────────────────┴──────────────────────────────────────────────────────────────────────────────────┘
 END
 
-my $stripped_output = colorstrip( output-from {display-command(%test_command)});
+display-command(%test_command);
 
-spurt 'stripped_output.txt', $stripped_output;
-spurt 'expected_output.txt', $expected_output;
+
+my $stripped_output = colorstrip( output-from {display-command(%test_command)});
+# NOTE: leave these here to simplify getting new expected output when
+# we change what it's supposed to look like.
+# spurt 'stripped_output.txt', $stripped_output;
+# spurt 'expected_output.txt', $expected_output;
 is $stripped_output, $expected_output, 'testing display-command';
 
 

@@ -154,7 +154,7 @@ test_27_tag_search_2_rows() {
 # just confirming that it works and has the amount of output we're expecting
 test_28_show() {
 	show_output=$(XDG_DATA_HOME=$XDG_DATA_HOME raku -I lib clu show raku_test_no_demo  | wc -l | sed -e 's/^ *//')
-	assert_equals "13" "$show_output"
+	assert_equals "20" "$show_output"
 }
 
 test_29_template() {

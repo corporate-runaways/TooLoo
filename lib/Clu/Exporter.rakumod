@@ -6,14 +6,13 @@
 # =end pod
 
 unit module Clu::Exporter;
-use Template6;
-use XDG::BaseDirectory;
 use Clu::Command;
 use Clu::Resourcer; # for the templates
-use Clu::Tagger;
 use DB::SQLite;
 use Listicles;
 use Prettier::Table;
+use Template6;
+use XDG::BaseDirectory;
 
 #| Exports markdown files for Hugo. See README for details
 our sub export-hugo(IO::Path $target_directory, DB::SQLite $sqlite) returns Bool is export {

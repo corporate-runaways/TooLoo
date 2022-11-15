@@ -26,7 +26,6 @@
   "perl": "6.d",
   "provides": {
     "Clu::Asciicaster": "lib/Clu/Asciicaster.rakumod",
-    "Clu::Cheat": "lib/Clu/Cheat.rakumod",
     "Clu::Command": "lib/Clu/Command.rakumod",
     "Clu::Ingester": "lib/Clu/Ingester.rakumod",
     "Clu::Metadata": "lib/Clu/Metadata.rakumod",

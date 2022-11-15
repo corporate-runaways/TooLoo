@@ -32,6 +32,7 @@ source url: https://github.com/wertarbyte/coreutils/blob/master/src/ls.c
 END
 
 my $stripped_output = colorstrip( output-from {display-command(%test_command)});
+
 spurt 'stripped_output.txt', $stripped_output;
 spurt 'expected_output.txt', $expected_output;
 is $stripped_output, $expected_output, 'testing display-command';

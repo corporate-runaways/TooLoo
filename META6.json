@@ -34,7 +34,7 @@
   },
   "resources": [
     "data/clu/database.db",
-    "template.meta.toml"
+    "config/clu/template.meta.toml"
   ],
   "source-url": "https://github.com/masukomi/Clu",
   "tags": [

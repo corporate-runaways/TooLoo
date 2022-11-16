@@ -22,10 +22,11 @@
   ],
   "description": "Clu (Command LookUp) helps you document your utility scripts",
   "license": "MIT",
-  "name": "Clu::Cheat",
+  "name": "Clu",
   "perl": "6.d",
   "provides": {
     "Clu::Asciicaster": "lib/Clu/Asciicaster.rakumod",
+    "Clu::Exporter": "lib/Clu/Exporter.rakumod",
     "Clu::Command": "lib/Clu/Command.rakumod",
     "Clu::Ingester": "lib/Clu/Ingester.rakumod",
     "Clu::Metadata": "lib/Clu/Metadata.rakumod",

@@ -21,37 +21,6 @@
 use v6;
 use lib 'lib';
 
-=begin pod
-
-=head1 NAME
-
-TooLoo - blah blah blah
-
-=head1 SYNOPSIS
-
-=begin code :lang<raku>
-
-foo
-
-=end code
-
-=head1 DESCRIPTION
-
-TooLoo is ...
-
-=head1 AUTHOR
-
-masukomi <masukomi@masukomi.org>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright 2022 masukomi
-
-This library is free software; you can redistribute it and/or modify it under the MIT License;
-
-=end pod
-
-
 use DB::SQLite;
 use XDG::GuaranteedResources;
 

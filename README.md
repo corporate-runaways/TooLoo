@@ -1,64 +1,83 @@
-(Command LookUp)
+# TooLoo
 
-Got an overwhelming number of command line scripts and functions? So many you've actually started to forget what options you have available, or what some of them do? Try Clu!
+Got an overwhelming number of command line scripts and functions? So
+many you\'ve actually started to forget what options you have available,
+or what some of them do? Try TooLoo!
 
 # What does it do?
 
-Clu allows provides a [full text search](https://en.wikipedia.org/wiki/Full-text_search) of the name, description, and details of your scripts. When a script includes a \"help\" command, Clu will call it and display current usage docs instead of potentially outdated ones from its cache.
+TooLoo allows provides a [full text
+search](https://en.wikipedia.org/wiki/Full-text_search) of the name,
+description, and details of your scripts. When a script includes a
+\"help\" command, TooLoo will call it and display current usage docs
+instead of potentially outdated ones from its cache.
 
 Scroll down to see some examples of its output.
 
-## Future looking
-
-The intent is to support [tldr style \"cheats\"](https://tldr.sh/) for your scripts too. The example TOML template below contains commented out cheats if you feel like writing them now, but Clu currently ignores that data.
-
-Being able to arrow through search results and choose one to see the full details of.
+Additionally, TooLoo can generate a static web site with a built-in
+[Lunr](https://lunrjs.com/) search to document all your commands. To
+accomplish this, TooLoo generates the Markdown files, and
+[Hugo](https://gohugo.io/) builds the search index, and converts it to a
+site for you.
 
 # Installation
 
-Clu is written in [Raku](https://www.raku.org/), and uses the [zef](https://github.com/ugexe/zef) package manager for installation.
+TooLoo is written in [Raku](https://www.raku.org/), and uses the
+[zef](https://github.com/ugexe/zef) package manager for installation.
 
-If you've already got Raku and zef installed then just run:
+If you\'ve already got Raku and zef installed then just run:
 
-`zef install Clu`
+`zef install TooLoo`{.verbatim}
 
 ## Upgrading
-The 2.0 change has a different database structure, and now adheres to the XDG Base Directory specification for where it stores things.
 
-So, first step is to run `zef upgrade Clu`
+The 2.0 change has a different database structure, and now adheres to
+the XDG Base Directory specification for where it stores things.
 
-The easiest way to upgrade your data is to just run it again to set up a new empty db in the new location. Then import re-import all your toml files with something like this:
+So, first step is to run `zef upgrade TooLoo`{.verbatim}
 
-``` bash
-find . -name '*.meta.toml' -exec clu add '{}' \; -exec sleep 1 \;
+The easiest way to upgrade your data is to just run it again to set up a
+new empty db in the new location. Then import re-import all your toml
+files with something like this:
+
+``` {.bash org-language="sh"}
+find . -name '*.meta.toml' -exec tooloo add '{}' \; -exec sleep 1 \;
 ```
-The `sleep` is important, to guarantee you don't have database issues with the different processes competing for the file.
+
+The `sleep`{.verbatim} is important, to guarantee you don\'t have
+database issues with the different processes competing for the file.
 
 ## Raku install quick-guide
 
-Use Homebrew to install [Rakudo](https://rakudo.org/). That's the Raku virtual machine. If you install the [Rakudo Star Bundle](https://rakudo.org/star) then [zef](https://github.com/ugexe/zef) will come along for the ride. You can download it from those links, or install it with homebrew.
+Use Homebrew to install [Rakudo](https://rakudo.org/). That\'s the Raku
+virtual machine. If you install the [Rakudo Star
+Bundle](https://rakudo.org/star) then
+[zef](https://github.com/ugexe/zef) will come along for the ride. You
+can download it from those links, or install it with homebrew.
 
-    brew install rakudo-star
+``` example
+brew install rakudo-star
+```
 
-Now, go back and run the `zef install` command above.
+Now, go back and run the `zef install`{.verbatim} command above.
 
 # Usage
 
-```
+``` example
 Usage:
-  clu -V|--version[=Any] [--verbose[=Any]]
-  clu add <path> -- Add & updates documentation of a command with a .toml file, 
+  tooloo -V|--version[=Any] [--verbose[=Any]]
+  tooloo add <path> -- Add & updates documentation of a command with a .toml file,
                     or an ansiicast demo with a .cast file
-  clu demo <command_name> -- play the asciicast demo of the specified command
-  clu demos -- List all your commands that have associated asciicast demos
-  clu find [<search_strings> ...] -- Execute a full text against documented commands. 
+  tooloo demo <command_name> -- play the asciicast demo of the specified command
+  tooloo demos -- List all your commands that have associated asciicast demos
+  tooloo find [<search_strings> ...] -- Execute a full text against documented commands.
                                      Search terms should be separate arguments.
-  clu list -- List all your commands & their quick description
-  clu list <filter> -- Lists a filtered subset of commands via filter: 'demos'
-  clu remove <command_name> -- Remove a command from the database
-  clu show <command_name> -- Display the full details of a specific command
-  clu template <destination> -- Generate a blank TOML template at the specified location.
-  clu update <path> -- Updates documentation of a command with a .toml file, 
+  tooloo list -- List all your commands & their quick description
+  tooloo list <filter> -- Lists a filtered subset of commands via filter: 'demos'
+  tooloo remove <command_name> -- Remove a command from the database
+  tooloo show <command_name> -- Display the full details of a specific command
+  tooloo template <destination> -- Generate a blank TOML template at the specified location.
+  tooloo update <path> -- Updates documentation of a command with a .toml file,
                        or an ansiicast demo with a .cast file
 
     <path>            Paths must end in .toml or .cast
@@ -68,110 +87,138 @@ Usage:
 
 ## Documenting a new Command
 
-The first step is to create a [TOML file](https://toml.io/en/) for each cli tool you wish to document. Clu doesn't care where these live. My advice is to put them alongside your script, so that when you share your script with others, it can go along for the ride, even if they're not using Clu, TOML is still very readable.
+The first step is to create a [TOML file](https://toml.io/en/) for each
+cli tool you wish to document. TooLoo doesn\'t care where these live. My
+advice is to put them alongside your script, so that when you share your
+script with others, it can go along for the ride, even if they\'re not
+using TooLoo, TOML is still very readable.
 
-Clu doesn't care what the file is named, so long as it ends with `.toml` but personally I've been using the convention of `<command_name>.meta.toml` and putting it in the same directory as the command I'm documenting.
+TooLoo doesn\'t care what the file is named, so long as it ends with
+`.toml`{.verbatim} but personally I\'ve been using the convention of
+`<command_name>.meta.toml`{.verbatim} and putting it in the same
+directory as the command I\'m documenting.
 
-The `template` comand will generate a TOML file for you where you just have to fill in the blanks.
+The `template`{.verbatim} comand will generate a TOML file for you where
+you just have to fill in the blanks.
 
-1.  run `clu template path/to/my_command.meta.toml`
+1.  run `tooloo template path/to/my_command.meta.toml`{.verbatim}
 
-For example: If you have a `foo` command you'd make a `foo.meta.toml` file. It doesn't matter if you're documenting an executable or a shell function.
+For example: If you have a `foo`{.verbatim} command you\'d make a
+`foo.meta.toml`{.verbatim} file. It doesn\'t matter if you\'re
+documenting an executable or a shell function.
 
 1.  Edit your new TOML file.
-2.  run `clu add path/to/my_command.meta.toml`
+2.  run `tooloo add path/to/my_command.meta.toml`{.verbatim}
 
-That's it. If you ever need to update / change the documentation just edit the TOML file and run `clu update <path/to/my_command.meta.toml>`. It'll find the command with the matching name in the database, and replace it.
+That\'s it. If you ever need to update / change the documentation just
+edit the TOML file and run
+`tooloo update <path/to/my_command.meta.toml>`{.verbatim}. It\'ll find
+the command with the matching name in the database, and replace it.
 
 ### Documentation Details
 
-The comments in the generated template should be enough to document your command, but here are some additional notes.
+The comments in the generated template should be enough to document your
+command, but here are some additional notes.
 
-Whenever there's a list `short_description` will be used. Depending on your personal usage `description` may not be worth it. However, if you're exporting and generating a static web site from clu you'll definitely want that. 
+Whenever there\'s a list `short_description`{.verbatim} will be used.
+Depending on your personal usage `description`{.verbatim} may not be
+worth it. However, if you\'re exporting and generating a static web site
+from tooloo you\'ll definitely want that.
 
-The Usage section of each command is generated on the fly whenever possible. Some commands don't have a `--help` option or anything similar, in which case you'll need to fill in the `fallback_usage`. When doing so, be sure to not use any tabs. They'll muck with the table that's displayed.
+The Usage section of each command is generated on the fly whenever
+possible. Some commands don\'t have a `--help`{.verbatim} option or
+anything similar, in which case you\'ll need to fill in the
+`fallback_usage`{.verbatim}. When doing so, be sure to not use any tabs.
+They\'ll muck with the table that\'s displayed.
 
 ## Showing a command
 
-`clu show <command_name>` will display the name, description, and usage of the specified command (if found).
+`tooloo show <command_name>`{.verbatim} will display the name,
+description, and usage of the specified command (if found).
 
 Output looks like this:
 
-    ❯ clu show rg-ignores
-    rg-ignores : finds files that rg may be using to ignore patterns
-
-    USAGE: rg-ignores <path>
-
-           Use me when rg isn't finding something you expect
-           and rg --hidden isn't helping.
-           Looks for files that RipGrep will consult
-           in order to find patterns to ignore.
-
-           Note: using --hidden --no-ignore is a short term fix
-
-    --------------------
-    type: executable
-    lang: bash
-    location: /Users/masukomi/bin/rg-ignores
-
-    source repo: https://github.com/masukomi/masuconfigs
-    source url: https://github.com/masukomi/masuconfigs/blob/master/bin/rg-ignores
+![](https://raw.githubusercontent.com/masukomi/Clu/readme_images/images/show.png "a two column table listing attributes of the command and their associated details")
 
 ## Finding a command
 
-`clu find <search terms>` Don't bother quoting the search terms. Something like `clu find foo bar baz` is fine.
+`tooloo find <search terms>`{.verbatim} Don\'t bother quoting the search
+terms. Something like `tooloo find foo bar baz`{.verbatim} is fine.
 
-Clu will perform a full text search for your terms on the name, description, and language fields, and display the results.
+TooLoo will perform a full text search for your terms on the name,
+description, and language fields, and display the results.
 
-If you want more details, run `clu show <command name>` for the command you've found.
+If you want more details, run `tooloo show <command name>`{.verbatim}
+(see below) for the command you\'ve found.
 
 Output looks like this:
 
-    ❯ clu find find
-    rg-ignores          | finds files that rg may be using to ignore patterns
-    git-oldest-ancestor | finds the oldest common ancestor between two git treeishes
+![](https://raw.githubusercontent.com/masukomi/Clu/readme_images/images/find.png "a two column table listing the found commands and short descriptions")
 
 ## Listing all commands
 
-`clu list` will list everything for you. Output looks like
+`tooloo list`{.verbatim} will list everything for you. Output looks like
 this:
 
-    ❯ clu list
-    backtrace_details   | Pairs a backtrace with the corresponding lines of code
-    bak                 | bak moves or copies the proffered file to a .back version
-    blankless           | converts whitespace-only lines to empty lines.
-    color_test          | outputs a smooth gradient band along the RGB spectrum
-    git-branch-pr       | Shows or opens the Pull Request for the current branch
-    git-oldest-ancestor | finds the oldest common ancestor between two git treeishes
-    hr                  | outputs a horizontal rule the width of your terminal
-    is_brewed           | indicates if a package is installed via homebrew
-    rg-ignores          | finds files that rg may be using to ignore patterns
-    watch_when          | Polls a command and reports when its output changes
+![](https://raw.githubusercontent.com/masukomi/Clu/readme_images/images/list.png "a two column table listing commands and short descriptions")
 
 ## Updating a command
 
-`clu update <path/to/my_command.meta.toml>` will find the existing command with the name specified in the TOML and update its data. If you have changed the name of the command you'll need to remove and add instead of update.
+`tooloo update <path/to/my_command.meta.toml>`{.verbatim} will find the
+existing command with the name specified in the TOML and update its
+data. If you have changed the name of the command you\'ll need to remove
+and add instead of update.
 
 ## Removing a command
 
-`clu remove <command_name>` will remove the command with the
-specified name.
+`tooloo remove <command_name>`{.verbatim} will remove the command with
+the specified name.
 
 ## Syncing between machines
 
-There's no inherent syncing here. Sorry. You can copy the db from `~/.config/clu/database.db` to another machine, or, you can boot it up on a new system and run something like this to ingest all your toml files.
+There\'s no inherent syncing here. Sorry. You can copy the db from
+`~/.config/tooloo/database.db`{.verbatim} to another machine, or, you
+can boot it up on a new system and run something like this to ingest all
+your toml files.
 
-``` bash
-find ~/folder/with/my/clu_toml_files -name "*.meta.toml" -exec clu add '{}' \;
+``` {.bash org-language="sh"}
+find ~/folder/with/my/tooloo_toml_files -name "*.meta.toml" -exec tooloo add '{}' \;
 ```
 
 ## Generating a Static Blog
-Clu can export Markdown files in order to generate a static blog. Right now it's expecting that you'll be using [Hugo](https://gohugo.io/) along with our [default site structure](https://github.com/masukomi/clu_blank_hugo_site), or more likely, some beautifully tweaked variant of it.
 
-To generate your blog run `clu export hugo ~/path/to/clu_blank_hugo_site/content/all_commands`. The theme has a concept of "chapters" and "all_commands" is the first "chapter". You can, of course, change this. It's ultimately a variation of the [Hugo Learn Theme](https://github.com/matcornic/hugo-theme-learn) which has [good documentation](https://learn.netlify.app/).
+TooLoo can export Markdown files in order to generate a static blog.
+Right now it\'s expecting that you\'ll be using
+[Hugo](https://gohugo.io/) along with our [default site
+structure](https://github.com/masukomi/tooloo_blank_hugo_site), or more
+likely, some beautifully tweaked variant of it.
+
+A demo of the default site structure and theme is available at
+[demo.tooloo.dev](https://demo.tooloo.dev)
+
+To generate your blog run
+`tooloo export hugo ~/path/to/tooloo_blank_hugo_site/content/all_commands`{.verbatim}
+The theme has a concept of \"chapters\" and \"all~commands~\" is the
+first \"chapter\". You can, of course, change this. It\'s ultimately a
+variation of the [Hugo Learn
+Theme](https://github.com/matcornic/hugo-theme-learn) which has [good
+documentation](https://learn.netlify.app/).
+
+# Why is it called \"TooLoo\"?
+
+1.  It\'s short for \"Tool Lookup\": Too(l) Loo(kup) -\> TooLoo
+2.  It\'s fun to say.
+3.  The .dev domain was available.
+4.  The original name was likely to be misspelled.
+5.  It allows me to accommodate future features documenting more than
+    just command line things.
 
 # Contributing
-See [CONTRIBUTING.md](https://github.com/masukomi/Clu/blob/main/CONTRIBUTING.md#readme)
+
+See
+[CONTRIBUTING.md](https://github.com/masukomi/TooLoo/blob/main/CONTRIBUTING.md#readme)
+
 # LICENSE
 
-Copyright 2022 [Kay Rhodes](https://masukomi.org) (a.k.a. masukomi). Distributed under the MIT License.
+Copyright 2022 [Kay Rhodes](https://masukomi.org) (a.k.a. masukomi).
+Distributed under the GPL 3.0 License.

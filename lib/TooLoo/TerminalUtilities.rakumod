@@ -1,4 +1,4 @@
-unit module Clu::TerminalUtilities;
+unit module TooLoo::TerminalUtilities;
 use Terminal::Width;
 use Text::MiscUtils::Layout;
 use Color;

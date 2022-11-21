@@ -1,4 +1,4 @@
-unit module Clu::Metadata;
+unit module TooLoo::Metadata;
 use DB::SQLite;
 use Definitely;
 

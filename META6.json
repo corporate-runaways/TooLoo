@@ -20,24 +20,25 @@
     "XDG::GuaranteedResources",
     "Prettier::Table"
   ],
-  "description": "Clu (Command LookUp) helps you document your utility scripts",
-  "license": "MIT",
-  "name": "Clu",
+  "description": "TooLoo [Too]l[Loo]kup helps you document & find your utility scripts",
+  "license": "GPL-3.0-or-later",
+  "name": "TooLoo",
   "perl": "6.d",
   "provides": {
-    "Clu::Asciicaster": "lib/Clu/Asciicaster.rakumod",
-    "Clu::Exporter": "lib/Clu/Exporter.rakumod",
-    "Clu::Command": "lib/Clu/Command.rakumod",
-    "Clu::Ingester": "lib/Clu/Ingester.rakumod",
-    "Clu::Metadata": "lib/Clu/Metadata.rakumod",
-    "Clu::Resourcer": "lib/Clu/Resourcer.rakumod",
-    "Clu::TerminalUtilities": "lib/Clu/TerminalUtilities.rakumod"
+    "TooLoo::Asciicaster": "lib/TooLoo/Asciicaster.rakumod",
+    "TooLoo::Cheat": "lib/TooLoo/Cheat.rakumod",
+    "TooLoo::Command": "lib/TooLoo/Command.rakumod",
+    "TooLoo::Exporter": "lib/TooLoo/Exporter.rakumod",
+    "TooLoo::Ingester": "lib/TooLoo/Ingester.rakumod",
+    "TooLoo::Metadata": "lib/TooLoo/Metadata.rakumod",
+    "TooLoo::Resourcer": "lib/TooLoo/Resourcer.rakumod",
+    "TooLoo::TerminalUtilities": "lib/TooLoo/TerminalUtilities.rakumod"
   },
   "resources": [
-    "data/clu/database.db",
-    "config/clu/template.meta.toml"
+    "data/tooloo/database.db",
+    "config/tooloo/template.meta.toml"
   ],
-  "source-url": "https://github.com/masukomi/Clu",
+  "source-url": "https://github.com/masukomi/TooLoo",
   "tags": [
     "cli",
     "scripting"

@@ -1,5 +1,23 @@
 #!/usr/bin/env raku
 
+# Copyright (C) 2022 Kay Rhodes (a.k.a masukomi)
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# YOUR CONTRIBUTIONS, FINANCIAL, OR CODE TO MAKING THIS A BETTER PROGRAM
+# ARE GREATLY APPRECIATED. SEE https://TooLoo.dev FOR DETAILS
+
 use v6;
 use lib 'lib';
 
@@ -7,7 +25,7 @@ use lib 'lib';
 
 =head1 NAME
 
-Clu - blah blah blah
+TooLoo - blah blah blah
 
 =head1 SYNOPSIS
 
@@ -19,7 +37,7 @@ foo
 
 =head1 DESCRIPTION
 
-Clu is ...
+TooLoo is ...
 
 =head1 AUTHOR
 
@@ -37,11 +55,11 @@ This library is free software; you can redistribute it and/or modify it under th
 use DB::SQLite;
 use XDG::GuaranteedResources;
 
-use Clu::Resourcer;
-use Clu::Command;
-use Clu::Ingester;
-use Clu::Exporter;
-use Clu::Asciicaster;
+use TooLoo::Resourcer;
+use TooLoo::Command;
+use TooLoo::Ingester;
+use TooLoo::Exporter;
+use TooLoo::Asciicaster;
 
 #my %*SUB-MAIN-OPTS<named-anywhere> = True;
 
@@ -144,8 +162,8 @@ multi sub MAIN ('show',
 
 #| Generate a blank TOML template at the specified location.
 multi sub MAIN('template', $destination) {
-	my $template_path = "config/clu/template.meta.toml";
-	my $resource_path = guarantee-resource($template_path, Clu::Resourcer);
+	my $template_path = "config/tooloo/template.meta.toml";
+	my $resource_path = guarantee-resource($template_path, TooLoo::Resourcer);
 	say("Copying fresh template to $destination");
 	# NOTE: copying from the XDG path version in case the
 	# use has modified the default template
@@ -156,7 +174,7 @@ multi sub MAIN('template', $destination) {
 # #= display cheats for a command
 # sub MAIN ('cheats', $command_name) {
 #	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly)
-# 	Clu::Cheats.new($command_name)
+# 	TooLoo::Cheats.new($command_name)
 # 	# TODO: support interacting with the cheats
 # 	# to choose one.
 # 	# Then leveraging them as templates with params
@@ -186,7 +204,7 @@ sub ingest(Str $path) {
 			my $warning = q:to/END/;
 Added files must end with .toml or .cast.
 .toml files should be TOML files similar to those produced
-by clu template <path>
+by tooloo template <path>
 .cast files should be asciicast v2 files as produced by
 asciinema recordings.
 .cast files must have names that match the command they
@@ -222,15 +240,15 @@ END
 
 
 sub guarantee-db() returns Str {
-	my $db_path = "data/clu/database.db";
-	my $resource_path = guarantee-resource($db_path, Clu::Resourcer);
+	my $db_path = "data/tooloo/database.db";
+	my $resource_path = guarantee-resource($db_path, TooLoo::Resourcer);
 
 	return $resource_path;
 }
 
 sub guarantee-md-templates() {
-	for ("config/clu/markdown_details_template.tt",
-		 "config/clu/markdown_index_template.tt") -> $path {
-		guarantee-resource($path, Clu::Resourcer);
+	for ("config/tooloo/markdown_details_template.tt",
+		 "config/tooloo/markdown_index_template.tt") -> $path {
+		guarantee-resource($path, TooLoo::Resourcer);
 	}
 }

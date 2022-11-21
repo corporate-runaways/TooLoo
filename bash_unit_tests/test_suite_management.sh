@@ -11,7 +11,7 @@ setup_suite() {
 	mkdir -p $XDG_DATA_HOME
 	mkdir -p $XDG_CONFIG_HOME
 	TEST_DATA_DIR=$(pwd)"/bash_unit_tests/test_data"
-	DB_LOCATION=$XDG_DATA_HOME"/clu/database.db"
+	DB_LOCATION=$XDG_DATA_HOME"/tooloo/database.db"
 
 }
 

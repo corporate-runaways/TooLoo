@@ -1,13 +1,13 @@
 # =begin pod
-# =head1 Clu::Ingester
+# =head1 TooLoo::Ingester
 # =para
 # Ingests a TOML file with information about a command.
 #
 # =end pod
 
-unit module Clu::Ingester:ver<1.0.1>:auth<masukomi (masukomi@masukomi.org)>;
-use Clu::Command;
-use Clu::TerminalUtilities;
+unit module TooLoo::Ingester:ver<1.0.1>:auth<masukomi (masukomi@masukomi.org)>;
+use TooLoo::Command;
+use TooLoo::TerminalUtilities;
 use DB::SQLite;
 use Definitely;
 use TOML;

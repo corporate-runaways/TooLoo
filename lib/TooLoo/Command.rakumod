@@ -1,5 +1,5 @@
 # =begin pod
-# =head1 Clu::Command
+# =head1 TooLoo::Command
 # =para
 # A Command has the following attributes (columns)
 #
@@ -36,9 +36,9 @@
 
 # =end pod
 
-unit module Clu::Command:ver<1.0.1>:auth<masukomi (masukomi@masukomi.org)>;
-use Clu::Metadata;
-use Clu::TerminalUtilities;
+unit module TooLoo::Command:ver<1.0.1>:auth<masukomi (masukomi@masukomi.org)>;
+use TooLoo::Metadata;
+use TooLoo::TerminalUtilities;
 use Color;
 use DB::Connection;
 use DB::SQLite::Statement;

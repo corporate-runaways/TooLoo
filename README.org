@@ -30,25 +30,7 @@ If you've already got Raku and zef installed then just run:
 
 =zef install TooLoo=
 
-** Upgrading
-:PROPERTIES:
-:CUSTOM_ID: upgrading
-:END:
-The 2.0 change has a different database structure, and now adheres to
-the XDG Base Directory specification for where it stores things.
-
-So, first step is to run =zef upgrade TooLoo=
-
-The easiest way to upgrade your data is to just run it again to set up a
-new empty db in the new location. Then import re-import all your toml
-files with something like this:
-
-#+begin_src sh
-find . -name '*.meta.toml' -exec tooloo add '{}' \; -exec sleep 1 \;
-#+end_src
-
-The =sleep= is important, to guarantee you don't have database issues
-with the different processes competing for the file.
+If you don't have Raku installed then...
 
 ** Raku install quick-guide
 :PROPERTIES:
@@ -66,6 +48,8 @@ brew install rakudo-star
 
 Now, go back and run the =zef install= command above.
 
+** Upgrading
+See the =1_to_2_upgrade.md= file
 * Usage
 :PROPERTIES:
 :CUSTOM_ID: usage
@@ -73,22 +57,22 @@ Now, go back and run the =zef install= command above.
 #+begin_example
 Usage:
   tooloo -V|--version[=Any] [--verbose[=Any]]
-  tooloo add <path> -- Add & updates documentation of a command with a .toml file,
-                    or an ansiicast demo with a .cast file
+  tooloo add <path> -- Add & updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
   tooloo demo <command_name> -- play the asciicast demo of the specified command
   tooloo demos -- List all your commands that have associated asciicast demos
-  tooloo find [<search_strings> ...] -- Execute a full text against documented commands.
-                                     Search terms should be separate arguments.
+  tooloo find [<search_strings> ...] -- Execute a full text against documented commands. Search terms should be separate arguments.
   tooloo list -- List all your commands & their quick description
   tooloo list <filter> -- Lists a filtered subset of commands via filter: 'demos'
+  tooloo export <format> <directory> -- Create a static blog documenting all your commands
   tooloo remove <command_name> -- Remove a command from the database
   tooloo show <command_name> -- Display the full details of a specific command
   tooloo template <destination> -- Generate a blank TOML template at the specified location.
-  tooloo update <path> -- Updates documentation of a command with a .toml file,
-                       or an ansiicast demo with a .cast file
+  tooloo update <path> -- Updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
 
     <path>            Paths must end in .toml or .cast
     <filter>          Currently supported filters: demos
+    <format>          Currently supported formats: hugo
+    <directory>       the directory to export to
     <command_name>    The name of the executable
 #+end_example
 
@@ -107,7 +91,7 @@ but personally I've been using the convention of
 =<command_name>.meta.toml= and putting it in the same directory as the
 command I'm documenting.
 
-The =template= comand will generate a TOML file for you where you just
+The =template= comand will generate a TOML file for you so that you just
 have to fill in the blanks.
 
 1. run =tooloo template path/to/my_command.meta.toml=
@@ -153,6 +137,22 @@ Output looks like this:
 #+ATTR_HTML: :alt a two column table listing attributes of the command and their associated details
 [[https://raw.githubusercontent.com/masukomi/Clu/readme_images/images/show.png]]
 
+** Demoing a command
+If you've recorded a demo of the command in the asciicast format
+you can associated that file with the command, and have TooLoo
+run the demo for you. This requires [[https://asciinema.org/][asciinema]] to be installed locally.
+
+#+begin_src
+tooloo demo <command-with-demo>
+#+end_src
+
+To see all the commands that have associated asciicasts you can simply
+ask TooLoo to list all the demos.
+
+#+begin_src
+tooloo demos
+#+end_src
+
 ** Finding a command
 :PROPERTIES:
 :CUSTOM_ID: finding-a-command
@@ -179,6 +179,9 @@ Output looks like this:
 
 #+ATTR_HTML: :alt a two column table listing commands and short descriptions
 [[https://raw.githubusercontent.com/masukomi/Clu/readme_images/images/list.png]]
+
+As noted above, you can get a list of all the commands with asciinema / asciicast demos
+by running =tooloo list demos= or just =tooloo demos=.
 
 ** Updating a command
 :PROPERTIES:

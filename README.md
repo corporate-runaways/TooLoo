@@ -27,25 +27,9 @@ TooLoo is written in [Raku](https://www.raku.org/), and uses the
 
 If you\'ve already got Raku and zef installed then just run:
 
-`zef install TooLoo`{.verbatim}
+`zef install TooLoo`
 
-## Upgrading
-
-The 2.0 change has a different database structure, and now adheres to
-the XDG Base Directory specification for where it stores things.
-
-So, first step is to run `zef upgrade TooLoo`{.verbatim}
-
-The easiest way to upgrade your data is to just run it again to set up a
-new empty db in the new location. Then import re-import all your toml
-files with something like this:
-
-``` {.bash org-language="sh"}
-find . -name '*.meta.toml' -exec tooloo add '{}' \; -exec sleep 1 \;
-```
-
-The `sleep`{.verbatim} is important, to guarantee you don\'t have
-database issues with the different processes competing for the file.
+If you don\'t have Raku installed then...
 
 ## Raku install quick-guide
 
@@ -59,29 +43,33 @@ can download it from those links, or install it with homebrew.
 brew install rakudo-star
 ```
 
-Now, go back and run the `zef install`{.verbatim} command above.
+Now, go back and run the `zef install` command above.
+
+## Upgrading
+
+See the `1_to_2_upgrade.md` file
 
 # Usage
 
 ``` example
 Usage:
   tooloo -V|--version[=Any] [--verbose[=Any]]
-  tooloo add <path> -- Add & updates documentation of a command with a .toml file,
-                    or an ansiicast demo with a .cast file
+  tooloo add <path> -- Add & updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
   tooloo demo <command_name> -- play the asciicast demo of the specified command
   tooloo demos -- List all your commands that have associated asciicast demos
-  tooloo find [<search_strings> ...] -- Execute a full text against documented commands.
-                                     Search terms should be separate arguments.
+  tooloo find [<search_strings> ...] -- Execute a full text against documented commands. Search terms should be separate arguments.
   tooloo list -- List all your commands & their quick description
   tooloo list <filter> -- Lists a filtered subset of commands via filter: 'demos'
+  tooloo export <format> <directory> -- Create a static blog documenting all your commands
   tooloo remove <command_name> -- Remove a command from the database
   tooloo show <command_name> -- Display the full details of a specific command
   tooloo template <destination> -- Generate a blank TOML template at the specified location.
-  tooloo update <path> -- Updates documentation of a command with a .toml file,
-                       or an ansiicast demo with a .cast file
+  tooloo update <path> -- Updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
 
     <path>            Paths must end in .toml or .cast
     <filter>          Currently supported filters: demos
+    <format>          Currently supported formats: hugo
+    <directory>       the directory to export to
     <command_name>    The name of the executable
 ```
 
@@ -94,25 +82,25 @@ script with others, it can go along for the ride, even if they\'re not
 using TooLoo, TOML is still very readable.
 
 TooLoo doesn\'t care what the file is named, so long as it ends with
-`.toml`{.verbatim} but personally I\'ve been using the convention of
-`<command_name>.meta.toml`{.verbatim} and putting it in the same
+`.toml` but personally I\'ve been using the convention of
+`<command_name>.meta.toml` and putting it in the same
 directory as the command I\'m documenting.
 
-The `template`{.verbatim} comand will generate a TOML file for you where
-you just have to fill in the blanks.
+The `template` comand will generate a TOML file for you so
+that you just have to fill in the blanks.
 
-1.  run `tooloo template path/to/my_command.meta.toml`{.verbatim}
+1.  run `tooloo template path/to/my_command.meta.toml`
 
-For example: If you have a `foo`{.verbatim} command you\'d make a
-`foo.meta.toml`{.verbatim} file. It doesn\'t matter if you\'re
+For example: If you have a `foo` command you\'d make a
+`foo.meta.toml` file. It doesn\'t matter if you\'re
 documenting an executable or a shell function.
 
 1.  Edit your new TOML file.
-2.  run `tooloo add path/to/my_command.meta.toml`{.verbatim}
+2.  run `tooloo add path/to/my_command.meta.toml`
 
 That\'s it. If you ever need to update / change the documentation just
 edit the TOML file and run
-`tooloo update <path/to/my_command.meta.toml>`{.verbatim}. It\'ll find
+`tooloo update <path/to/my_command.meta.toml>`. It\'ll find
 the command with the matching name in the database, and replace it.
 
 ### Documentation Details
@@ -120,35 +108,49 @@ the command with the matching name in the database, and replace it.
 The comments in the generated template should be enough to document your
 command, but here are some additional notes.
 
-Whenever there\'s a list `short_description`{.verbatim} will be used.
-Depending on your personal usage `description`{.verbatim} may not be
+Whenever there\'s a list `short_description` will be used.
+Depending on your personal usage `description` may not be
 worth it. However, if you\'re exporting and generating a static web site
 from tooloo you\'ll definitely want that.
 
 The Usage section of each command is generated on the fly whenever
-possible. Some commands don\'t have a `--help`{.verbatim} option or
+possible. Some commands don\'t have a `--help` option or
 anything similar, in which case you\'ll need to fill in the
-`fallback_usage`{.verbatim}. When doing so, be sure to not use any tabs.
+`fallback_usage`. When doing so, be sure to not use any tabs.
 They\'ll muck with the table that\'s displayed.
 
 ## Showing a command
 
-`tooloo show <command_name>`{.verbatim} will display the name,
+`tooloo show <command_name>` will display the name,
 description, and usage of the specified command (if found).
 
 Output looks like this:
 
 ![](https://raw.githubusercontent.com/masukomi/Clu/readme_images/images/show.png "a two column table listing attributes of the command and their associated details")
 
+## Demoing a command
+
+If you\'ve recorded a demo of the command in the asciicast format you
+can associated that file with the command, and have TooLoo run the demo
+for you. This requires [asciinema](https://asciinema.org/) to be
+installed locally.
+
+    tooloo demo <command-with-demo>
+
+To see all the commands that have associated asciicasts you can simply
+ask TooLoo to list all the demos.
+
+    tooloo demos
+
 ## Finding a command
 
-`tooloo find <search terms>`{.verbatim} Don\'t bother quoting the search
-terms. Something like `tooloo find foo bar baz`{.verbatim} is fine.
+`tooloo find <search terms>` Don\'t bother quoting the search
+terms. Something like `tooloo find foo bar baz` is fine.
 
 TooLoo will perform a full text search for your terms on the name,
 description, and language fields, and display the results.
 
-If you want more details, run `tooloo show <command name>`{.verbatim}
+If you want more details, run `tooloo show <command name>`
 (see below) for the command you\'ve found.
 
 Output looks like this:
@@ -157,27 +159,31 @@ Output looks like this:
 
 ## Listing all commands
 
-`tooloo list`{.verbatim} will list everything for you. Output looks like
+`tooloo list` will list everything for you. Output looks like
 this:
 
 ![](https://raw.githubusercontent.com/masukomi/Clu/readme_images/images/list.png "a two column table listing commands and short descriptions")
 
+As noted above, you can get a list of all the commands with asciinema /
+asciicast demos by running `tooloo list demos` or just
+`tooloo demos`.
+
 ## Updating a command
 
-`tooloo update <path/to/my_command.meta.toml>`{.verbatim} will find the
+`tooloo update <path/to/my_command.meta.toml>` will find the
 existing command with the name specified in the TOML and update its
 data. If you have changed the name of the command you\'ll need to remove
 and add instead of update.
 
 ## Removing a command
 
-`tooloo remove <command_name>`{.verbatim} will remove the command with
+`tooloo remove <command_name>` will remove the command with
 the specified name.
 
 ## Syncing between machines
 
 There\'s no inherent syncing here. Sorry. You can copy the db from
-`~/.config/tooloo/database.db`{.verbatim} to another machine, or, you
+`~/.config/tooloo/database.db` to another machine, or, you
 can boot it up on a new system and run something like this to ingest all
 your toml files.
 
@@ -197,7 +203,7 @@ A demo of the default site structure and theme is available at
 [demo.tooloo.dev](https://demo.tooloo.dev)
 
 To generate your blog run
-`tooloo export hugo ~/path/to/tooloo_blank_hugo_site/content/all_commands`{.verbatim}
+`tooloo export hugo ~/path/to/tooloo_blank_hugo_site/content/all_commands`
 The theme has a concept of \"chapters\" and \"all~commands~\" is the
 first \"chapter\". You can, of course, change this. It\'s ultimately a
 variation of the [Hugo Learn

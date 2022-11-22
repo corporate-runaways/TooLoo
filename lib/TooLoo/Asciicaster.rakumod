@@ -14,7 +14,11 @@ multi add-asciicast(Str $path, DB::SQLite $sqlite) returns Bool is export {
 multi add-asciicast(Str $path, DB::Connection $connection) returns Bool is export {
 	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
 	my $io_path = IO::Path.new($cleaned_path);
+	add-asciicast-io($io_path, $connection);
+}
 
+our sub add-asciicast-io(IO::Path $io_path, DB::Connection $connection) returns Bool is export {
+	#it's presumed the $io_path is an extant location at this point
 	return False unless validate-local-path($io_path);
 
 	my $command_name = extract-command-from-path($io_path);

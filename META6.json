@@ -18,7 +18,8 @@
     "Color",
     "XDG::BaseDirectory",
     "XDG::GuaranteedResources",
-    "Prettier::Table"
+    "Prettier::Table",
+    "File::Find"
   ],
   "description": "TooLoo [Too]l[Loo]kup helps you document & find your utility scripts",
   "license": "GPL-3.0-or-later",

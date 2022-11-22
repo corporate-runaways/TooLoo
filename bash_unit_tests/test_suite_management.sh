@@ -15,8 +15,13 @@ setup_suite() {
 
 }
 
+
 teardown_suite() {
 	rm -rf $XDG_DATA_HOME
 	rm -rf $XDG_CONFIG_HOME
 	echo "DONE";
+}
+
+delete_db() {
+	rm -rf $DB_LOCATION 2>&1 > /dev/null
 }

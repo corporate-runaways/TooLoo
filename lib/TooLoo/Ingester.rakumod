@@ -11,28 +11,75 @@ use TooLoo::TerminalUtilities;
 use DB::SQLite;
 use Definitely;
 use TOML;
+use File::Find;
+use TooLoo::Asciicaster;
 
-our sub ingest-metadata(Str $path, DB::SQLite $sqlite) returns Bool is export {
+our sub mass-ingestion(Str $path, DB::SQLite $sqlite) returns Bool is export {
+	say("Beginning ingestion of .toml & .cast files in $path");
+	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
+	my $counter = 0;
+	my @toml_files = find dir => $cleaned_path, name => /'.toml' $ | '.cast' $/;
+	if @toml_files.elems > 0 {
+		my $connection = $sqlite.db;
+		# the reverse is important.
+		# .cast comes before .toml and .meta.toml alphabetically
+		# So, if this is a new command the .cast will error
+		# because the .toml hasn't been ingested yet
+		# If we process these in reverse order we'll
+		# document the command BEFORE we try and associate a cast with it.
+		for @toml_files.reverse -> $toml_or_clu {
+			say("Considering $toml_or_clu");
+			if $toml_or_clu.ends-with('.toml') {
+				$counter++ if ingest-metadata-io($toml_or_clu, $connection,
+											die_on_error => False);
+			} else {
+				$counter++ if add-asciicast-io($toml_or_clu, $connection);
+			}
+		}
+		say("$counter files were successfuly ingested out of " ~ @toml_files.elems
+			~ " total files with .toml or .cast extensions.");
+	} else {
+		say("I didn't find any .toml or .cast files to ingest in $cleaned_path");
+	}
+
+	True
+}
+
+
+
+proto ingest-metadata(Str $path, |){*}
+multi ingest-metadata(Str $path, DB::SQLite $sqlite) returns Bool is export {
+	ingest-metadata($path, $sqlite.db);
+}
+multi ingest-metadata(Str $path,
+					  DB::Connection $connection,
+					  Bool :$die_on_error=True) returns Bool is export {
+
+	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
+	my $io_path = IO::Path.new($cleaned_path);
+	ingest-metadata-io($io_path, $connection, die_on_error => $die_on_error);
+}
+my sub ingest-metadata-io(IO::Path $io_path,
+					  DB::Connection $connection,
+					  Bool :$die_on_error=True) returns Bool is export {
 	#TODO: convert relative paths to absolute
 	# convert ~ to $*HOME
-	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
 
-	die("$cleaned_path doesn't end with .toml")         unless $cleaned_path.ends-with('.toml');
-	# test if the file exists at that cleaned_path
-	die("$cleaned_path doesn't exist")                  unless $cleaned_path.IO.e;
+	die-or-note("$io_path doesn't end with .toml", $die_on_error)         unless $io_path.Str.ends-with('.toml');
+	# test if the file exists at that io_path
+	die-or-note("$io_path doesn't exist", $die_on_error)                  unless $io_path.e;
 	# read the file
 	# parse the toml
-	my %metadata = from-toml($cleaned_path.IO.slurp);
+	my %metadata = from-toml($io_path.slurp);
 	# ^ that doesn't fail if it's not TOML
 	# BUT %config.^name would be "Any" in that case, so...
-	die("$path didn't appear to contain valid TOML") \
+	die-or-note("$io_path didn't appear to contain valid TOML", $die_on_error) \
 		unless %metadata.^name eq "Hash";
-	die("$path didn't have a 'name' key") \
+	die-or-note("$io_path didn't have a 'name' key", $die_on_error) \
 		unless validate-presence(%metadata<name>);
-	die("$path didn't have a 'short_description' key") \
+	die-or-note("$io_path didn't have a 'short_description' key", $die_on_error) \
 		unless validate-presence(%metadata<short_description>);
 
-	my $connection = $sqlite.db;
 	# see if anything exists in the db for that command
 	given find-command-id(%metadata<name>, $connection) {
 		# if yes, update
@@ -173,6 +220,11 @@ our sub executable-list(%command) {
 			( %command<source_repo_url> or Nil ),
 			( %command<asciicast_url> or Nil )
 	   ]
+}
+
+my sub die-or-note(Str $message, Bool $die) {
+	die($message) if $die;
+	note($message);
 }
 # commenting out until the DB::SQLite bug is fixed
 # https://github.com/CurtTilmes/raku-dbsqlite/issues/18

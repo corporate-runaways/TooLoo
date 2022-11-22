@@ -166,3 +166,8 @@ test_29_template() {
 	rm $template_destination
 
 }
+
+test_30_ingest-many() {
+	ingestion_output=$(XDG_DATA_HOME=$XDG_DATA_HOME $TOOLOO_INVOCATION ingest-many $TEST_DATA_DIR | tail -n1);
+	assert_equals "3 files were successfuly ingested out of 3 total files with .toml or .cast extensions." "$ingestion_output";
+}

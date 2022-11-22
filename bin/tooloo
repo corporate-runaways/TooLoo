@@ -67,6 +67,15 @@ multi sub MAIN ('find', *@search_strings){
 
 }
 
+multi sub MAIN('ingest-many',
+			   Str $directory_path #= Path to dir to search for .toml & .cast files
+			  ) {
+	my $db = DB::SQLite.new(filename => guarantee-db(),
+						   busy-timeout => 3000);
+	mass-ingestion($directory_path, $db);
+}
+
+
 #| List all your commands & their quick description
 multi sub MAIN ('list') {
 	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);

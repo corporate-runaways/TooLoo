@@ -56,24 +56,26 @@ See the =1_to_2_upgrade.md= file
 :END:
 #+begin_example
 Usage:
-  tooloo -V|--version[=Any] [--verbose[=Any]]
-  tooloo add <path> -- Add & updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
-  tooloo demo <command_name> -- play the asciicast demo of the specified command
-  tooloo demos -- List all your commands that have associated asciicast demos
-  tooloo find [<search_strings> ...] -- Execute a full text against documented commands. Search terms should be separate arguments.
-  tooloo list -- List all your commands & their quick description
-  tooloo list <filter> -- Lists a filtered subset of commands via filter: 'demos'
-  tooloo export <format> <directory> -- Create a static blog documenting all your commands
-  tooloo remove <command_name> -- Remove a command from the database
-  tooloo show <command_name> -- Display the full details of a specific command
-  tooloo template <destination> -- Generate a blank TOML template at the specified location.
-  tooloo update <path> -- Updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
+  bin/tooloo -V|--version[=Any] [--verbose[=Any]]
+  bin/tooloo add <path> -- Add & updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
+  bin/tooloo demo <command_name> -- play the asciicast demo of the specified command
+  bin/tooloo demos -- List all your commands that have associated asciicast demos
+  bin/tooloo find [<search_strings> ...] -- Execute a full text against documented commands. Search terms should be separate arguments.
+  bin/tooloo ingest-many <directory_path>
+  bin/tooloo list -- List all your commands & their quick description
+  bin/tooloo list <filter> -- Lists a filtered subset of commands via filter: 'demos'
+  bin/tooloo export <format> <directory> -- Create a static blog documenting all your commands
+  bin/tooloo remove <command_name> -- Remove a command from the database
+  bin/tooloo show <command_name> -- Display the full details of a specific command
+  bin/tooloo template <destination> -- Generate a blank TOML template at the specified location.
+  bin/tooloo update <path> -- Updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
 
-    <path>            Paths must end in .toml or .cast
-    <filter>          Currently supported filters: demos
-    <format>          Currently supported formats: hugo
-    <directory>       the directory to export to
-    <command_name>    The name of the executable
+    <path>              Paths must end in .toml or .cast
+    <directory_path>    Path to dir to search for .toml & .cast files
+    <filter>            Currently supported filters: demos
+    <format>            Currently supported formats: hugo
+    <directory>         the directory to export to
+    <command_name>      The name of the executable
 #+end_example
 
 ** Documenting a new Command
@@ -199,18 +201,28 @@ instead of update.
 =tooloo remove <command_name>= will remove the command with the specified
 name.
 
-** Syncing between machines
+** Syncing between machines (mass ingestion)
 :PROPERTIES:
 :CUSTOM_ID: syncing-between-machines
 :END:
 There's no inherent syncing here. Sorry. You can copy the db from
 =~/.config/tooloo/database.db= to another machine, or, you can boot it up
-on a new system and run something like this to ingest all your toml
-files.
+on a new system and run the command for mass-ingestion.
 
-#+begin_src sh
-find ~/folder/with/my/tooloo_toml_files -name "*.meta.toml" -exec tooloo add '{}' \;
+#+begin_src
+tooloo ingest-many /path/to/dir/with/toml/files
 #+end_src
+
+TooLoo will look for all the =.toml= and =.cast= files in that directory
+and its subdirectory, and install everything that it finds, which seems
+to be valid.
+
+Note, if it attempts to load a =.cast= file before the corresponding =.toml=
+file has been loaded you'll get a warning about the command not existing.
+You can either =tooloo add path/to/cast_file= or rerun =ingest-many= again.
+
+If you still get the warning it means that it's time to go find, or create,
+a TOML file for that command, and =add= it.
 
 ** Generating a Static Blog
 :PROPERTIES:

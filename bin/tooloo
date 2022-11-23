@@ -37,9 +37,18 @@ use CLI::Version $?DISTRIBUTION, &MAIN;
 
 #| Add & updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
 multi sub MAIN('add',
-			   Str $path where / '.toml' $ |'.cast' $ / #= Paths must end in .toml or .cast
+			   Str $file_path where / '.toml' $ |'.cast' $ / #= Paths must end in .toml or .cast
 			  ) {
-	ingest($path);
+	ingest($file_path);
+}
+
+#| Add / update all .toml & .cast files in a directory or its children.
+multi sub MAIN('add-many',
+			   Str $directory_path #= Path to dir to search for .toml & .cast files
+			  ) {
+	my $db = DB::SQLite.new(filename => guarantee-db(),
+						   busy-timeout => 3000);
+	mass-ingestion($directory_path, $db);
 }
 
 #| play the asciicast demo of the specified command
@@ -67,13 +76,6 @@ multi sub MAIN ('find', *@search_strings){
 
 }
 
-multi sub MAIN('ingest-many',
-			   Str $directory_path #= Path to dir to search for .toml & .cast files
-			  ) {
-	my $db = DB::SQLite.new(filename => guarantee-db(),
-						   busy-timeout => 3000);
-	mass-ingestion($directory_path, $db);
-}
 
 
 #| List all your commands & their quick description
@@ -101,9 +103,9 @@ multi sub MAIN ('list',
 #| Create a static blog documenting all your commands
 multi sub MAIN ('export',
 				Str $format,    #= Currently supported formats: hugo
-				Str $directory  #= the directory to export to
+				Str $export_directory  #= the directory to export to
 				){
-	my $cleaned_path = $directory.subst(/^^ "~"/, $*HOME);
+	my $cleaned_path = $export_directory.subst(/^^ "~"/, $*HOME);
 	my $cp_io = $cleaned_path.IO;
 	unless $cp_io.e {
 		note("Target directory doesn't exist.\n$cleaned_path");

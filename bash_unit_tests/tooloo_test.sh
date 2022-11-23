@@ -159,8 +159,10 @@ test_28_show() {
 }
 
 test_29_template() {
-	template_destination=$XDG_CONFIG_HOME"/tooloo/created_template.meta.toml"
-	creation_output=$(XDG_CONFIG_HOME=$XDG_CONFIG_HOME $TOOLOO_INVOCATION template $template_destination | sed -e "s/ to .*//")
+
+	template_destination="bash_unit_tests/test_data/test_executable.toml"
+	PATH="bash_unit_tests/test_data:$PATH";
+	creation_output=$(XDG_CONFIG_HOME=$XDG_CONFIG_HOME $TOOLOO_INVOCATION template test_executable | sed -e "s/ to .*//")
 	assert_equals "Copying fresh template" "$creation_output"
 	assert "test -e $template_destination"
 	rm $template_destination

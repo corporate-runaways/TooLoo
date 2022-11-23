@@ -19,7 +19,9 @@ setup_suite() {
 teardown_suite() {
 	rm -rf $XDG_DATA_HOME
 	rm -rf $XDG_CONFIG_HOME
+	rm -rf test_data/test_executable.toml 2>&1 > /dev/null
 	echo "DONE";
+
 }
 
 delete_db() {

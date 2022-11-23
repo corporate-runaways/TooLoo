@@ -67,7 +67,7 @@ Usage:
   tooloo export <format> <export_directory> -- Create a static blog documenting all your commands
   tooloo remove <command_name> -- Remove a command from the database
   tooloo show <command_name> -- Display the full details of a specific command
-  tooloo template <destination> -- Generate a blank TOML template at the specified location.
+  tooloo template <command_name> -- Generate a blank TOML template alongside the specified command
   tooloo update <path> -- Updates documentation of a command with a .toml file, or an ansiicast demo with a .cast file
 
     <file_path>           Paths must end in .toml or .cast
@@ -83,32 +83,29 @@ Usage:
 :CUSTOM_ID: documenting-a-new-command
 :END:
 The first step is to create a [[https://toml.io/en/][TOML file]] for
-each cli tool you wish to document. TooLoo doesn't care where these live.
-My advice is to put them alongside your script, so that when you share
-your script with others, it can go along for the ride, even if they're
-not using TooLoo, TOML is still very readable.
+each cli tool you wish to document.
 
-TooLoo doesn't care what the file is named, so long as it ends with =.toml=
-but personally I've been using the convention of
-=<command_name>.meta.toml= and putting it in the same directory as the
-command I'm documenting.
+Ask TooLoo to generate a blank template for you with
 
-The =template= comand will generate a TOML file for you so that you just
-have to fill in the blanks.
+=tooloo <command>=
 
-1. run =tooloo template path/to/my_command.meta.toml=
+TooLoo will create a new file named =<command>.toml= in the same directory
+as the command. If it can't find the command, or that directory isn't writable
+it'll ask you were to put the new file.
 
-For example: If you have a =foo= command you'd make a =foo.meta.toml=
-file. It doesn't matter if you're documenting an executable or a shell
-function.
+TooLoo doesn't care where your TOML files live. Keeping them in the same
+directory as the command is just an easy way to help guarantee they
+get updated when the command does, and get moved too if you decide to
+move the command. That way, even if your teammates aren't using TooLoo they'll
+have some additional documentation they can read.
 
-1. Edit your new TOML file.
-2. run =tooloo add path/to/my_command.meta.toml=
+Once you have generated the new file, edit it, fill in the details,
+and tell TooLoo to add it with =tooloo add path/to/command.toml=
 
 That's it. If you ever need to update / change the documentation just
-edit the TOML file and run =tooloo update <path/to/my_command.meta.toml>=.
+edit the TOML file and run =tooloo update <path/to/my_command.toml>=.
 It'll find the command with the matching name in the database, and
-replace it.
+update the docs.
 
 *** Documentation Details
 :PROPERTIES:
@@ -127,6 +124,16 @@ possible. Some commands don't have a =--help= option or anything
 similar, in which case you'll need to fill in the =fallback_usage=. When
 doing so, be sure to not use any tabs. They'll muck with the table
 that's displayed.
+
+*** Customizing The Template
+The first time you call =tooloo template= a copy of the default template
+will be placed in your =XDG_CONFIG_HOME/toolo/template.toml= From then on
+that file will be used.
+
+Feel free to open that up, and add or remove any comments you want. If you add additional fields they will be ignored by TooLoo.
+
+Note: =XDG_CONFIG_HOME= defaults to =~/.config= on most systems.
+
 
 ** Showing a command
 :PROPERTIES:
@@ -235,28 +242,77 @@ tweaked variant of it.
 
 A demo of the default site structure and theme is available at [[https://demo.tooloo.dev][demo.tooloo.dev]]
 
-To generate your blog run
-=tooloo export hugo ~/path/to/tooloo_blank_hugo_site/content/all_commands=
+Assuming you're using our default site structure, you'll execute the following
+to generate your files:
+
+#+begin_src
+tooloo export hugo ~/path/to/tooloo_blank_hugo_site/content/all_commands
+#+end_src
+
+Note that we're telling it to store the files in the =all_commands= directory.
+
 The theme has a concept of "chapters" and "all_commands" is the first
 "chapter". You can, of course, change this. It's ultimately a variation
 of the [[https://github.com/matcornic/hugo-theme-learn][Hugo Learn Theme]] which has [[https://learn.netlify.app/][good documentation]].
 
-* Why is it called "TooLoo"?
+Note: by default we symlink =content/_index.md= to =content/all_commands/_index.md= so that the  home page for the site, is the same as the index for the chapter.
 
-1. It's short for "Tool Lookup": Too(l) Loo(kup) -> TooLoo
-2. It's fun to say.
-3. The .dev domain was available.
-4. The original name was likely to be misspelled.
-5. It allows me to accommodate future features documenting more than just command line things.
+You will probably want to replace that symlink with a real =_index.md= that describes
+your collection of tools and gives readers an idea what they're looking at.
 
-* Contributing
+*** Customizing Generated Markdown
+The first time you run =tooloo export= two Markdown templates will be created in  =XDG_CONFIG_HOME/toolo/= They are =markdown_index_template.tt= and =markdown_details_template.tt=
+
+The =markdown_index_template.tt= is used to customize the main page with the table that links to all the other commands. It's the Markdown equivalent of =tooloo list=
+
+The =markdown_details_template.tt= documents the individual commands. It's the markdown equivalent of =tooloo show <some_command>=
+
+The files use the [[https://github.com/raku-community-modules/Template6][Template6]] templating language which is based on [[http://template-toolkit.org/][Perl 5's Template Toolkit]]. The Template6 docs are fairly thin right now, but Template Toolkit is /well/ documented and should answer any questions you may have.
+
+Note 1: =XDG_CONFIG_HOME= defaults to =~/.config= on most systems.
+
+**** Available Data
+The following keys are available to the template engine.
+***** markdown_index_template.tt
+- "md_table"
+  - a GitHub Flavored Markdown version of the table you see when you run =tooloo list=
+- "timestamp"
+  - a simple date stamp: "2022-11-24"
+
+***** markdown_details_template.tt
+The keys available to this template correspond to the keys in your TOML. Technically it's the columns of the =commands= table in the database after ingestion.
+
+In addition:
+
+- "safename"
+  - the command name with all the non-word characters and hyphens replaced with underscores (max 1 per substitution) and everything lowercased. So if your command name was =foo-Bar!*whee= then "safename" would contain =foo_bar_whee=
+- "usage"
+  - this will contain the same usage string you'd see when you run =tooloo show <command>=
+- "short_description"
+  - the same =short_description= as in your TOML but with any leading or trailing whitespace removed.
+- "asciicast_url" has some special notes.
+  - If it is populated there will be an =asciicast= key with a =True= value.
+  - If it is not populated there will be an =asciicast= key with a False value.
+  - If it appears to be a web URL (something starting with =http= or =https=) an additional key named =asciicast_web_url= will be added and =asciicast_url= will be removed.
+  - If it is populated and does not appear to be a web URL it will be left untouched.
+
+* Miscellany
+** Contributing
 :PROPERTIES:
 :CUSTOM_ID: contributing
 :END:
 See
 [[https://github.com/masukomi/TooLoo/blob/main/CONTRIBUTING.md#readme][CONTRIBUTING.md]]
 
-* LICENSE
+** LICENSE
 
 Copyright 2022 [[https://masukomi.org][Kay Rhodes]] (a.k.a. masukomi).
 Distributed under the GPL 3.0 License.
+
+** Why is it called "TooLoo"?
+
+1. It's short for "Tool Lookup": Too(l) Loo(kup) -> TooLoo
+2. It's fun to say.
+3. The .dev domain was available.
+4. The original name was likely to be misspelled.
+5. It allows us to accommodate future features documenting more than just command line things.

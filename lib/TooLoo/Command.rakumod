@@ -37,8 +37,6 @@
 # =end pod
 
 unit module TooLoo::Command:ver<1.0.1>:auth<masukomi (masukomi@masukomi.org)>;
-use TooLoo::Metadata;
-use TooLoo::TerminalUtilities;
 use Color;
 use DB::Connection;
 use DB::SQLite::Statement;
@@ -49,14 +47,16 @@ use Prettier::Table;
 use Terminal::ANSIColor;
 use Terminal::Width;
 use Text::MiscUtils::Layout;
+use TooLoo::Metadata;
+use TooLoo::TerminalUtilities;
 
 
 
 multi sub display-command(%command) is export {
-	my $where_proc = run "command", "-v", %command<name>, :out, :err;
-	my $location   = ($where_proc.exitcode == 0
-						?? $where_proc.out.slurp(:close).trim
-						!! (%command<location> or "UNKNOWN"));
+	my $location = find-commands-location(%command<name>);
+	if ($location eq "UNKNOWN") and %command<location> {
+		$location = %command<location>;
+	}
 
 	my $table = Prettier::Table.new(
 		field-names => ['Attribute', 'Detail'],

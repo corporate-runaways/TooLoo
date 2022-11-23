@@ -7,6 +7,7 @@
   "build-depends": [
   ],
   "depends": [
+    "CLI::Version",
     "Definitely",
     "Listicles",
     "Template6",
@@ -33,6 +34,7 @@
     "TooLoo::Ingester": "lib/TooLoo/Ingester.rakumod",
     "TooLoo::Metadata": "lib/TooLoo/Metadata.rakumod",
     "TooLoo::Resourcer": "lib/TooLoo/Resourcer.rakumod",
+    "TooLoo::Templatizer": "lib/TooLoo/Templatizer.rakumod",
     "TooLoo::TerminalUtilities": "lib/TooLoo/TerminalUtilities.rakumod"
   },
   "resources": [

@@ -29,6 +29,7 @@ use TooLoo::Command;
 use TooLoo::Ingester;
 use TooLoo::Exporter;
 use TooLoo::Asciicaster;
+use TooLoo::Templatizer;
 use TooLoo::TerminalUtilities;
 
 #my %*SUB-MAIN-OPTS<named-anywhere> = True;
@@ -141,10 +142,14 @@ multi sub MAIN ('show',
 	display-command($command_name, $db);
 }
 
-#| Generate a blank TOML template at the specified location.
-multi sub MAIN('template', $destination) {
+#| Generate a blank TOML template alongside the specified command
+multi sub MAIN('template',
+			   $command_name #= the name of the command you want to document
+			  ) {
 	my $template_path = "config/tooloo/template.toml";
 	my $resource_path = guarantee-resource($template_path, TooLoo::Resourcer);
+	my $destination_dir = get-template-dir($command_name);
+	my $destination = $destination_dir.add("$command_name.toml");
 	say("Copying fresh template to $destination");
 	# NOTE: copying from the XDG path version in case the
 	# use has modified the default template

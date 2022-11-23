@@ -16,7 +16,7 @@ use TooLoo::Asciicaster;
 
 our sub mass-ingestion(Str $path, DB::SQLite $sqlite) returns Bool is export {
 	say("Beginning ingestion of .toml & .cast files in $path");
-	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
+	my $cleaned_path = expand-tilde($path);
 	my $counter = 0;
 	my @toml_files = find dir => $cleaned_path, name => /'.toml' $ | '.cast' $/;
 	if @toml_files.elems > 0 {
@@ -55,16 +55,13 @@ multi ingest-metadata(Str $path,
 					  DB::Connection $connection,
 					  Bool :$die_on_error=True) returns Bool is export {
 
-	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
+	my $cleaned_path = expand-tilde($path);
 	my $io_path = IO::Path.new($cleaned_path);
 	ingest-metadata-io($io_path, $connection, die_on_error => $die_on_error);
 }
 my sub ingest-metadata-io(IO::Path $io_path,
 					  DB::Connection $connection,
 					  Bool :$die_on_error=True) returns Bool is export {
-	#TODO: convert relative paths to absolute
-	# convert ~ to $*HOME
-
 	die-or-note("$io_path doesn't end with .toml", $die_on_error)         unless $io_path.Str.ends-with('.toml');
 	# test if the file exists at that io_path
 	die-or-note("$io_path doesn't exist", $die_on_error)                  unless $io_path.e;

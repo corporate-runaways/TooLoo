@@ -29,6 +29,7 @@ use TooLoo::Command;
 use TooLoo::Ingester;
 use TooLoo::Exporter;
 use TooLoo::Asciicaster;
+use TooLoo::TerminalUtilities;
 
 #my %*SUB-MAIN-OPTS<named-anywhere> = True;
 
@@ -105,7 +106,7 @@ multi sub MAIN ('export',
 				Str $format,    #= Currently supported formats: hugo
 				Str $export_directory  #= the directory to export to
 				){
-	my $cleaned_path = $export_directory.subst(/^^ "~"/, $*HOME);
+	my $cleaned_path = expand-tilde($export_directory);
 	my $cp_io = $cleaned_path.IO;
 	unless $cp_io.e {
 		note("Target directory doesn't exist.\n$cleaned_path");
@@ -142,7 +143,7 @@ multi sub MAIN ('show',
 
 #| Generate a blank TOML template at the specified location.
 multi sub MAIN('template', $destination) {
-	my $template_path = "config/tooloo/template.meta.toml";
+	my $template_path = "config/tooloo/template.toml";
 	my $resource_path = guarantee-resource($template_path, TooLoo::Resourcer);
 	say("Copying fresh template to $destination");
 	# NOTE: copying from the XDG path version in case the

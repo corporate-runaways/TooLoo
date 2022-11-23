@@ -2,6 +2,7 @@ unit module TooLoo::Asciicaster;
 use Definitely;
 use TooLoo::Command;
 use TooLoo::Metadata;
+use TooLoo::TerminalUtilities;
 use DB::SQLite;
 
 
@@ -12,7 +13,7 @@ multi add-asciicast(Str $path, DB::SQLite $sqlite) returns Bool is export {
 }
 
 multi add-asciicast(Str $path, DB::Connection $connection) returns Bool is export {
-	my $cleaned_path = $path.subst(/^^ "~"/, $*HOME);
+	my $cleaned_path = expand-tilde($path);
 	my $io_path = IO::Path.new($cleaned_path);
 	add-asciicast-io($io_path, $connection);
 }

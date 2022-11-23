@@ -17,3 +17,7 @@ sub wrap-with-indent(Int $indent_width, Str $wrappable) returns Str is export {
 	my $indent_string = " " x $indent_width;
 	text-wrap($wrap_width, $wrappable).join("\n$indent_string");
 }
+
+sub expand-tilde(Str $path) returns Str {
+	$path.subst(/^^ "~"/, $*HOME);
+}

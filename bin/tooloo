@@ -29,6 +29,7 @@ use TooLoo::Command;
 use TooLoo::Ingester;
 use TooLoo::Exporter;
 use TooLoo::Asciicaster;
+use TooLoo::Server;
 use TooLoo::Templatizer;
 use TooLoo::TerminalUtilities;
 
@@ -133,6 +134,15 @@ multi sub MAIN ('remove', $command_name) {
 		!! say("no command found with name $command_name");
 }
 
+#| Starts a mini JSON REST server (will lock the db)
+multi sub MAIN ('serve',
+				Str $hostname, #= Hostname or IP address to bind to (0.0.0.0 / localhost)
+				Int $port=6996 #= port to use, defaults to 6996
+			   ) {
+	my $db = DB::SQLite.new(filename => guarantee-db());
+	serve($hostname, $port, $db);
+
+}
 
 #| Display the full details of a specific command
 multi sub MAIN ('show',

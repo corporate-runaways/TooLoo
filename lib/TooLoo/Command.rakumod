@@ -264,18 +264,25 @@ multi sub display-command(Str $command_name, DB::SQLite $sqlite) is export {
 	display-command($unwrapped_data);
 }
 
-multi sub list-all-commands(DB::SQLite $db) is export {
+#| returns list of hashes with name & short_description of each command
+our sub get-quick-list(DB::Connection $connection) returns Seq is export {
 	my $search_sql = q:to/END/;
 		SELECT name, short_description FROM commands ORDER BY name ASC;
 	END
-	my @results = $db.query($search_sql).hashes ;
+	$connection.query($search_sql).hashes ;
+}
+
+#| displays list of all commands with name & short description
+multi sub list-all-commands(DB::SQLite $sqlite) is export {
+	my @results = get-quick-list($sqlite.db);
 	if @results.elems > 0 {
 		display-names-and-short-descriptions(@results);
 	} else {
 		say("Your database is currently empty.")
 	}
-	$db.finish();
+	$sqlite.finish();
 }
+
 multi sub list-all-demos(DB::SQLite $db) is export {
 	my $search_sql = q:to/END/;
 		SELECT name, short_description

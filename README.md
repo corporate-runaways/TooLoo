@@ -110,13 +110,24 @@ command, but here are some additional notes.
 Whenever there\'s a list `short_description` will be used.
 Depending on your personal usage `description` may not be
 worth it. However, if you\'re exporting and generating a static web site
-from tooloo you\'ll definitely want that.
+from tooloo you\'ll definitely want to include a full
+`description`.
 
-The Usage section of each command is generated on the fly whenever
-possible. Some commands don\'t have a `--help` option or
-anything similar, in which case you\'ll need to fill in the
-`fallback_usage`. When doing so, be sure to not use any tabs.
-They\'ll muck with the table that\'s displayed.
+1.  Documenting Usage
+
+    The Usage section of each command is generated on the fly whenever
+    possible. Some commands don\'t have a `--help` option or
+    anything similar, in which case you\'ll need to fill in the
+    `fallback_usage`. When doing so, be sure to not use any
+    tab characters. They\'ll muck with the table that\'s displayed.
+
+    If your commands usage invocation returns a non-zero exit code
+    TooLoo will look for the word \"USAGE\" in the output. If it
+    doesn\'t find it, it will assume that an error was encountered.
+
+    Remember when creating your tools, that non-zero exit codes should
+    only be returned when there\'s an error, and users requesting help
+    or documentation shouldn\'t be considered an error.
 
 ### Customizing The Template
 

@@ -209,28 +209,35 @@ our sub display-names-and-short-descriptions(@commands) {
 	say $table;
 
 }
+
+my sub cleaned-proc-output($usage_proc) returns Str {
+	# this is, FULLY ridiculous, and demands an explanation
+	# "man" is at least somewhat broken on macos.
+	# "man ls | head -n 4" output includes these 2 lines.
+	#
+	# NNAAMMEE
+	#     llss – list directory contents
+	#
+	# Those ^H characters are backspace characters.
+	# It's printing, and then deleting and then reprinting every letter in NAME
+	# and the first couple of real characters from the next line.
+	#
+	# as some commands have their usage in man pages... we're going to encounter this.
+	# backspace is \x08 so
+	my $std_out = $usage_proc.out.slurp(:close);
+	my $std_err = $usage_proc.err.slurp(:close);
+	colorstrip(($std_out ~ $std_err)
+				.subst(/. \x08 | \x08 /, "", :g));
+}
 my sub extract-command-usage(%command --> Str) is export {
 	if %command<usage_command> {
 		# prints to STDOUT and/or STDERR
-		my $usage_proc  = (shell %command<usage_command>, out => True, err => False );
-		if $usage_proc.exitcode == 0 {
-			# this is, FULLY ridiculous, and demands an explanation
-			# "man" is at least somewhat broken on macos.
-			# "man ls | head -n 4" output includes these 2 lines.
-			#
-			# NNAAMMEE
-			#     llss – list directory contents
-			#
-			# Those ^H characters are backspace characters.
-			# It's printing, and then deleting and then reprinting every letter in NAME
-			# and the first couple of real characters from the next line.
-			#
-			# as some commands have their usage in man pages... we're going to encounter this.
-			# backspace is \x08 so
-			return colorstrip($usage_proc
-				.out
-				.slurp(:close)
-				.subst(/. \x08 | \x08 /, "", :g));
+		my $usage_proc  = (shell %command<usage_command>, out => True, err => True );
+		my $output = cleaned-proc-output($usage_proc);
+		return $output if $usage_proc.exitcode == 0;
+		# does it have "USAGE" ?
+		if $output.match(rx:i{ 'USAGE' }) {
+			return $output;
 		}
 	}
 

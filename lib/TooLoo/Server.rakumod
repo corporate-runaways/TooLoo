@@ -32,7 +32,9 @@ our sub serve(Str $host, Int $port, DB::SQLite $sqlite) is export {
 						when $_.match(rx{^ '/show/' ([ \w | '-' ]+) } ) {
 							my $maybe_command = load-command($0.Str, $connection);
 							if $maybe_command ~~ Some {
-								%json_data{'command'} = $maybe_command.value;
+								my $command_hash = $maybe_command.value;
+								$command_hash{'usage'} = extract-command-usage($command_hash);
+								%json_data{'command'} = $command_hash;
 							} else {
 								%json_data{'error'} = "Couldn't find command: $0";
 								%json_data{'status'} = 404; # not found

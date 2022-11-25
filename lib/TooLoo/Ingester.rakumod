@@ -22,7 +22,7 @@ our sub mass-ingestion(Str $path, DB::SQLite $sqlite) returns Bool is export {
 	if @toml_files.elems > 0 {
 		my $connection = $sqlite.db;
 		# the reverse is important.
-		# .cast comes before .toml and .meta.toml alphabetically
+		# .cast comes before .toml alphabetically
 		# So, if this is a new command the .cast will error
 		# because the .toml hasn't been ingested yet
 		# If we process these in reverse order we'll

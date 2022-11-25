@@ -196,7 +196,7 @@ by running =tooloo list demos= or just =tooloo demos=.
 :PROPERTIES:
 :CUSTOM_ID: updating-a-command
 :END:
-=tooloo update <path/to/my_command.meta.toml>= will find the existing
+=tooloo update <path/to/my_command.toml>= will find the existing
 command with the name specified in the TOML and update its data. If you
 have changed the name of the command you'll need to remove and add
 instead of update.

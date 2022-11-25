@@ -1,5 +1,5 @@
 {
-  "api": "1",
+  "api": "2",
   "auth": "zef:masukomi",
   "authors": [
     "masukomi <masukomi@masukomi.org>"
@@ -39,7 +39,7 @@
   },
   "resources": [
     "data/tooloo/database.db",
-    "config/tooloo/template.meta.toml"
+    "config/tooloo/template.toml"
   ],
   "source-url": "https://github.com/masukomi/TooLoo",
   "tags": [

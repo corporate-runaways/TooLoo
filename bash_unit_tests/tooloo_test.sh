@@ -41,7 +41,7 @@ test_04_hyphen_hyphen_version () {
 }
 
 test_05_add_new() {
-	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
+	file_path=$TEST_DATA_DIR"/raku_test_no_demo.toml"
 	add_new_output=$(XDG_DATA_HOME=$XDG_DATA_HOME $TOOLOO_INVOCATION add $file_path | sed -e "s/ \/.*//")
 	assert_equals "Successfully ingested" "$add_new_output"
 }
@@ -61,13 +61,13 @@ test_07_confirm_data() {
 }
 
 test_08_add_existing() {
-	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
+	file_path=$TEST_DATA_DIR"/raku_test_no_demo.toml"
 	add_existing_output=$(XDG_DATA_HOME=$XDG_DATA_HOME $TOOLOO_INVOCATION add $file_path | sed -e "s/ \/.*//")
 	assert_equals "Successfully ingested" "$add_existing_output"
 }
 
 test_09_update() {
-	file_path=$TEST_DATA_DIR"/raku_test_no_demo.meta.toml"
+	file_path=$TEST_DATA_DIR"/raku_test_no_demo.toml"
 	update_output=$(XDG_DATA_HOME=$XDG_DATA_HOME $TOOLOO_INVOCATION update $file_path | sed -e "s/ \/.*//")
 	assert_equals "Successfully ingested" "$update_output"
 }
@@ -102,7 +102,7 @@ test_14_populated_demos_listing(){
 #  searching
 # let's add a second one
 test_15_add_second_command(){
-	file_path=$TEST_DATA_DIR"/something_else.meta.toml"
+	file_path=$TEST_DATA_DIR"/something_else.toml"
 	add_new_output=$(XDG_DATA_HOME=$XDG_DATA_HOME $TOOLOO_INVOCATION add $file_path | sed -e "s/ \/.*//")
 	assert_equals "Successfully ingested" "$add_new_output"
 }

@@ -36,7 +36,7 @@
 
 # =end pod
 
-unit module TooLoo::Command:ver<1.0.1>:auth<masukomi (masukomi@masukomi.org)>;
+unit module TooLoo::Command:ver<2.0.0>:auth<masukomi (masukomi@masukomi.org)>;
 use Color;
 use DB::Connection;
 use DB::SQLite::Statement;

@@ -32,6 +32,7 @@ use TooLoo::Asciicaster;
 use TooLoo::Server;
 use TooLoo::Templatizer;
 use TooLoo::TerminalUtilities;
+use JSON::Fast;
 
 #my %*SUB-MAIN-OPTS<named-anywhere> = True;
 
@@ -102,6 +103,10 @@ multi sub MAIN ('list',
 
 	$db.finish();
 }
+multi sub MAIN ('list-json') {
+	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
+	say to-json(generate-list-json($db));
+}
 
 #| Create a static blog documenting all your commands
 multi sub MAIN ('export',
@@ -150,6 +155,13 @@ multi sub MAIN ('show',
 			   ) {
 	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
 	display-command($command_name, $db);
+}
+
+multi sub MAIN ('show-json',
+			   $command_name, #= The name of the executable
+			   ) {
+	my $db = DB::SQLite.new(filename => guarantee-db(), :readonly);
+	say to-json(generate-show-json($command_name, $db));
 }
 
 #| Generate a blank TOML template alongside the specified command

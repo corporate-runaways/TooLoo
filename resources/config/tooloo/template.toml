@@ -16,8 +16,9 @@ short_description=""
 # Note: You can include markdown in this and have it rendered
 # when the web site is generated
 #
-# description="""
-# """
+description="""
+Such good documentation...
+"""
 
 # If the tool has some sort of usage / help documentation you can
 # invoke, enter it in the usage_command. Otherwise, comment that out,

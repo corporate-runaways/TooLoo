@@ -31,6 +31,10 @@ usage_command=""
 # USAGE: fallback_usage is used when
 # usage_command is not present"""
 
+# A .cast file for use with Asciinema https://asciinema.org/
+# if this is a local path we can play it back from within TooLoo
+# asciicast_url=""
+
 # is this an executable, function, or ???
 type="executable"
 # what language is it written in?

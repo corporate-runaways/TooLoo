@@ -6,11 +6,11 @@ chapter = true
 pre = "<b>1. </b>"
 +++
 
-### Commands
+### Utilities
 
-# A collection of commands I have created
+A collection of command line utilities I have created
 
-Meaningful description here
-
+Click the name of the command to see details, or find them under "All
+Commands" in the left navigation bar.
 
 [% md_table %]

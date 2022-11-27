@@ -48,6 +48,7 @@ our sub export-hugo(IO::Path $target_directory, DB::SQLite $sqlite) returns Bool
 					 :$tags_statement_handle,
 					 :$template,
 					 :$target_directory);
+	say("Export complete.");
 
 }
 
@@ -56,6 +57,7 @@ my sub export-index-page(@commands,
 						 Template6 :$template,
 						 :$target_directory) {
 
+	say("Generating Table of Contents...");
 	my $index_markdown =  generate-index-markdown(@commands, $template);
 	# TODO: make this configurable to work with systems other than hugo
 	my $filename = '_index.md';
@@ -69,6 +71,7 @@ my sub export-details-pages(@commands,
 							:$target_directory
 						   ){
 	for @commands -> $command_hash {
+		say("Generating page for $command_hash<name>...");
 		my $tags_list = get-tags-for-command($command_hash<id>, $tags_statement_handle);
 		$command_hash<tags> = $tags_list;
 		$command_hash<has_tags> = ! $tags_list.is-empty;

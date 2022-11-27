@@ -36,6 +36,7 @@
     "TooLoo::Ingester": "lib/TooLoo/Ingester.rakumod",
     "TooLoo::Metadata": "lib/TooLoo/Metadata.rakumod",
     "TooLoo::Resourcer": "lib/TooLoo/Resourcer.rakumod",
+    "TooLoo::Server": "lib/TooLoo/Server.rakumod",
     "TooLoo::Templatizer": "lib/TooLoo/Templatizer.rakumod",
     "TooLoo::TerminalUtilities": "lib/TooLoo/TerminalUtilities.rakumod"
   },

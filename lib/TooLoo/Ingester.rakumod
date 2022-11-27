@@ -205,6 +205,10 @@ sub remove-command(Str $command_name, DB::SQLite $sqlite) returns Bool is export
 
 
 our sub executable-list(%command) {
+	my $asciicast_url = (%command<asciicast_url> or Nil);
+	if $asciicast_url {
+		$asciicast_url = expand-tilde($asciicast_url);
+	}
 	   [
 		   %command<name>, # guaranteed present
 		    %command<short_description>,
@@ -215,7 +219,7 @@ our sub executable-list(%command) {
 			( %command<language> or Nil ),
 			( %command<source_url> or Nil ),
 			( %command<source_repo_url> or Nil ),
-			( %command<asciicast_url> or Nil )
+			( $asciicast_url )
 	   ]
 }
 

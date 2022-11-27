@@ -45,8 +45,7 @@ our sub serve(Str $host, Int $port, DB::SQLite $sqlite) is export {
 				my $json_string = to-json(%json_data);
 				$http_conn.print: qq:heredoc/END/;
 					HTTP/1.1 { %json_data{'status'} } { HTTP::Status(%json_data{'status'}).title }
-					Content-Type: application/json; charset=UTF-8
-					Content-Encoding: UTF-8
+					Content-Type: application/json
 
 					$json_string
 					END
@@ -76,6 +75,7 @@ multi sub generate-show-json(Str $command_name, DB::SQLite::Connection $connecti
 	if $maybe_command ~~ Some {
 		my $command_hash = $maybe_command.value;
 		$command_hash{'usage'} = extract-command-usage($command_hash);
+		$command_hash{'tags'}=get-tags-for-command($command_hash<id>, $connection);
 		%json_data{'command'} = $command_hash;
 	} else {
 		%json_data{'error'} = "Couldn't find command: $command_name";

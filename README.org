@@ -305,6 +305,82 @@ In addition:
   - If it is not populated there will be an =asciicast= key with a False value.
   - If it appears to be a web URL (something starting with =http= or =https=) an additional key named =asciicast_web_url= will be added and =asciicast_url= will be removed.
   - If it is populated and does not appear to be a web URL it will be left untouched.
+* JSON & REST API
+Want to feed this data into other systems? Maybe make a GUI for it?
+
+These interaction methods are both /read-only/. In addition to the command data you see in normal output there is a =version= key that indicates the current version of TooLoo that is producing the data, and a =status= key, which corresponds to an [[https://developer.mozilla.org/en-US/docs/Web/HTTP/Status][HTTP status code]].
+
+If an error is encountered there will also be an =error= key with a human readable error message.
+
+
+** Command Line JSON
+We have two commands to facilitate JSON on the command line.
+- =show-json <command_name>=
+  Generates JSON with the details of the command. Contains the same information you'd see from the =show= command but in JSON format.
+
+  #+begin_src
+  {
+    "version": "2.0.0",
+    "status": 200,
+    "command": {
+       "name": "foo",
+       "type": "executable"
+       ...
+    }
+  }
+  #+end_src
+- =list-json=
+  Generates JSON with the name and short description of each command.
+  #+begin_src
+  {
+    "version": "2.0.0",
+    "status": 200,
+    "commands": [
+        {
+        "name": "foo",
+        "type": "executable"
+        ...
+        },
+        {
+        "name": "bar",
+        "type": "executable"
+        ...
+        }
+    ]
+  }
+  #+end_src
+
+** REST API Server
+TooLoo can be started as a server, with two endpoints:
+
+- =/= or =/list=
+  - same output as =list-json= above.
+- =/show/command_name=
+  - same output as =show-json= above.
+
+To start the server run the following:
+
+#+begin_src
+tooloo serve <hostname> [port]
+#+end_src
+
+Hostname can be =localhost=, =127.0.0.1=, =0.0.0.0=, or any other valid hostname in your system.
+Port is optional and defaults to =6996=
+
+To run it in the background launch it as follows
+
+#+begin_src
+tooloo serve <hostname> [port] &; disown
+#+end_src
+
+*** Race Conditions
+TooLoo uses SQLite under the covers, and as such only one process can access the database at a time. This means that there is technically a small possibility that if a request comes in from the command line AND from the web server at the same time, the 2nd process will get an error about the DB being locked.
+
+However  TooLoo is a single user tool, so YOU would have to use the web server AND the command line at exactly the same moment, which would be very impressive, and if you manage to do it we want video. ;)
+
+Should you be concerned about this? No.
+
+** Starting
 
 * Miscellany
 ** Contributing

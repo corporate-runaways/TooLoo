@@ -30,22 +30,12 @@ Metadata:
 [% end %]
 
 [% if asciicast %]
-  <div id='[% id %]-asciicast'></div>
-  <script>
-   AsciinemaPlayer.create(
-	   [% if asciicast_url %]
-       "/asciicast/[% safename %]"
-	   [% end %]
-	   [% if asciicast_web_url %]
-	   "[% asciicast_web_url %]"
-	   [% end %]
-	   ,
-       document.getElementById('[% id %]-asciicast'),
-       {terminalLineHeight: 2}
-   );
-   // terminalLineHeight: 2 because at larger font sizes the lines start to overlap.
-  </script>
+<div id='[% id %]-asciicast'></div>
+<!-- do NOT break the following script over multiple lines or you will cry -->
+<script>AsciinemaPlayer.create([% if asciicast_filename %]"/asciicasts/[%
+asciicast_filename %]"[% else %]"[% asciicast_web_url %]"[% end %], document.getElementById('[% id %]-asciicast'), {terminalLineHeight: 2} ); </script>
 [% end %]
+
 
 [% if has_tags %]
 Tags:

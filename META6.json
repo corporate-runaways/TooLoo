@@ -42,7 +42,9 @@
   },
   "resources": [
     "data/tooloo/database.db",
-    "config/tooloo/template.toml"
+    "config/tooloo/template.toml",
+    "config/tooloo/markdown_details_template.tt",
+    "config/tooloo/markdown_index_template.tt"
   ],
   "source-url": "https://tooloo.dev",
   "tags": [

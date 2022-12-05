@@ -6,19 +6,11 @@ or what some of them do? Try TooLoo!
 
 # What does it do?
 
-TooLoo allows provides a [full text
-search](https://en.wikipedia.org/wiki/Full-text_search) of the name,
-description, and details of your scripts. When a script includes a
-\"help\" command, TooLoo will call it and display current usage docs
-instead of potentially outdated ones from its cache.
+TooLoo allows provides a [full text search](https://en.wikipedia.org/wiki/Full-text_search) of the name, description, and details of your scripts. When a script includes a \"help\" command, TooLoo will call it and display current usage docs instead of potentially outdated ones from its cache.
 
 Scroll down to see some examples of its output.
 
-Additionally, TooLoo can generate a static web site with a built-in
-[Lunr](https://lunrjs.com/) search to document all your commands. To
-accomplish this, TooLoo generates the Markdown files, and
-[Hugo](https://gohugo.io/) builds the search index, and converts it to a
-site for you.
+Additionally, TooLoo can generate a static web site with a built-in [Lunr](https://lunrjs.com/) search to document all your commands. To accomplish this, TooLoo generates the Markdown files, and [Hugo](https://gohugo.io/) builds the search index, and converts it to a site for you.
 
 # Usage
 

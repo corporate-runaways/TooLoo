@@ -173,3 +173,27 @@ test_30_add-many() {
 	ingestion_output=$(XDG_DATA_HOME=$XDG_DATA_HOME $TOOLOO_INVOCATION add-many $TEST_DATA_DIR | tail -n1);
 	assert_equals "3 files were successfuly ingested out of 3 total files with .toml or .cast extensions." "$ingestion_output";
 }
+
+test_31_list-json(){
+	# WARNING: ORDER OF JSON ELEMENTS IS NOT GUARANTEED
+	command -v jq > /dev/null
+	if [ $? -eq 0 ]; then
+		list_json_output=$(XDG_DATA_HOME=$XDG_DATA_HOME $TOOLOO_INVOCATION list-json | jq '.commands | length');
+		assert_equals '2' "$list_json_output"
+	else
+		echo "SKIPPING list-json TEST. jq isn't installed"
+		assert true
+	fi
+}
+
+test_32_show-json(){
+	# WARNING: ORDER OF JSON ELEMENTS IS NOT GUARANTEED
+	command -v jq > /dev/null
+	if [ $? -eq 0 ]; then
+		show_json_output=$(XDG_DATA_HOME=$XDG_DATA_HOME $TOOLOO_INVOCATION show-json raku_test_no_demo | jq '.command.name' );
+		assert_equals '"raku_test_no_demo"' "$show_json_output"
+	else
+		echo "SKIPPING show-json TEST. jq isn't installed"
+		assert true
+	fi
+}

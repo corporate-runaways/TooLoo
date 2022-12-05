@@ -24,8 +24,8 @@
     "XDG::BaseDirectory",
     "XDG::GuaranteedResources"
   ],
-  "description": "TooLoo [Too]l[Loo]kup helps you document & find your utility scripts",
-  "license": "GPL-3.0-or-later",
+  "description": "TooLoo helps you document & find your utility scripts",
+  "license": "AGPL-3.0-or-later",
   "name": "TooLoo",
   "perl": "6.d",
   "provides": {
@@ -44,7 +44,7 @@
     "data/tooloo/database.db",
     "config/tooloo/template.toml"
   ],
-  "source-url": "https://github.com/masukomi/TooLoo",
+  "source-url": "https://tooloo.dev",
   "tags": [
     "cli",
     "scripting"

@@ -1,3 +1,18 @@
+## [2.0.0] - 2022-12-05
+### Added
+*  Added an optional read-only REST API
+* [\[6\]](https://github.com/corporate-runaways/TooLoo/issues/6) Added support for asciicasts (Asciinema)
+* [\[9\]](https://github.com/corporate-runaways/TooLoo/issues/9) Added support for tags
+* [\[5\]](https://github.com/corporate-runaways/TooLoo/issues/5) Can now export to Markdown
+*  Can now output JSON
+*  Added the ability to ingest all .toml files in a directory
+
+### Changed
+*  New tables & columns in the db
+*  DB now lives under XDG_DATA_HOME
+*  Default Templates now suffixed with .toml instead of .meta.toml
+* [\[11\]](https://github.com/corporate-runaways/TooLoo/issues/11) Changed license to AGPL
+
 ## [1.0.1] - 2022-10-05
 ### Fixed
 *  changed README markup format

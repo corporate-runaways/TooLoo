@@ -1,0 +1,1 @@
+{"type":"Fixed","tickets":[],"description":"Fixed handling of Asciinema for small (normal) font users in md export. Requires updated tooloo_blank_site files.","tags":["export"]}

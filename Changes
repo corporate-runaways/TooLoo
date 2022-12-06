@@ -1,27 +1,21 @@
+## [2.0.1] - 2022-12-06
+### Fixed
+*  Fixed handling of Asciinema for small (normal) font users in md export. Requires updated tooloo_blank_site files.
+
 ## [2.0.0] - 2022-12-05
-### WARNING
-This release has breaking changes to the database.
-If you were using Clu (the old name) v1.x
-See this document for upgrade instructions.
-
-https://github.com/corporate-runaways/TooLoo/blob/main/docs/1_to_2_upgrade.md
-
-
 ### Added
-* Added an optional read-only REST API
-* Added support for asciicasts (Asciinema)
-* Added support for tags
-* Can now export to Markdown
-* Can now output JSON
-* Added the ability to ingest all .toml files in a directory
+*  Added an optional read-only REST API
+* [\[6\]](https://github.com/corporate-runaways/TooLoo/issues/6) Added support for asciicasts (Asciinema)
+* [\[9\]](https://github.com/corporate-runaways/TooLoo/issues/9) Added support for tags
+* [\[5\]](https://github.com/corporate-runaways/TooLoo/issues/5) Can now export to Markdown
+*  Can now output JSON
+*  Added the ability to ingest all .toml files in a directory
 
 ### Changed
-* New tables & columns in the db
-* DB now lives under XDG_DATA_HOME
-* Default Templates now suffixed with .toml instead of .meta.toml
-* Changed license to AGPL
-
-
+*  New tables & columns in the db
+*  DB now lives under XDG_DATA_HOME
+*  Default Templates now suffixed with .toml instead of .meta.toml
+* [\[11\]](https://github.com/corporate-runaways/TooLoo/issues/11) Changed license to AGPL
 
 ## [1.0.1] - 2022-10-05
 ### Fixed

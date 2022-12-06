@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS "commands_tags" (
 	"tag_id"	INTEGER NOT NULL,
 	PRIMARY KEY("tag_id","command_id")
 );
-INSERT INTO "clu_metadata" ("key","value") VALUES ('db_version','2.0.0');
+INSERT INTO "clu_metadata" ("key","value") VALUES ('db_version','2.0.1');
 -- Commands FTS triggers
 CREATE TRIGGER commands_fts_insert AFTER INSERT ON commands
 BEGIN

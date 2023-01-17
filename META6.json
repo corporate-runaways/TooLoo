@@ -20,6 +20,7 @@
     "Template6",
     "Terminal::ANSIColor",
     "Terminal::Width",
+    "Test::Output",
     "Text::MiscUtils",
     "XDG::BaseDirectory",
     "XDG::GuaranteedResources"
@@ -53,5 +54,5 @@
   ],
   "test-depends": [
   ],
-  "version": "2.0.1"
+  "version": "2.0.2"
 }

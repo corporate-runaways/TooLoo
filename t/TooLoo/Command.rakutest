@@ -6,38 +6,41 @@ use Terminal::ANSIColor; # to uncolor output for easier testing
 
 
 my %test_command = id					=> 123,
-				   name					=> 'ls',
-				   short_description	=> 'lists the contents of directories',
+				   name					=> 'raku',
+				   short_description	=> "You're soaking in it.",
 				   description			=> 'a detailed description',
-				   usage_command    	=> 'man ls | head -n 4',
+				   usage_command    	=> 'raku --help | tail -n 8',
 				   fallback_usage   	=> Nil,
 				   language		    	=> 'c',
 				   type			    	=> 'executable',
-				   source_url			=> 'https://github.com/wertarbyte/coreutils/blob/master/src/ls.c',
-				   source_repo_url		=> 'https://github.com/wertarbyte/coreutils',
+				   source_url			=> Nil,
+				   source_repo_url		=> 'https://example.com/dunno',
                    tags                 => ['cli', 'utility'];
 
 my $expected_output = q:to/END/;
-┌───────────────────┬──────────────────────────────────────────────────────────────────────────────────┐
-│ Attribute         │ Detail                                                                           │
-├───────────────────┼──────────────────────────────────────────────────────────────────────────────────┤
-│ command           │ ls                                                                               │
-│ short description │ lists the contents of directories                                                │
-│                   │                                                                                  │
-│ full description  │ a detailed description                                                           │
-│                   │                                                                                  │
-│ usage             │ LS(1)                        General Commands Manual                       LS(1) │
-│                   │                                                                                  │
-│                   │ NAME                                                                             │
-│                   │      ls – list directory contents                                                │
-│                   │                                                                                  │
-│ type              │ executable                                                                       │
-│ language          │ c                                                                                │
-│ location          │ /bin/ls                                                                          │
-│ source repo       │ https://github.com/wertarbyte/coreutils                                          │
-│ source url        │ https://github.com/wertarbyte/coreutils/blob/master/src/ls.c                     │
-│ tags              │ cli, utility                                                                     │
-└───────────────────┴──────────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────┬────────────────────────────────────────────────────────────────┐
+│ Attribute         │ Detail                                                         │
+├───────────────────┼────────────────────────────────────────────────────────────────┤
+│ command           │ raku                                                           │
+│ short description │ You're soaking in it.                                          │
+│                   │                                                                │
+│ full description  │ a detailed description                                         │
+│                   │                                                                │
+│ usage             │ The following environment variables are respected:             │
+│                   │                                                                │
+│                   │   RAKULIB     Modify the module search path                    │
+│                   │   PERL6LIB    Modify the module search path # to be deprecated │
+│                   │   RAKUDO_HOME Override the path of the Rakudo runtime files    │
+│                   │   NQP_HOME    Override the path of the NQP runtime files       │
+│                   │                                                                │
+│                   │                                                                │
+│                   │                                                                │
+│ type              │ executable                                                     │
+│ language          │ c                                                              │
+│ location          │ /Users/masukomi/.rakubrew/versions/moar-2022.12/bin/raku       │
+│ source repo       │ https://example.com/dunno                                      │
+│ tags              │ cli, utility                                                   │
+└───────────────────┴────────────────────────────────────────────────────────────────┘
 END
 
 display-command(%test_command);
@@ -46,8 +49,8 @@ display-command(%test_command);
 my $stripped_output = colorstrip( output-from {display-command(%test_command)});
 # NOTE: leave these here to simplify getting new expected output when
 # we change what it's supposed to look like.
-# spurt 'stripped_output.txt', $stripped_output;
-# spurt 'expected_output.txt', $expected_output;
+spurt 'stripped_output.txt', $stripped_output;
+spurt 'expected_output.txt', $expected_output;
 is $stripped_output, $expected_output, 'testing display-command';
 
 

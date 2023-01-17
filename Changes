@@ -1,3 +1,13 @@
+
+## [2.0.2] - 2023-01-17
+### Fixed
+*  Test passes again under Ventura
+   Apple changed something that affected the output of "man"
+   in some magical whitespace altering way. Modified test to test the
+   output of raku
+*  Specified Test::Output as a dependency
+   This is not new. It just slipped through the cracks before. 
+
 ## [2.0.1] - 2022-12-06
 ### Fixed
 *  Fixed handling of Asciinema for small (normal) font users in md export. Requires updated tooloo_blank_site files.
